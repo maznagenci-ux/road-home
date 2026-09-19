@@ -1,0 +1,36 @@
+{
+  "id": "2540",
+  "title": "Qarabuy Gird Jutyar",
+  "titleKu": "قەرەبووی گرد جوتیار",
+  "tileFolder": "2540_aaisb",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/2540_aaisb/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 5,
+  "center": {
+    "x": 2952.066988804205,
+    "y": 1711.1936990866084
+  },
+  "image": {
+    "width": 6656,
+    "height": 4096,
+    "corners": {
+      "tl": [
+        36.294836,
+        43.980269
+      ],
+      "tr": [
+        36.295439,
+        44.026698
+      ],
+      "br": [
+        36.27101,
+        44.028494
+      ],
+      "bl": [
+        36.2704,
+        43.982029
+      ]
+    }
+  },
+  "pointerCount": 2122
+}

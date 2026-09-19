@@ -1,0 +1,15 @@
+{
+  "id": "1818",
+  "title": "Qaiwan Mirador",
+  "titleKu": "قيوان ميرادور",
+  "tileFolder": "1818_qyvhg",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/1818_qyvhg/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 4,
+  "center": {
+    "x": 976.5835469166291,
+    "y": 998.8086610693767
+  },
+  "image": null,
+  "pointerCount": 181
+}

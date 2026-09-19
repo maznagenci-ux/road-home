@@ -1,0 +1,36 @@
+{
+  "id": "2476",
+  "title": "Qarabuy Rashken (Terminal Plots)",
+  "titleKu": "قەرەبووی رەشکین (زەوییەکانی تێرمیناڵ)",
+  "tileFolder": "2476_bbsp0",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/2476_bbsp0/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 4,
+  "center": {
+    "x": 980.134059488898,
+    "y": 1523.9394190184557
+  },
+  "image": {
+    "width": 2048,
+    "height": 3072,
+    "corners": {
+      "tl": [
+        36.197314,
+        44.033106
+      ],
+      "tr": [
+        36.19389,
+        44.047386
+      ],
+      "br": [
+        36.174203,
+        44.042839
+      ],
+      "bl": [
+        36.1776,
+        44.028565
+      ]
+    }
+  },
+  "pointerCount": 198
+}

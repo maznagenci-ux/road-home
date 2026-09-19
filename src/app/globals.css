@@ -1,0 +1,415 @@
+@import "tailwindcss";
+
+/* Theme toggle uses .dark / .light on <html> — not prefers-color-scheme alone */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Road Home design tokens (Tailwind v4 + Shadcn-compatible) ─── */
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: var(--font-vazirmatn), "Noto Kufi Arabic", Tahoma, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-success: hsl(var(--success));
+  --color-warning: hsl(var(--warning));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+}
+
+/* Legacy aliases used by existing layout components */
+:root {
+  --brand: hsl(var(--primary));
+  --brand-subtle: hsl(var(--primary) / 0.14);
+  --bg-base: hsl(var(--background));
+  --bg-surface: hsl(var(--card));
+  --bg-sidebar: hsl(var(--sidebar));
+  --bg-elevated: hsl(var(--popover));
+  --bg-hover: hsl(var(--accent));
+  --text-primary: hsl(var(--foreground));
+  --text-secondary: hsl(var(--muted-foreground));
+  --text-muted: hsl(var(--muted-foreground));
+  --border: hsl(var(--border));
+  --content-bg: hsl(var(--background));
+}
+
+/*
+  Admin panel — clean finance SaaS
+  charcoal sidebar · soft slate canvas · teal accent · white cards
+*/
+:root {
+  --radius: 0.875rem;
+  --background: 220 20% 97%; /* #F4F6F9 */
+  --foreground: 222 32% 14%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 32% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 32% 14%;
+  --primary: 168 58% 34%; /* teal #249B8A */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 16% 94%;
+  --secondary-foreground: 222 28% 20%;
+  --muted: 220 16% 94%;
+  --muted-foreground: 220 10% 42%;
+  --accent: 168 40% 94%;
+  --accent-foreground: 168 55% 24%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 16% 90%;
+  --input: 220 16% 90%;
+  --ring: 168 58% 34%;
+  --sidebar: 222 28% 14%; /* charcoal slate #1A2332 */
+  --sidebar-foreground: 210 25% 96%;
+  --sidebar-border: 222 22% 20%;
+  --sidebar-accent: 222 22% 20%;
+  --success: 152 55% 36%;
+  --warning: 38 92% 48%;
+  --rh-cash: #249b8a;
+  --rh-pending: #e8a317;
+  --rh-payable: #e5484d;
+  --rh-surface: #ffffff;
+  --rh-base: #f4f6f9;
+  --rh-border: #e4e8ef;
+}
+
+/*
+  Dark mode — matched charcoal + teal
+*/
+.dark {
+  --background: 222 30% 8%;
+  --foreground: 210 25% 96%;
+  --card: 222 26% 12%;
+  --card-foreground: 210 25% 96%;
+  --popover: 222 26% 12%;
+  --popover-foreground: 210 25% 96%;
+  --primary: 168 55% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 22% 16%;
+  --secondary-foreground: 210 25% 96%;
+  --muted: 222 22% 16%;
+  --muted-foreground: 215 12% 60%;
+  --accent: 168 28% 16%;
+  --accent-foreground: 168 45% 72%;
+  --destructive: 0 72% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 222 18% 18%;
+  --input: 222 18% 18%;
+  --ring: 168 55% 42%;
+  --sidebar: 222 32% 9%;
+  --sidebar-foreground: 210 25% 96%;
+  --sidebar-border: 222 20% 15%;
+  --sidebar-accent: 222 20% 15%;
+  --success: 152 50% 42%;
+  --warning: 38 92% 50%;
+  --rh-cash: #2db5a2;
+  --rh-pending: #e8a317;
+  --rh-payable: #e5484d;
+  --rh-surface: #171e2b;
+  --rh-base: #10151f;
+  --rh-border: #273041;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0;
+}
+
+[dir="rtl"] body {
+  font-family: var(--font-arabic);
+  letter-spacing: 0.01em;
+  word-spacing: 0.02em;
+  line-height: 1.7;
+}
+
+[dir="rtl"] input,
+[dir="rtl"] textarea,
+[dir="rtl"] select,
+[dir="rtl"] button {
+  font-family: inherit;
+}
+
+/* Soft white surface cards */
+.rh-card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-2xl);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.03), 0 6px 16px rgb(15 23 42 / 0.04);
+}
+
+.rh-input {
+  width: 100%;
+  border-radius: calc(var(--radius) - 2px);
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--background));
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  outline: none;
+}
+.rh-input:focus {
+  border-color: hsl(var(--primary) / 0.55);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.16);
+}
+
+/* Active nav — teal chip on charcoal sidebar */
+.rh-nav-active {
+  background: hsl(var(--primary) / 0.2);
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.4);
+}
+
+.dark .rh-card {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25), 0 8px 20px rgb(0 0 0 / 0.18);
+}
+
+.dark .rh-nav-active {
+  background: hsl(var(--primary) / 0.24);
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.45);
+}
+
+/* Thin, theme-matched scrollbars */
+.rh-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+.rh-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.rh-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rh-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 999px;
+}
+.rh-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.35);
+}
+.rh-scroll-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.22) transparent;
+}
+.rh-scroll-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.rh-scroll-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.rh-scroll-sidebar::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.2);
+  border-radius: 999px;
+}
+.rh-scroll-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgb(255 255 255 / 0.35);
+}
+
+/* Login city showcase motions */
+@keyframes rh-ken-burns {
+  from {
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+.rh-ken-burns {
+  animation: rh-ken-burns 7s ease-out forwards;
+  will-change: transform;
+}
+
+@keyframes rh-city-caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rh-city-caption {
+  animation: rh-city-caption-in 0.55s ease-out both;
+}
+
+@keyframes rh-dash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rh-dash-rise {
+  animation: rh-dash-rise 0.55s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rh-ken-burns,
+  .rh-city-caption,
+  .rh-dash-rise {
+    animation: none !important;
+  }
+}
+
+/* Erbil plot markers on Leaflet map */
+.rh-plot-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.rh-plot-pin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 0.65rem;
+  background: #0b1f38;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 3px 10px rgba(15, 39, 68, 0.4);
+  border: 2px solid #fff;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+.rh-plot-pin .rh-plot-no {
+  letter-spacing: 0.02em;
+}
+.rh-plot-pin::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-top-color: #0b1f38;
+}
+.leaflet-tooltip.rh-plot-label {
+  background: #fff;
+  border: 1.5px solid #0b1f38;
+  color: #0b1f38;
+  font-weight: 800;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 8px;
+  padding: 3px 8px;
+  box-shadow: 0 2px 8px rgba(15, 39, 68, 0.18);
+}
+.leaflet-tooltip.rh-plot-label::before {
+  border-top-color: #0b1f38 !important;
+}
+.rh-map-pin-mode,
+.rh-map-pin-mode .leaflet-container {
+  cursor: crosshair !important;
+}
+.leaflet-container {
+  font-family: inherit;
+}
+
+.rh-compound-map .leaflet-tile-pane {
+  filter: none;
+}
+.rh-compound-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.rh-compound-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.4rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.5rem;
+  background: #c45c26;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.rh-compound-pin.is-active {
+  background: #0b1f38;
+  transform: scale(1.08);
+}
+
+/* A4 contract print engine */
+.a4-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 16mm 14mm;
+  box-sizing: border-box;
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .a4-sheet,
+  .a4-sheet * {
+    visibility: visible !important;
+  }
+  .a4-sheet {
+    position: absolute;
+    inset: 0;
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0;
+    box-shadow: none !important;
+    background: white !important;
+    color: black !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+}

@@ -1,0 +1,3866 @@
+[
+  {
+    "id": "226",
+    "title": "ئەتلانتیک ستی",
+    "titleEn": "ئەتلانتیک ستی",
+    "keywords": "Atlantic City,بەرامبەر زانکۆی بەریتانی نێودەولەتی,اتلانتك ستي,ئەتلانتیک ستی,Atlantic City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/226"
+  },
+  {
+    "id": "1611",
+    "title": "زەیتون پڵەس ستی",
+    "titleEn": "زەیتون پڵەس ستی",
+    "keywords": "Zaiton Plus City,زيتون بلص ستي,زەیتون پڵەس ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1611"
+  },
+  {
+    "id": "1818",
+    "title": "قەیوان میرادۆر",
+    "titleEn": "قەیوان میرادۆر",
+    "keywords": "Qaiwan Mirador,قيوان ميرادور,قەیوان میرادۆر,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1818"
+  },
+  {
+    "id": "550",
+    "title": "وەیڤی ئەڤێنیو",
+    "titleEn": "وەیڤی ئەڤێنیو",
+    "keywords": "Wavey Avenue,ويفي افينيو,وەیڤی ئەڤێنیو,Wave Avenue",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/550"
+  },
+  {
+    "id": "825",
+    "title": "ڕامی تاوەرز",
+    "titleEn": "ڕامی تاوەرز",
+    "keywords": "Rami Towers,رامي تاورز,ڕامی تاوەر��,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/825"
+  },
+  {
+    "id": "1187",
+    "title": "لالاڤ ئێرپۆرت ڤیو",
+    "titleEn": "لالاڤ ئێرپۆرت ڤیو",
+    "keywords": "Lalav Airport View,لالاف ايربورت فيو,لالاڤ ئێرپۆرت ڤیو,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1187"
+  },
+  {
+    "id": "232",
+    "title": "لالاڤ سکای ڤیو",
+    "titleEn": "لالاڤ سکای ڤیو",
+    "keywords": "Lalav Sky View,لالاف سكاي فيو,لالاڤ سکای ڤیو,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/232"
+  },
+  {
+    "id": "1363",
+    "title": "ئیسکان تاوەرز",
+    "titleEn": "ئیسکان تاوەرز",
+    "keywords": "Eskan Towers,اسكان تاورز,ئیسکان تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1363"
+  },
+  {
+    "id": "224",
+    "title": "گوندی ئارام",
+    "titleEn": "گوندی ئارام",
+    "keywords": "Aram village,قرية ارام,گوندی ئارام,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/224"
+  },
+  {
+    "id": "1574",
+    "title": "لالاڤ نۆڤا تاوەرز",
+    "titleEn": "لالاڤ نۆڤا تاوەرز",
+    "keywords": "Lalav Nova Towers,لالاف نوفا تاورز,لالاڤ نۆڤا تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1574"
+  },
+  {
+    "id": "1575",
+    "title": "لالاڤ ڤینۆس تاوەرز",
+    "titleEn": "لالاڤ ڤینۆس تاوەرز",
+    "keywords": "Lalav Venus Tower,لالاف فينوس تاور,لالاڤ ڤینۆس تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1575"
+  },
+  {
+    "id": "1414",
+    "title": "ئیمپایەر پیرڵ تاوەرز",
+    "titleEn": "ئیمپایەر پیرڵ تاوەرز",
+    "keywords": "Empire Pearl Towers,امباير بيرل تاورز,ئیمپایەر پیرڵ تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1414"
+  },
+  {
+    "id": "1364",
+    "title": "گوندی ئیتاڵی 2",
+    "titleEn": "گوندی ئیتاڵی 2",
+    "keywords": "Italian village 2,القرية الايطالية 2,گوندی ئیتاڵی 2,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1364"
+  },
+  {
+    "id": "1554",
+    "title": "لالاڤ توین تاوەرز",
+    "titleEn": "لالاڤ توین تاوەرز",
+    "keywords": "Lalav Twin Towers,لالاف توين تاورز,لالاڤ توین تاوەرز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1554"
+  },
+  {
+    "id": "842",
+    "title": "ئازادی نوێ (ئەتکۆنز)",
+    "titleEn": "ئازادی نوێ (ئەتکۆنز)",
+    "keywords": "New Azadi (Atconz),ازادي الجديد (اتكونز),ئازادی نوێ (ئەتکۆنز),Yeni Azadi (Atconz)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/842"
+  },
+  {
+    "id": "274",
+    "title": "ناز ناز",
+    "titleEn": "ناز ناز",
+    "keywords": "Naz Naz,ناز ن��ز,ناز ناز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/274"
+  },
+  {
+    "id": "1292",
+    "title": "گوندی ئیسپانی",
+    "titleEn": "گوندی ئیسپانی",
+    "keywords": "Spanish Village,القرية الاسبانية,گوندی ئیسپانی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1292"
+  },
+  {
+    "id": "1607",
+    "title": "زانێر ستی",
+    "titleEn": "زانێر ستی",
+    "keywords": "Zaner City,زانير ستي,زانێر ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1607"
+  },
+  {
+    "id": "1795",
+    "title": "ڕەسەن تاورز",
+    "titleEn": "ڕەسەن تاورز",
+    "keywords": "Rasan Towers,رسن تاورز,ڕەسەن تاورز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1795"
+  },
+  {
+    "id": "255",
+    "title": "گرد جوتیار",
+    "titleEn": "گرد جوتیار",
+    "keywords": "Gird Jutyar,grd jutyar,كرد جوتيار,گرد جوتیار",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/255"
+  },
+  {
+    "id": "1855",
+    "title": "واو تاوەر",
+    "titleEn": "واو تاوەر",
+    "keywords": "Wow Tower,واو تاور,واو تاوەر,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1855"
+  },
+  {
+    "id": "278",
+    "title": "ڕۆیا تاوەرز",
+    "titleEn": "ڕۆیا تاوەرز",
+    "keywords": "Roya Tower,رويا تاورز,ڕۆیا تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/278"
+  },
+  {
+    "id": "1425",
+    "title": "پێشەنگ تاوەرز",
+    "titleEn": "پێشەنگ تاوەرز",
+    "keywords": "Peshang Towers,بيشنك تاورز,پێشەنگ تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1425"
+  },
+  {
+    "id": "1342",
+    "title": "MNW تاوەرز",
+    "titleEn": "MNW تاوەرز",
+    "keywords": "MNW Towers,MNW تاورز,MNW تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1342"
+  },
+  {
+    "id": "310",
+    "title": "مامۆستایان 1",
+    "titleEn": "مامۆستایان 1",
+    "keywords": "Mamostayan 1,ماموستايان 1,مامۆستایان 1,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/310"
+  },
+  {
+    "id": "1812",
+    "title": "کانی کاسا",
+    "titleEn": "کانی کاسا",
+    "keywords": "Kany Kasa,كاني كاسا,کانی کاسا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1812"
+  },
+  {
+    "id": "1813",
+    "title": "گوندی ئارام 2",
+    "titleEn": "گوندی ئارام 2",
+    "keywords": "Aram Village 2,قرية ارام 2,گوندی ئارام 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1813"
+  },
+  {
+    "id": "1399",
+    "title": "ئینگڵش تاوەرز",
+    "titleEn": "ئینگڵش تاوەرز",
+    "keywords": "English Tower,انكلش تاور,ئینگڵش تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1399"
+  },
+  {
+    "id": "1224",
+    "title": "تەلار ستی",
+    "titleEn": "تەلار ستی",
+    "keywords": "Talar City,تلار ستي,تەلار ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1224"
+  },
+  {
+    "id": "458",
+    "title": "هەولێری نوێ",
+    "titleEn": "هەولێری نوێ",
+    "keywords": "Hawlery Nwe,New Erbil,هوليري نوي,هەولێری نوێ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/458"
+  },
+  {
+    "id": "1811",
+    "title": "ئاسکۆ ئینتەرناشناڵ ستی",
+    "titleEn": "ئاسکۆ ئینتەرناشناڵ ستی",
+    "keywords": "Asco International City,اسكو انترناشنال ستي,ئاسکۆ ئینتەرناشناڵ ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1811"
+  },
+  {
+    "id": "993",
+    "title": "لالاڤ ستی ڤیو",
+    "titleEn": "لالاڤ ستی ڤیو",
+    "keywords": "Lalav City View,لالاف ستي فيو,لالاڤ ستی ڤیو,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/993"
+  },
+  {
+    "id": "1385",
+    "title": "پارك ڤیو",
+    "titleEn": "پارك ڤیو",
+    "keywords": "Park View,بارك فيو,پارك ڤیو,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1385"
+  },
+  {
+    "id": "1344",
+    "title": "ستار تاوەرز",
+    "titleEn": "ستار تاوەرز",
+    "keywords": "Star Towers,ستار تاورز,ستار تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1344"
+  },
+  {
+    "id": "1293",
+    "title": "مینی سلاڤا",
+    "titleEn": "مینی سلاڤا",
+    "keywords": "Mini Slava,ميني سلافا,مینی سلاڤا,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1293"
+  },
+  {
+    "id": "231",
+    "title": "دریم ستی",
+    "titleEn": "دریم ستی",
+    "keywords": "Dream City,دريم ستي,دریم ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/231"
+  },
+  {
+    "id": "2101",
+    "title": "داڤۆس ستی",
+    "titleEn": "داڤۆس ستی",
+    "keywords": "Davos City,داڤۆس ستی,دافوس ستي,Davos City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2101"
+  },
+  {
+    "id": "1821",
+    "title": "فۆرسیزن پارک",
+    "titleEn": "فۆرسیزن پارک",
+    "keywords": "Four Season Park,فورسيزن بارك,فۆرسیزن پارک,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1821"
+  },
+  {
+    "id": "1845",
+    "title": "برایەتی تاوەرس",
+    "titleEn": "برایەتی تاوەرس",
+    "keywords": "Brayati Towers,برايتي تاورز,برایەتی تاوەرس,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1845"
+  },
+  {
+    "id": "1441",
+    "title": "گوندی ئینگلیزی",
+    "titleEn": "گوندی ئینگلیزی",
+    "keywords": "English Village,القرية الانجليزية,گوندی ئینگلیزی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1441"
+  },
+  {
+    "id": "819",
+    "title": "گوندی ئیتاڵی 1",
+    "titleEn": "گوندی ئیتاڵی 1",
+    "keywords": "Italian Village 1,القرية الاطالية 1,گوندی ئیتاڵی 1,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/819"
+  },
+  {
+    "id": "2020",
+    "title": "ماجدی ڤیو",
+    "titleEn": "ماجدی ڤیو",
+    "keywords": "Majdi View,ماجدی ڤیو,ماجدي فيو,Macidi View",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2020"
+  },
+  {
+    "id": "1587",
+    "title": "ماس هیڵز",
+    "titleEn": "ماس هیڵز",
+    "keywords": "Mass Hills,ماس هيلز,ماس هیڵز,Mas Hills",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1587"
+  },
+  {
+    "id": "1616",
+    "title": "ماس ڤیڵەیج",
+    "titleEn": "ماس ڤیڵەیج",
+    "keywords": "Mass Village,ماس فيليج,ماس ڤیڵەیج",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1616"
+  },
+  {
+    "id": "2061",
+    "title": "ماونتن ڤیو",
+    "titleEn": "ماونتن ڤیو",
+    "keywords": "Mountain View,ماونتن ڤیو,ماونتن فيو,Mountaın View",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2061"
+  },
+  {
+    "id": "1638",
+    "title": "رێماس ستی",
+    "titleEn": "رێماس ستی",
+    "keywords": "Remas City,ريماس ستي,رێماس ستی,Remas City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1638"
+  },
+  {
+    "id": "258",
+    "title": "شاهان ستی",
+    "titleEn": "شاهان ستی",
+    "keywords": "Shahan City,شاهان ستي,شاهان ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/258"
+  },
+  {
+    "id": "2102",
+    "title": "گوندی ئیسپانی 2",
+    "titleEn": "گوندی ئیسپانی 2",
+    "keywords": "Spanish Village 2,گوندی ئیسپانی 2,قرية إسبانية 2,İspanyol Village 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2102"
+  },
+  {
+    "id": "1336",
+    "title": "گوندی ڤیتاڵ",
+    "titleEn": "گوندی ڤیتاڵ",
+    "keywords": "Vital Village,قرية فيتال,گوندی ڤیتاڵ,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1336"
+  },
+  {
+    "id": "975",
+    "title": "8 حەسارۆك",
+    "titleEn": "8 حەسارۆك",
+    "keywords": "8 Hasarok,Hashti Hasarok,8 حساروك,8 حەسارۆك",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/975"
+  },
+  {
+    "id": "289",
+    "title": "5 حەسارۆك",
+    "titleEn": "5 حەسارۆك",
+    "keywords": "5 Hasarok,Penji Hasarok,5 حساروك,5 حەسارۆك",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/289"
+  },
+  {
+    "id": "390",
+    "title": "فەرمانبەران",
+    "titleEn": "فەرمانبەران",
+    "keywords": "Farmanbaran,فرمانبران,فەرمانبەران,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/390"
+  },
+  {
+    "id": "438",
+    "title": "وەزیران (پەرلەمان)",
+    "titleEn": "وەزیران (پەرلەمان)",
+    "keywords": "Wazyiran,Ministers,وز��ران(برلمان),وەزیران (پەرلەمان)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/438"
+  },
+  {
+    "id": "227",
+    "title": "بەختیاری",
+    "titleEn": "بەختیاری",
+    "keywords": "Bakhtyari,بختياري,بەختیاری,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/227"
+  },
+  {
+    "id": "1597",
+    "title": "سێنترەڵ پارک",
+    "titleEn": "سێنترەڵ پارک",
+    "keywords": "Central Park,سنترال بارك,سێنترەڵ پارک",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1597"
+  },
+  {
+    "id": "626",
+    "title": "شاری مامۆستایان",
+    "titleEn": "شاری مامۆستایان",
+    "keywords": "Shari Mamostayan,شاري ماموستايان,شاری مامۆستایان",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/626"
+  },
+  {
+    "id": "2173",
+    "title": "گەرە سۆر",
+    "titleEn": "گەرە سۆر",
+    "keywords": "Gara Soor,گەرە سۆر,كارا سور,Gara Soor",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2173"
+  },
+  {
+    "id": "1298",
+    "title": "شاری ئابوریناسان",
+    "titleEn": "شاری ئابوریناسان",
+    "keywords": "Aburinasan City,ابوريناسان ستي,شاری ئابوریناسان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1298"
+  },
+  {
+    "id": "256",
+    "title": "قەرەبووی کۆری (تاپۆ)",
+    "titleEn": "قەرەبووی کۆری (تاپۆ)",
+    "keywords": "Qarabuy Kori (Tapo),Bakhtawari,قربوي کوري (تابو),قەرەبووی کۆری (تاپۆ),Bahtawari (Tapo)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/256"
+  },
+  {
+    "id": "254",
+    "title": "گەنجان ستی",
+    "titleEn": "گەنجان ستی",
+    "keywords": "Ganjan City,كنجان ستي,گەنجان ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/254"
+  },
+  {
+    "id": "426",
+    "title": "32 پارک (سەربەستی)",
+    "titleEn": "32 پارک (سەربەستی)",
+    "keywords": "32 Park (Sarbasti),Sarbasti,32 بارك (سربستي),32 پارک (سەربەستی)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/426"
+  },
+  {
+    "id": "1471",
+    "title": "سێبەردان",
+    "titleEn": "سێبەردان",
+    "keywords": "Sebardan,سيبردان,سێبەردان",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1471"
+  },
+  {
+    "id": "1331",
+    "title": "159 گوڵان (گوڵان 2)",
+    "titleEn": "159 گوڵان (گوڵان 2)",
+    "keywords": "159 Gulan (Gulan 2),159 كولان (كولان 2),159 گوڵان (گوڵان 2),159 Gulan (Gulan 2)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1331"
+  },
+  {
+    "id": "1867",
+    "title": "نۆرس هۆلەند",
+    "titleEn": "نۆرس هۆلەند",
+    "keywords": "North Holand,نورث هولند,نۆرس هۆلەند,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1867"
+  },
+  {
+    "id": "1419",
+    "title": "ڕێنا تاوەرز",
+    "titleEn": "ڕێنا تاوەرز",
+    "keywords": "Rena Towers,رينا تاورز,ڕێنا تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1419"
+  },
+  {
+    "id": "1910",
+    "title": "دڵی شار",
+    "titleEn": "دڵی شار",
+    "keywords": "Dli Shar,دلي شار,دڵی شار,Dli Shar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1910"
+  },
+  {
+    "id": "2123",
+    "title": "کاڤاڵی تاوەر",
+    "titleEn": "کاڤاڵی تاوەر",
+    "keywords": "Cavalli Tower,Cavalli,کاڤاڵی تاوەر,كافالي تاور,Cavalli Kulesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2123"
+  },
+  {
+    "id": "1476",
+    "title": "وایت تاوەرز",
+    "titleEn": "وایت تاوەرز",
+    "keywords": "White Towers,وايت تاورز,وایت تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1476"
+  },
+  {
+    "id": "2200",
+    "title": "کەڵینان تاوەرز",
+    "titleEn": "کەڵینان تاوەرز",
+    "keywords": "Cullinan Towers,کەڵینان تاوەرز,كلينان تاورز,Cullınan Tower",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2200"
+  },
+  {
+    "id": "1306",
+    "title": "سکای تاوەرز",
+    "titleEn": "سکای تاوەرز",
+    "keywords": "Sky Towers,سكاي تاورز,سکای تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1306"
+  },
+  {
+    "id": "2241",
+    "title": "ئاشتی ستی 2",
+    "titleEn": "ئاشتی ستی 2",
+    "keywords": "Ashti City 2,ئاشتی ستی 2,اشتي ستي 2,Aşti City 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2241"
+  },
+  {
+    "id": "225",
+    "title": "گوندی ئاشتی",
+    "titleEn": "گوندی ئاشتی",
+    "keywords": "Ashti Village,قرية أشتي,گوندی ئاشتی,Aşti Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/225"
+  },
+  {
+    "id": "363",
+    "title": "ئاشتی ستی 1",
+    "titleEn": "ئاشتی ستی 1",
+    "keywords": "Ashti City 1,اشتي ستي 1,ئاشتی ستی 1,Aşti City 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/363"
+  },
+  {
+    "id": "260",
+    "title": "گڵۆباڵ ستی",
+    "titleEn": "گڵۆباڵ ستی",
+    "keywords": "Global City,كلوبال ستي,گڵۆباڵ ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/260"
+  },
+  {
+    "id": "2286",
+    "title": "گڕاند بوڵیڤارد",
+    "titleEn": "گڕاند بوڵیڤارد",
+    "keywords": "Grand Boulevard,گڕاند بوڵیڤارد,جراند بوليفارد,Grand Bulvar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2286"
+  },
+  {
+    "id": "2093",
+    "title": "میران ستی",
+    "titleEn": "میران ستی",
+    "keywords": "Miran City,میران ستی,ميران ستي,Miran City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2093"
+  },
+  {
+    "id": "669",
+    "title": "بەرزاییەکانی سلێمانی",
+    "titleEn": "بەرزاییەکانی سلێمانی",
+    "keywords": "Slemani Heights,مرتفعات السليمانية,بەرزاییەکانی سلێمانی,Slemani Tepeleri",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/669"
+  },
+  {
+    "id": "2315",
+    "title": "تولیپ تاوەرز",
+    "titleEn": "تولیپ تاوەرز",
+    "keywords": "Tulip Towers,تولیپ تاوەرز,تولیب تاورز,Tulip Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2315"
+  },
+  {
+    "id": "992",
+    "title": "لالاڤ ستی",
+    "titleEn": "لالاڤ ستی",
+    "keywords": "Lalav City,لالاف ستي,لالاڤ ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/992"
+  },
+  {
+    "id": "1351",
+    "title": "ئیمپایەر دایمۆند",
+    "titleEn": "ئیمپایەر دایمۆند",
+    "keywords": "Empire Diamond,امباير دايموند,ئیمپایەر دایمۆند,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1351"
+  },
+  {
+    "id": "1497",
+    "title": "ئیمپایەر ڕۆیاڵ ڤێلا",
+    "titleEn": "ئیمپایەر ڕۆیاڵ ڤێلا",
+    "keywords": "Empire Royal Villa,امبایر رويال فيلا,ئیمپایەر ڕۆیاڵ ڤێلا,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1497"
+  },
+  {
+    "id": "1500",
+    "title": "ئیمپایەر وینگز",
+    "titleEn": "ئیمپایەر وینگز",
+    "keywords": "Empire Wings,امباير وينكز,ئیمپایەر وینگز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1500"
+  },
+  {
+    "id": "1484",
+    "title": "MRF کواترۆ تاوەرز",
+    "titleEn": "MRF کواترۆ تاوەرز",
+    "keywords": "MRF Quattro Towers,MRF كواترو تاورز,MRF کواترۆ تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1484"
+  },
+  {
+    "id": "1576",
+    "title": "ئیمپایەر سکوێر",
+    "titleEn": "ئیمپایەر سکوێر",
+    "keywords": "Empire Square,أمباير سكوير,ئیمپایەر سکوێر,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1576"
+  },
+  {
+    "id": "1967",
+    "title": "ئیمپایەر بزنس تاوەرز",
+    "titleEn": "ئیمپایەر بزنس تاوەرز",
+    "keywords": "Empire Business Towers,إمباير بزنس تاورز,ئیمپایەر بزنس تاوەرز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1967"
+  },
+  {
+    "id": "2328",
+    "title": "بزنس زۆن",
+    "titleEn": "بزنس زۆن",
+    "keywords": "Business Zone,بزنس زۆن,بزنس زون",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2328"
+  },
+  {
+    "id": "2239",
+    "title": "شاری شاد",
+    "titleEn": "شاری شاد",
+    "keywords": "Shari Shad,شاری شاد,مدينة شاد,Şad City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2239"
+  },
+  {
+    "id": "2329",
+    "title": "دیاری ستی",
+    "titleEn": "دیاری ستی",
+    "keywords": "Diyari City,دیاری ستی,دياري ستي,Diyari City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2329"
+  },
+  {
+    "id": "1836",
+    "title": "ڕوبی تاوەرس",
+    "titleEn": "ڕوبی تاوەرس",
+    "keywords": "Ruby Towers,Rubi Towers,روبي تاورز,ڕوبی تاوەرس",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1836"
+  },
+  {
+    "id": "1519",
+    "title": "بۆلیڤارد",
+    "titleEn": "بۆلیڤارد",
+    "keywords": "Boulevard,بوليفارد,بۆلیڤارد,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1519"
+  },
+  {
+    "id": "1563",
+    "title": "لاوان",
+    "titleEn": "لاوان",
+    "keywords": "Lawan,لاوان,لاوان",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1563"
+  },
+  {
+    "id": "1588",
+    "title": "گوندی زانکۆی نوێ",
+    "titleEn": "گوندی زانکۆی نوێ",
+    "keywords": "Zanko Village,دێی زانکۆ,قرية زانكو جديدة,گوندی زانکۆی نوێ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1588"
+  },
+  {
+    "id": "2332",
+    "title": "عەنکاوە 189",
+    "titleEn": "عەنکاوە 189",
+    "keywords": "Ankawa 189,عەنکاوە 189,عنکاوة 189",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2332"
+  },
+  {
+    "id": "1431",
+    "title": "مامۆستایانی زانکۆ",
+    "titleEn": "مامۆستایانی زانکۆ",
+    "keywords": "Mamostayani Zanko,ماموستاياني زانكو,مامۆستایانی زانکۆ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1431"
+  },
+  {
+    "id": "584",
+    "title": "زرکا",
+    "titleEn": "زرکا",
+    "keywords": "Zrka,زركا,زرکا,Zrka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/584"
+  },
+  {
+    "id": "2333",
+    "title": "عەنکاوە 108",
+    "titleEn": "عەنکاوە 108",
+    "keywords": "Ankawa 108,New Ankawa,عەنکاوە 108,عنکاوة 108,Ankawa 108",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2333"
+  },
+  {
+    "id": "553",
+    "title": "شارەوانی",
+    "titleEn": "شارەوانی",
+    "keywords": "Sharawani,شارواني,شارەوانی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/553"
+  },
+  {
+    "id": "2334",
+    "title": "کری سورە",
+    "titleEn": "کری سورە",
+    "keywords": "Gre Sure,کری سورە,کری سوري,Gre Sure",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2334"
+  },
+  {
+    "id": "568",
+    "title": "قسارە",
+    "titleEn": "قسارە",
+    "keywords": "Qsara,قصارا,قسارە,Kasara",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/568"
+  },
+  {
+    "id": "561",
+    "title": "ماڵتا ئیسلام",
+    "titleEn": "ماڵتا ئیسلام",
+    "keywords": "Malta Islamı,مالطا اسلام,ماڵتا ئیسلام,Malta Eslam",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/561"
+  },
+  {
+    "id": "308",
+    "title": "برایەتی",
+    "titleEn": "برایەتی",
+    "keywords": "Brayaty,برايتي,برایەتی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/308"
+  },
+  {
+    "id": "545",
+    "title": "مالتا کادرا",
+    "titleEn": "مالتا کادرا",
+    "keywords": "Malta Kadra,مالطا کادرا,مالتا کادرا,Malta Kadra",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/545"
+  },
+  {
+    "id": "2342",
+    "title": "بابلو",
+    "titleEn": "بابلو",
+    "keywords": "Bablo,بابلو,بابلو,Bablo",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2342"
+  },
+  {
+    "id": "1846",
+    "title": "گوندێ پرایم",
+    "titleEn": "گوندێ پرایم",
+    "keywords": "Prime Village,قرية برايم,گوندێ پرایم,Prime Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1846"
+  },
+  {
+    "id": "2343",
+    "title": "ئۆپێرا لاند",
+    "titleEn": "ئۆپێرا لاند",
+    "keywords": "Opera Land,ئۆپێرا لاند,اوبیرا لاند,Opera Land",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2343"
+  },
+  {
+    "id": "1847",
+    "title": "گوندی فەرەنسی 2",
+    "titleEn": "گوندی فەرەنسی 2",
+    "keywords": "French Village 2,القرية الفرنسية 2,گوندی فەرەنسی 2,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1847"
+  },
+  {
+    "id": "1805",
+    "title": "روژ ستی",
+    "titleEn": "روژ ستی",
+    "keywords": "Roj City,روژ ستي,روژ ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1805"
+  },
+  {
+    "id": "2258",
+    "title": "اڤینیوم دهوك تاوەرز",
+    "titleEn": "اڤینیوم دهوك تاوەرز",
+    "keywords": "The Avenue Duhok Towers,اڤینیوم دهوك تاوەرز,افينيوم دهوك تاورز,Avenue Duhok Tower",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2258"
+  },
+  {
+    "id": "544",
+    "title": "ژیان",
+    "titleEn": "ژیان",
+    "keywords": "Zhyan,زيان,ژیان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/544"
+  },
+  {
+    "id": "641",
+    "title": "شاخكێ 1: یا لسەر شارعێ KRO",
+    "titleEn": "شاخكێ 1: یا لسەر شارعێ KRO",
+    "keywords": "Shakhki 1: Above KRO Street,شاخكي 1: فوق شارع KRO,شاخكێ 1: یا لسەر شارعێ KRO,Şahki 1: KRO caddesinin üstünde",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/641"
+  },
+  {
+    "id": "2356",
+    "title": "شاخكێ 2 : یا لبن شارعێ KRO",
+    "titleEn": "شاخكێ 2 : یا لبن شارعێ KRO",
+    "keywords": "Shakhki 2: Below KRO Street,شاخكێ 2 : یا لبن شارعێ KRO,شاخكي 2: أسفل شارع KRO,Şahki 2: KRO Caddesinin Altında",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2356"
+  },
+  {
+    "id": "555",
+    "title": "ماسیكێ 2",
+    "titleEn": "ماسیكێ 2",
+    "keywords": "Masike 2,ماسيكي 2,ماسیكێ 2,Masike 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/555"
+  },
+  {
+    "id": "541",
+    "title": "ماسیکێ 1",
+    "titleEn": "ماسیکێ 1",
+    "keywords": "Masike 1,ماسيكي 1,ماسیکێ 1,Masike 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/541"
+  },
+  {
+    "id": "560",
+    "title": "شندۆخا",
+    "titleEn": "شندۆخا",
+    "keywords": "Shindokha,شندوخا,شندۆخا,Şindoha",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/560"
+  },
+  {
+    "id": "2363",
+    "title": "مالتا نسارە",
+    "titleEn": "مالتا نسارە",
+    "keywords": "Malta Nsara,مالتا نسارە,مالطا نصارة,Malta Nsara",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2363"
+  },
+  {
+    "id": "1875",
+    "title": "گەڤەرکێ",
+    "titleEn": "گەڤەرکێ",
+    "keywords": "Gavarke,کفرکی,گەڤەرکێ,Gavarke",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1875"
+  },
+  {
+    "id": "234",
+    "title": "ڕۆنا تاوەرز",
+    "titleEn": "ڕۆنا تاوەرز",
+    "keywords": "Rona Towers,رونا تاورز,ڕۆنا تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/234"
+  },
+  {
+    "id": "2370",
+    "title": "فلکا گەلی تا دەورا کورەك",
+    "titleEn": "فلکا گەلی تا دەورا کورەك",
+    "keywords": "Gali Junction to Korek Rounabout,فلکة کلي للدورة کورك,فلکا گەلی تا دەورا کورەك,Gali Kavşağı'ndan Korek D��ner Kavşağı'na",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2370"
+  },
+  {
+    "id": "575",
+    "title": "گرێ باسێ",
+    "titleEn": "گرێ باسێ",
+    "keywords": "Gre Base,كري باصي,گرێ باسێ,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/575"
+  },
+  {
+    "id": "2377",
+    "title": "گوندێ شندوخا",
+    "titleEn": "گوندێ شندوخا",
+    "keywords": "Shindokha Village,Şindoha köyü,قریة شندوخة,گوندێ شندوخا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2377"
+  },
+  {
+    "id": "582",
+    "title": "بیسرێ",
+    "titleEn": "بیسرێ",
+    "keywords": "Besre,بيسري,بیسرێ,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/582"
+  },
+  {
+    "id": "2391",
+    "title": "دیاری (جادا گەردون تا مزگەفتا بیتکار)",
+    "titleEn": "دیاری (جادا گەردون تا مزگەفتا بیتکار)",
+    "keywords": "Diyari (Gardun Street to Betkar Mosque),Dyari,دیاری (جادا گەردون تا مزگەفتا بیتکار),دیاري (شارع کردون الی جامع بيتكار)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2391"
+  },
+  {
+    "id": "1547",
+    "title": "گرین لاند",
+    "titleEn": "گرین لاند",
+    "keywords": "Green Land,كرين لاند,گرین لاند",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1547"
+  },
+  {
+    "id": "1555",
+    "title": "باغلومنارە",
+    "titleEn": "باغلومنارە",
+    "keywords": "Baghlumnara,باغلومنارة,باغلومنارە,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1555"
+  },
+  {
+    "id": "2050",
+    "title": "دەروو ستی 2",
+    "titleEn": "دەروو ستی 2",
+    "keywords": "Deru City 2,daru city,دەروو ستی 2,درو ستي 2,Deru City 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2050"
+  },
+  {
+    "id": "2404",
+    "title": "کەرک 2",
+    "titleEn": "کەرک 2",
+    "keywords": "Kark 2,کەرک 2,كرك 2,Kark 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2404"
+  },
+  {
+    "id": "2158",
+    "title": "پاشا تاوەر",
+    "titleEn": "پاشا تاوەر",
+    "keywords": "Pasha Tower,پاشا تاوەر,باشا تاور,Paşa Binası",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2158"
+  },
+  {
+    "id": "2282",
+    "title": "یونیک تاوەرز",
+    "titleEn": "یونیک تاوەرز",
+    "keywords": "Unique Towers,یونیک تاوەرز,يونيك تاورز,Unique Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2282"
+  },
+  {
+    "id": "1792",
+    "title": "بەختیاری توین تاوەرز",
+    "titleEn": "بەختیاری توین تاوەرز",
+    "keywords": "Bakhtyary Twin Towers,بختياري توين تاورز,بەختیاری توین تاوەرز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1792"
+  },
+  {
+    "id": "1699",
+    "title": "کاندڵ ڕێزیدێنس",
+    "titleEn": "کاندڵ ڕێزیدێنس",
+    "keywords": "Candle Residence,كاندل السكني,کاندڵ ڕێزیدێنس",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1699"
+  },
+  {
+    "id": "1809",
+    "title": "سالور تاوەر",
+    "titleEn": "سالور تاوەر",
+    "keywords": "Saloor Tower,سالور تاور,سالور تاوەر,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1809"
+  },
+  {
+    "id": "2320",
+    "title": "بەغداد مارینا",
+    "titleEn": "بەغداد مارینا",
+    "keywords": "Baghdad Marina,Baghdad marina residential complex,بەغداد مارینا,Marina kompleksi,بغداد مارينا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2320"
+  },
+  {
+    "id": "2435",
+    "title": "ژیانەوەی سلێمانی",
+    "titleEn": "ژیانەوەی سلێمانی",
+    "keywords": "Zhianawai Slemani,Zhianawa City   ژیانەوە ستی,ژیانەوەی سلێمانی,زيانةوة السليمانية,Zhianawai Slemani",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2435"
+  },
+  {
+    "id": "2441",
+    "title": "حەریر تاوەرز",
+    "titleEn": "حەریر تاوەرز",
+    "keywords": "Harir Towers,حەریر تاوەرز,حرير تاورز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2441"
+  },
+  {
+    "id": "229",
+    "title": "جیهان ستی",
+    "titleEn": "جیهان ستی",
+    "keywords": "Cihan city,جيهان ستي,ج��هان ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/229"
+  },
+  {
+    "id": "1458",
+    "title": "دەروازەی هەولیر",
+    "titleEn": "دەروازەی هەولیر",
+    "keywords": "Darwazay Hawler,دروازي هولير,دەروازەی هەولیر,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1458"
+  },
+  {
+    "id": "2224",
+    "title": "کانی قرژالە (34 پارک)",
+    "titleEn": "کانی قرژالە (34 پارک)",
+    "keywords": "Kani Qirzhala (34 Park),كاني قرژالة (34 بارك),کانی قرژالە (34 پارک),Kani Krjala (34 Park)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2224"
+  },
+  {
+    "id": "2350",
+    "title": "147 عنکاوە",
+    "titleEn": "147 عنکاوە",
+    "keywords": "147 Ankawa,147 عنکاوە,147 عنكاوة,147 Ankawa",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2350"
+  },
+  {
+    "id": "1192",
+    "title": "چوار چرای نوێ",
+    "titleEn": "چوار چرای نوێ",
+    "keywords": "New Chwar Chra,جوارجرا الجديدة,چوار چرای نوێ,Yeni Chwar Chra",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1192"
+  },
+  {
+    "id": "1112",
+    "title": "گاردن ستی",
+    "titleEn": "گاردن ستی",
+    "keywords": "Garden City,كاردن ستي,گاردن ستی,Garden City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1112"
+  },
+  {
+    "id": "2386",
+    "title": "قەرەبووی گوندی کۆری (کارت)",
+    "titleEn": "قەرەبووی گوندی کۆری (کارت)",
+    "keywords": "Qarabuy Kori (Kart),qarabuy gundi kori,قەرەبووی گوندی کۆری (کارت),قربو قرية کوریة (کارت),Karabu Kori (Kart)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2386"
+  },
+  {
+    "id": "250",
+    "title": "هیوا ستی",
+    "titleEn": "هیوا ستی",
+    "keywords": "Hewa City,هيوا ستي,هیوا ستی,Hiwa City,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/250"
+  },
+  {
+    "id": "2201",
+    "title": "عارەب کەند",
+    "titleEn": "عارەب کەند",
+    "keywords": "Arab kand,عارەب کەند,عرب کند,Arab Kand",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2201"
+  },
+  {
+    "id": "2373",
+    "title": "عەزە",
+    "titleEn": "عەزە",
+    "keywords": "Azza,عەزە,عزة,Azza",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2373"
+  },
+  {
+    "id": "2511",
+    "title": "بێریات",
+    "titleEn": "بێریات",
+    "keywords": "Beryat,بێریات,بیریات,Beryat",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2511"
+  },
+  {
+    "id": "2540",
+    "title": "قەرەبووی گرد جوتیار",
+    "titleEn": "قەرەبووی گرد جوتیار",
+    "keywords": "Qarabuy Gird Jutyar,Qarabuy Grd Jutyar,قەرەبووی گرد جوتیار,قربوي کرد جوتیار,Karabui Gird Jutyar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2540"
+  },
+  {
+    "id": "2552",
+    "title": "گەزنەی نوێ",
+    "titleEn": "گەزنەی نوێ",
+    "keywords": "Gaznay Nwe,New Gazna,گەزنەی نوێ,کزنة جدیدة,Gaznay Nwe",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2552"
+  },
+  {
+    "id": "1798",
+    "title": "پاڤلیۆن",
+    "titleEn": "پاڤلیۆن",
+    "keywords": "Pavilion,بافليون,پاڤلیۆن,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1798"
+  },
+  {
+    "id": "1488",
+    "title": "سلاڤا ستی",
+    "titleEn": "سلاڤا ستی",
+    "keywords": "Slava City,سلافا ستي,سلاڤا ستی,Slava City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1488"
+  },
+  {
+    "id": "1551",
+    "title": "دیپلۆماتی سەفیران",
+    "titleEn": "دیپلۆماتی سەفیران",
+    "keywords": "Diplomati Safiran,دبلوماتي سفيران,دیپلۆماتی سەفیران,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1551"
+  },
+  {
+    "id": "2220",
+    "title": "باغمرە شهاب",
+    "titleEn": "باغمرە شهاب",
+    "keywords": "Baghmra Shahab,باغمرە شهاب,باغمرة شهاب,Bağmra Şahab",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2220"
+  },
+  {
+    "id": "1578",
+    "title": "ڤار پارک",
+    "titleEn": "ڤار پارک",
+    "keywords": "Var Park,فار بارك,ڤار پارک,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1578"
+  },
+  {
+    "id": "2175",
+    "title": "شاری ژیانی (هاوچەرخ)",
+    "titleEn": "شاری ژیانی (هاوچەرخ)",
+    "keywords": "Zhyan City (Hawcharkh),شاری ژیانی (هاوچەرخ),شاري ژيان (هاوجرخ),Zhyan City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2175"
+  },
+  {
+    "id": "2576",
+    "title": "سلیڤانا ستی",
+    "titleEn": "سلیڤانا ستی",
+    "keywords": "Slivana City,سلیڤانا ستی,سليفانا ستي,Slivana Şehir",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2576"
+  },
+  {
+    "id": "1538",
+    "title": "فیردەوس ستی",
+    "titleEn": "فیردەوس ستی",
+    "keywords": "Ferdaws City,فيردوس ستي,فیردەوس ستی,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1538"
+  },
+  {
+    "id": "1758",
+    "title": "نۆبڵ ستی",
+    "titleEn": "نۆبڵ ستی",
+    "keywords": "Nobel City,نوبل ستي,نۆبڵ ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1758"
+  },
+  {
+    "id": "271",
+    "title": "کوردستان ستی",
+    "titleEn": "کوردستان ستی",
+    "keywords": "Kurdistan City,كردستان ستي,کوردستان ستی,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/271"
+  },
+  {
+    "id": "1374",
+    "title": "ژین",
+    "titleEn": "ژین",
+    "keywords": "Zhin,ژين,ژین",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1374"
+  },
+  {
+    "id": "1226",
+    "title": "زین ستی",
+    "titleEn": "زین ستی",
+    "keywords": "Zin City,زين ستي,زین ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1226"
+  },
+  {
+    "id": "2492",
+    "title": "قەرەبوی گەنجان",
+    "titleEn": "قەرەبوی گەنجان",
+    "keywords": "Qarabwy Ganjan,قەرەبوی گەنجان,قربوي كنجان,Qarabwy Ganjan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2492"
+  },
+  {
+    "id": "1760",
+    "title": "ڤارسان",
+    "titleEn": "ڤارسان",
+    "keywords": "Varsan,فارسان,ڤارسان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1760"
+  },
+  {
+    "id": "2476",
+    "title": "قەرەبووی رەشکین (زەوییەکانی تێرمیناڵ)",
+    "titleEn": "قەرەبووی رەشکین (زەوییەکانی تێرمیناڵ)",
+    "keywords": "Qarabuy Rashken (Terminal Plots),قەرەبووی رەشکین (زەوییەکانی تێرمیناڵ),قربوي رشكين (أراضي تيرمينال),Qarabuy Rahken (Terminal Alanları)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2476"
+  },
+  {
+    "id": "1373",
+    "title": "گۆڵدن تاوەرز",
+    "titleEn": "گۆڵدن تاوەرز",
+    "keywords": "Golden Towers,ابراج كولدن,گۆڵدن تاوەرز,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1373"
+  },
+  {
+    "id": "2509",
+    "title": "ئۆلیڤ ستی",
+    "titleEn": "ئۆلیڤ ستی",
+    "keywords": "Olive City,ئۆلیڤ ستی,اوليف ستي,Olive City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2509"
+  },
+  {
+    "id": "2599",
+    "title": "شاری زێڕین",
+    "titleEn": "شاری زێڕین",
+    "keywords": "Zerin City,شاری زێڕین,Zerin City,مدينة زيرين",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2599"
+  },
+  {
+    "id": "2601",
+    "title": "شاری مامۆستایان",
+    "titleEn": "شاری مامۆستایان",
+    "keywords": "Shari Mamostayan,شاری مامۆستایان,شاري ماموستايان,Şarı Mamostayan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2601"
+  },
+  {
+    "id": "2602",
+    "title": "هیوا ستی",
+    "titleEn": "هیوا ستی",
+    "keywords": "Hiwa City,هیوا ستی,هيوا ستي,Hiwa Siti",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2602"
+  },
+  {
+    "id": "2604",
+    "title": "جاف ستی",
+    "titleEn": "جاف ستی",
+    "keywords": "Jaff City,جاف ستی,جاف ستي,Jaff City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2604"
+  },
+  {
+    "id": "2605",
+    "title": "نەوژین ستی 3",
+    "titleEn": "نەوژین ستی 3",
+    "keywords": "Nawzhen City 3,نەوژین ستی 3,نوزین ستي 3,Nawzhen City 3",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2605"
+  },
+  {
+    "id": "2603",
+    "title": "ڕۆیاڵ ستی",
+    "titleEn": "ڕۆیاڵ ستی",
+    "keywords": "Royal City,ڕۆیاڵ ستی,رويال ستي,Royal City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2603"
+  },
+  {
+    "id": "1549",
+    "title": "زێڕین ستی",
+    "titleEn": "زێڕین ستی",
+    "keywords": "Zerin City,زيرين ستي,زێڕین ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1549"
+  },
+  {
+    "id": "2607",
+    "title": "بان ستی",
+    "titleEn": "بان ستی",
+    "keywords": "Ban City,بان ستی,بان ستي,Ban City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2607"
+  },
+  {
+    "id": "2613",
+    "title": "شاری شکۆ",
+    "titleEn": "شاری شکۆ",
+    "keywords": "Shari Shko,شاری شکۆ,شاري شکو,Shari Shko",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2613"
+  },
+  {
+    "id": "2065",
+    "title": "شاری هەرشەم 3",
+    "titleEn": "شاری هەرشەم 3",
+    "keywords": "Harsham City 3,شاری هەرشەم 3,هرشم ستي 3,Harşam City 3",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2065"
+  },
+  {
+    "id": "2643",
+    "title": "سۆما ستی",
+    "titleEn": "سۆما ستی",
+    "keywords": "Soma City,Soma City,سوما ستي,سۆما ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2643"
+  },
+  {
+    "id": "2585",
+    "title": "شاری شاران",
+    "titleEn": "شاری شاران",
+    "keywords": "Shari Sharan,شاری شاران,شاري شاران,Shari Sharan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2585"
+  },
+  {
+    "id": "2646",
+    "title": "بەکرەجۆ هیڵس",
+    "titleEn": "بەکرەجۆ هیڵس",
+    "keywords": "Bakrajo Hills,بەکرەجۆ هیڵس,بکرجو هیلس,Bakraco Hills",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2646"
+  },
+  {
+    "id": "2644",
+    "title": "ئارام ستی 3",
+    "titleEn": "ئارام ستی 3",
+    "keywords": "Aram City 3,Aram City 3,ئارام ستی 3,أرام ستي 3",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2644"
+  },
+  {
+    "id": "2650",
+    "title": "ڕاپەڕین",
+    "titleEn": "ڕاپەڕین",
+    "keywords": "Raparin,ڕاپەڕین,رابرین,Raparin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2650"
+  },
+  {
+    "id": "2647",
+    "title": "بوابە کەرکوک",
+    "titleEn": "بوابە کەرکوک",
+    "keywords": "Bawabat Kirkuk,Kirkuk Gate,Bawab Kirkuk,بوابە کەرکوک,بوابة كركوك",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2647"
+  },
+  {
+    "id": "2182",
+    "title": "شۆرش",
+    "titleEn": "شۆرش",
+    "keywords": "Shorsh,شۆرش,شورش,Şorş",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2182"
+  },
+  {
+    "id": "2635",
+    "title": "ئاوارەکان",
+    "titleEn": "ئاوارەکان",
+    "keywords": "Awarakan,ئاوارەکان,أوارکان,Awarakan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2635"
+  },
+  {
+    "id": "2658",
+    "title": "ئەندازیاران",
+    "titleEn": "ئەندازیاران",
+    "keywords": "Andazyaran,ئەندازیاران,اندازياران",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2658"
+  },
+  {
+    "id": "2629",
+    "title": "بەردەسور",
+    "titleEn": "بەردەسور",
+    "keywords": "Bardasur,بەردەسور,بردسور,Bardasur",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2629"
+  },
+  {
+    "id": "2642",
+    "title": "بەرزاییەکانی بەردەسور",
+    "titleEn": "بەرزاییەکانی بەردەسور",
+    "keywords": "Bardasur Heights,مرتفعات بردسور,بەرزاییەکانی بەردەسور,Barzayakani Bardasur",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2642"
+  },
+  {
+    "id": "2661",
+    "title": "ئەنفالەکان",
+    "titleEn": "ئەنفالەکان",
+    "keywords": "Anfalakan,ئەنفالەکان,انفالکان,Anfalakan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2661"
+  },
+  {
+    "id": "2662",
+    "title": "گەرمیان",
+    "titleEn": "گەرمیان",
+    "keywords": "Garmyan,گەرمیان,کرمیان,Garmyan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2662"
+  },
+  {
+    "id": "2088",
+    "title": "شەهیدان",
+    "titleEn": "شەهیدان",
+    "keywords": "Shahidan,شەهیدان,شهيدان,şahidan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2088"
+  },
+  {
+    "id": "2664",
+    "title": "ڕزگاری",
+    "titleEn": "ڕزگاری",
+    "keywords": "Rzgari,ڕزگاری,رزکاري,Rzgari",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2664"
+  },
+  {
+    "id": "2667",
+    "title": "مامۆستایان",
+    "titleEn": "مامۆستایان",
+    "keywords": "Mamostayan,مامۆستایان,ماموستایان,Mamostayan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2667"
+  },
+  {
+    "id": "2105",
+    "title": "جوتیاران",
+    "titleEn": "جوتیاران",
+    "keywords": "Jutyaran,جوتیاران,جوتياران,Cutyaran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2105"
+  },
+  {
+    "id": "2663",
+    "title": "شارەوانی 1",
+    "titleEn": "شارەوانی 1",
+    "keywords": "Sharawani 1,شارەوانی 1,شارواني 1,Şaravani 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2663"
+  },
+  {
+    "id": "2672",
+    "title": "شارەوانی 2",
+    "titleEn": "شارەوانی 2",
+    "keywords": "Sharawani 2,Şaravani 2,شارواني 2,شارەوانی 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2672"
+  },
+  {
+    "id": "2673",
+    "title": "خەبات",
+    "titleEn": "خەبات",
+    "keywords": "Khabat,Habat,خبات,خەبات",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2673"
+  },
+  {
+    "id": "2674",
+    "title": "سەرکەوتن",
+    "titleEn": "سەرکەوتن",
+    "keywords": "Sarkawtn,Sarkawtn,سركوتن,سەرکەوتن",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2674"
+  },
+  {
+    "id": "2636",
+    "title": "فەرمانبەران",
+    "titleEn": "فەرمانبەران",
+    "keywords": "Farmanbaran,فەرمانبەران,فرمانبران,Farmanbaran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2636"
+  },
+  {
+    "id": "2628",
+    "title": "گۆران",
+    "titleEn": "گۆران",
+    "keywords": "Goran,گۆران,کوران,Goran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2628"
+  },
+  {
+    "id": "2141",
+    "title": "کەلاری کۆن",
+    "titleEn": "کەلاری کۆن",
+    "keywords": "Kalari Kon,کەلاری کۆن,كلار القديمة,Eski Kalar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2141"
+  },
+  {
+    "id": "2675",
+    "title": "500 ماڵەکە",
+    "titleEn": "500 ماڵەکە",
+    "keywords": "500 Houses,500 بیوت,500 ماڵەکە,500 Evler",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2675"
+  },
+  {
+    "id": "2638",
+    "title": "نەورۆز",
+    "titleEn": "نەورۆز",
+    "keywords": "Nawroz,نەورۆز,نوروز,Newroz",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2638"
+  },
+  {
+    "id": "2626",
+    "title": "شێروانە",
+    "titleEn": "شێروانە",
+    "keywords": "Sherwana,شیروانة,شێروانە,Şervane",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2626"
+  },
+  {
+    "id": "2632",
+    "title": "بنگرد",
+    "titleEn": "بنگرد",
+    "keywords": "Bngrd,بنگرد,Bngrd,بنکرد",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2632"
+  },
+  {
+    "id": "2634",
+    "title": "ناوچەی پیشەسازی",
+    "titleEn": "ناوچەی پیشەسازی",
+    "keywords": "Industrial Zone,ناوچەی پیشەسازی,منطقة صناعیة,Sanayi Bölgesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2634"
+  },
+  {
+    "id": "2171",
+    "title": "فلۆریا ستی",
+    "titleEn": "فلۆریا ستی",
+    "keywords": "Floria City,فلۆریا ستی,فلوريا ستي,Floria Site",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2171"
+  },
+  {
+    "id": "372",
+    "title": "ماس ستی",
+    "titleEn": "ماس ستی",
+    "keywords": "Mass City,ماس ستي,ماس ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/372"
+  },
+  {
+    "id": "2197",
+    "title": "سێنتراڵ پارک",
+    "titleEn": "سێنتراڵ پارک",
+    "keywords": "Central Park,سێنتراڵ پارک,سينترال بارك,Central Park",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2197"
+  },
+  {
+    "id": "2669",
+    "title": "MRF 2 تاوەرز",
+    "titleEn": "MRF 2 تاوەرز",
+    "keywords": "MRF 2 Towers,MRF 2 تاوەرز,MRF 2 تاورز,MRF 2 Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2669"
+  },
+  {
+    "id": "2355",
+    "title": "MRF 4 تاوەرز",
+    "titleEn": "MRF 4 تاوەرز",
+    "keywords": "MRF 4 Towers,MRF 4 تاوەرز,MRF 4 تاورز,MRF 4 Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2355"
+  },
+  {
+    "id": "2207",
+    "title": "MRF 5 تاوەرز",
+    "titleEn": "MRF 5 تاوەرز",
+    "keywords": "MRF 5 Towers,MRF 5 تاورز,MRF 5 تاوەرز,MRF 5 Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2207"
+  },
+  {
+    "id": "1615",
+    "title": "پێشەنگ پڵەس تاوەرز",
+    "titleEn": "پێشەنگ پڵەس تاوەرز",
+    "keywords": "Peshang Plus Towers,بيشنك بلص تاورز,پێشەنگ پڵەس تاوەرز,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1615"
+  },
+  {
+    "id": "1443",
+    "title": "فیوچەر ستی",
+    "titleEn": "فیوچەر ستی",
+    "keywords": "Future City,فيوجر ستي,فیوچەر ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1443"
+  },
+  {
+    "id": "2445",
+    "title": "كریستاڵ ستی",
+    "titleEn": "كریستاڵ ستی",
+    "keywords": "Crystal City,كریستاڵ ستی,كرستال ستي,Cristal Sitesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2445"
+  },
+  {
+    "id": "2682",
+    "title": "ئینفینیتی تاوەرز",
+    "titleEn": "ئینفینیتی تاوەرز",
+    "keywords": "Infinity Towers,ئینفینیتی تاوەرز,انفينيتي تاورز,Infinity Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2682"
+  },
+  {
+    "id": "391",
+    "title": "کارێزە وشك",
+    "titleEn": "کارێزە وشك",
+    "keywords": "Kareza Wshk,كاريزة وشك,کارێزە وشك,Kareza Wshk",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/391"
+  },
+  {
+    "id": "620",
+    "title": "ئاوبارە",
+    "titleEn": "ئاوبارە",
+    "keywords": "Awbara,اوبارة,ئاوبارە,Awbara",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/620"
+  },
+  {
+    "id": "1393",
+    "title": "بەرانان",
+    "titleEn": "بەرانان",
+    "keywords": "Baranan,برانان,بەرانان,Baranan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1393"
+  },
+  {
+    "id": "2690",
+    "title": "عەلی ناجی",
+    "titleEn": "عەلی ناجی",
+    "keywords": "Ali Naji,Alinaji,عەلی ناجی,علي ناجي,Ali Naci",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2690"
+  },
+  {
+    "id": "905",
+    "title": "ئابڵاخ 272-273",
+    "titleEn": "ئابڵاخ 272-273",
+    "keywords": "Ablakh 272-273,Ablax,أبلاخ 272-273,ئابڵاخ 272-273,Ablah 272-273",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/905"
+  },
+  {
+    "id": "1529",
+    "title": "ئەندازیاران",
+    "titleEn": "ئەندازیاران",
+    "keywords": "Andazyaran,Andaziaran,أندازياران,ئەندازیاران,Andazyaran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1529"
+  },
+  {
+    "id": "449",
+    "title": "خیوەتە",
+    "titleEn": "خیوەتە",
+    "keywords": "Khewata,Xewata,خيوتة,خیوەتە,Khewata",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/449"
+  },
+  {
+    "id": "1221",
+    "title": "مارینا 1",
+    "titleEn": "مارینا 1",
+    "keywords": "Marina 1,مارينا ١,مارینا 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1221"
+  },
+  {
+    "id": "1794",
+    "title": "مارێنا 2",
+    "titleEn": "مارێنا 2",
+    "keywords": "Marina 2,مارينا 2,مارێنا 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1794"
+  },
+  {
+    "id": "2063",
+    "title": "مارینا 3",
+    "titleEn": "مارینا 3",
+    "keywords": "Marina 3,مارینا 3,مارينا 3,Marina 3",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2063"
+  },
+  {
+    "id": "2096",
+    "title": "وڵوبە",
+    "titleEn": "وڵوبە",
+    "keywords": "Wuluba,zhianawa,وڵوبە,ولوبە,Vuluba",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2096"
+  },
+  {
+    "id": "2691",
+    "title": "179 قولەرەیسی",
+    "titleEn": "179 قولەرەیسی",
+    "keywords": "179 Qularaisi,Bogana,179 قولەرەیسی,179 قولەرەیسی,179 Kularaisi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2691"
+  },
+  {
+    "id": "2693",
+    "title": "14 کونە گورگ",
+    "titleEn": "14 کونە گورگ",
+    "keywords": "14 Kuna Gurg,14 کونە گورگ,14 کونة كورك,14 Kuna Gurg",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2693"
+  },
+  {
+    "id": "299",
+    "title": "نەورۆز (حەی عەسکەری)",
+    "titleEn": "نەورۆز (حەی عەسکەری)",
+    "keywords": "Nawroz (Hay Askari),نوروز (حي عسکري),نەورۆز (حەی عەسکەری),Nawroz (Hay Askari)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/299"
+  },
+  {
+    "id": "2694",
+    "title": "200 ئابڵاخ",
+    "titleEn": "200 ئابڵاخ",
+    "keywords": "200 Ablakh,Ablax,200 ئابڵاخ,200 ابلاخ,200 Ablah",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2694"
+  },
+  {
+    "id": "2695",
+    "title": "203 ئابڵاخ",
+    "titleEn": "203 ئابڵاخ",
+    "keywords": "203 Ablakh,Ablax,203 ئابڵاخ,203 ابلاخ,203 Ablah",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2695"
+  },
+  {
+    "id": "1418",
+    "title": "قولەرەیسی",
+    "titleEn": "قولەرەیسی",
+    "keywords": "Qularaisi,قولەرەیسی,قولەرەیسی,Kularaisi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1418"
+  },
+  {
+    "id": "2696",
+    "title": "قولەرەیسی 79",
+    "titleEn": "قولەرەیسی 79",
+    "keywords": "Qularaisi 79,Qwlaraisi,قولەرەیسی 79,قولەرەیسی 79,Kularaisi 79",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2696"
+  },
+  {
+    "id": "2703",
+    "title": "36 چوارچرا",
+    "titleEn": "36 چوارچرا",
+    "keywords": "36 Chwar Chra,Chwarchra 36,36 Çvar Çra,36 چوارچرا,36 جوارجرا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2703"
+  },
+  {
+    "id": "400",
+    "title": "کانی سپیکە",
+    "titleEn": "کانی سپیکە",
+    "keywords": "Kani Spika,Kanispika,كاني سبيكة,کانی سپیکە,Kani Spika",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/400"
+  },
+  {
+    "id": "2700",
+    "title": "20 چوارچرا",
+    "titleEn": "20 چوارچرا",
+    "keywords": "20 Chwar Chra,Chwarchra 20,20 Çvar Çra,20 جوارجرا,20 چوارچرا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2700"
+  },
+  {
+    "id": "1290",
+    "title": "10 یەکانی شێخ وەیساوە",
+    "titleEn": "10 یەکانی شێخ وەیساوە",
+    "keywords": "10 Shekh Waisawa,10 شيخ ويساوة,10 یەکانی شێخ وەیساوە,10 Şekh Waisawa",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1290"
+  },
+  {
+    "id": "1056",
+    "title": "17 کوردسات",
+    "titleEn": "17 کوردسات",
+    "keywords": "17 Kurdsat,17kani Kurdsat,17 كردسات,17 کوردسات,17 Kurdsat",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1056"
+  },
+  {
+    "id": "2704",
+    "title": "27 بەکرەجۆ",
+    "titleEn": "27 بەکرەجۆ",
+    "keywords": "27 Bakrajo,Qlyasani Khwaru,27 بەکرەجۆ,27 بکرجو,27 Bekreco",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2704"
+  },
+  {
+    "id": "2705",
+    "title": "223 چوارچرا",
+    "titleEn": "223 چوارچرا",
+    "keywords": "223 Chwar Chra,Chwarchra 223,223 چوارچرا,223 جوارجرا,223 Çvar Çra",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2705"
+  },
+  {
+    "id": "2709",
+    "title": "258 کوردسات",
+    "titleEn": "258 کوردسات",
+    "keywords": "258 Kurdsat,Kurdsat 258,258 کوردسات,258 كردسات,258 Kurdsat",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2709"
+  },
+  {
+    "id": "2711",
+    "title": "ئاشۆکان",
+    "titleEn": "ئاشۆکان",
+    "keywords": "Ashokan,Farmanbaran Plots,ئاشۆکان,اشوکان,Aşokan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2711"
+  },
+  {
+    "id": "365",
+    "title": "ڕۆشنبیری 1",
+    "titleEn": "ڕۆشنبیری 1",
+    "keywords": "Roshnbiri 1,روشنبيري 1,ڕۆشنبیری 1,Roşnbiri 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/365"
+  },
+  {
+    "id": "455",
+    "title": "زەیتون ستی",
+    "titleEn": "زەیتون ستی",
+    "keywords": "Zaiton City,زيتون ستي,زەیتون ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/455"
+  },
+  {
+    "id": "2517",
+    "title": "لەندەن تاوەرز",
+    "titleEn": "لەندەن تاوەرز",
+    "keywords": "London Towers,لەندەن تاوەرز,لندن تاورز,London Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2517"
+  },
+  {
+    "id": "2215",
+    "title": "مامۆستایانی زانکۆ",
+    "titleEn": "مامۆستایانی زانکۆ",
+    "keywords": "Mamostayani Zanko,مامۆستایانی زانکۆ,ماموستايان زانكو,Mamostayani Zanko",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2215"
+  },
+  {
+    "id": "1258",
+    "title": "کۆبانی ستی",
+    "titleEn": "کۆبانی ستی",
+    "keywords": "Kobani City,كوباني ستي,کۆبانی ستی,Kobani City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1258"
+  },
+  {
+    "id": "2717",
+    "title": "پاک تاوەرز",
+    "titleEn": "پاک تاوەرز",
+    "keywords": "Pak Towers,پاک تاوەرز,باك تاورز,Pak Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2717"
+  },
+  {
+    "id": "246",
+    "title": "ڕاستی (عەدالە)",
+    "titleEn": "ڕاستی (عەدالە)",
+    "keywords": "Rasty (Adala),Adala,راستي (عدالة),ڕاستی (عەدالە)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/246"
+  },
+  {
+    "id": "1371",
+    "title": "بەرزاییەکانی قەیوان",
+    "titleEn": "بەرزاییەکانی قەیوان",
+    "keywords": "Qaiwan Heights,مرتفعات قيوان,بەرزاییەکانی قەیوان,Qaiwan Tepeleri",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1371"
+  },
+  {
+    "id": "2722",
+    "title": "گوندی گەشتیاری قەیوان",
+    "titleEn": "گوندی گەشتیاری قەیوان",
+    "keywords": "Qaiwan Tourism Village,گوندی گەشتیاری قەیوان,قرية قيوان السياحية,Qaiwan Turizm Köyü",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2722"
+  },
+  {
+    "id": "2618",
+    "title": "39 ڕاپەڕین (زانکۆ)",
+    "titleEn": "39 ڕاپەڕین (زانکۆ)",
+    "keywords": "39 Raparin (Zanko),39 ڕاپەڕین (زانکۆ),39 رابرین (زانکو),39 Raparin (Zanko)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2618"
+  },
+  {
+    "id": "2617",
+    "title": "ڕاپەڕین (بەری فڕۆکەخانە)",
+    "titleEn": "ڕاپەڕین (بەری فڕۆکەخانە)",
+    "keywords": "Raparin (Airport Side),39 Hakimakan,ڕاپەڕین (بەری فڕۆکەخانە),رابرین (طرف مطار),Raparin (havaalanı tarafı)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2617"
+  },
+  {
+    "id": "2668",
+    "title": "شاری لانەی ژیان",
+    "titleEn": "شاری لانەی ژیان",
+    "keywords": "Lanay Zhyan City,شاری لانەی ژیان,لانة زيان ستي,Lana Jyan Şehri",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2668"
+  },
+  {
+    "id": "194",
+    "title": "زانیاری",
+    "titleEn": "زانیاری",
+    "keywords": "Zanyari,زانياري,زانیاری,Zaniary,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/194"
+  },
+  {
+    "id": "1170",
+    "title": "ڕاپەڕینی تازە",
+    "titleEn": "ڕاپەڕینی تازە",
+    "keywords": "Raparini Taza,رابريني تازة,ڕاپەڕینی تازە,Raparini Taza",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1170"
+  },
+  {
+    "id": "388",
+    "title": "سەری بڵند",
+    "titleEn": "سەری بڵند",
+    "keywords": "Sary Blnd,Sari Blnd,سري بلند,سەری بڵند",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/388"
+  },
+  {
+    "id": "1381",
+    "title": "ژیان ستی",
+    "titleEn": "ژیان ستی",
+    "keywords": "Zhyan City,زيان ستي,ژیان ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1381"
+  },
+  {
+    "id": "1541",
+    "title": "شاری ئەندازیاران",
+    "titleEn": "شاری ئەندازیاران",
+    "keywords": "Shari Andazyaran,Andazyaran City,شاري آندازياران,شاری ئەندازیاران",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1541"
+  },
+  {
+    "id": "1223",
+    "title": "لانە ستی",
+    "titleEn": "لانە ستی",
+    "keywords": "Lana City,لانة ستي,لانە ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1223"
+  },
+  {
+    "id": "417",
+    "title": "هیران ستی",
+    "titleEn": "هیران ستی",
+    "keywords": "Hiran City,هيران ستي,هیران ستی,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/417"
+  },
+  {
+    "id": "384",
+    "title": "ئۆزال ستی",
+    "titleEn": "ئۆزال ستی",
+    "keywords": "Ozal City,اوزال ستي,ئۆزال ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/384"
+  },
+  {
+    "id": "2089",
+    "title": "سێنترۆ تاوەر",
+    "titleEn": "سێنترۆ تاوەر",
+    "keywords": "Centro Tower,سێنترۆ تاوەر,سينترو تاور,Sentro Tower",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2089"
+  },
+  {
+    "id": "1514",
+    "title": "فلۆرێنس تاوەر",
+    "titleEn": "فلۆرێنس تاوەر",
+    "keywords": "Florence Tower,فلورينس تاور,فلۆرێنس تاوەر,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1514"
+  },
+  {
+    "id": "1406",
+    "title": "هەولێر ستی",
+    "titleEn": "هەولێر ستی",
+    "keywords": "Hawler City,هولير ستي,هەولێر ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1406"
+  },
+  {
+    "id": "557",
+    "title": "ئایندە ستی 1",
+    "titleEn": "ئایندە ستی 1",
+    "keywords": "Aynda City 1,ايندة ستي 1,ئایندە ستی 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/557"
+  },
+  {
+    "id": "2071",
+    "title": "ئایندە ستی 2",
+    "titleEn": "ئایندە ستی 2",
+    "keywords": "Aynda City 2,ئایندە ستی 2,ايىدة ستي 2,Aynda City 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2071"
+  },
+  {
+    "id": "1423",
+    "title": "کوردستان",
+    "titleEn": "کوردستان",
+    "keywords": "Kurdstan,Hay Sadam,کردستان,کوردستان",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1423"
+  },
+  {
+    "id": "2212",
+    "title": "سیتی تاوەرز",
+    "titleEn": "سیتی تاوەرز",
+    "keywords": "City Towers,سیتی تاوەرز,ستي تاورز,City Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2212"
+  },
+  {
+    "id": "1357",
+    "title": "ماردین",
+    "titleEn": "ماردین",
+    "keywords": "Mardin,ماردين,ماردین,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1357"
+  },
+  {
+    "id": "2153",
+    "title": "منارە سیتی 2",
+    "titleEn": "منارە سیتی 2",
+    "keywords": "Minara City 2,منارە سیتی 2,منارة ستي 2,Minara City 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2153"
+  },
+  {
+    "id": "2731",
+    "title": "شادی و بەهاری نوێ",
+    "titleEn": "شادی و بەهاری نوێ",
+    "keywords": "Shadi w Bahari Nwe,Shadi and New Bahar,شادی و بەهاری نوێ,شادي و بهاري نوي,Shadi ve Bahari Nwe",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2731"
+  },
+  {
+    "id": "429",
+    "title": "مەنتکاوە",
+    "titleEn": "مەنتکاوە",
+    "keywords": "Mantkawa,منتكاوة,مەنتکاوە,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/429"
+  },
+  {
+    "id": "385",
+    "title": "ئەندازیاران",
+    "titleEn": "ئەندازیاران",
+    "keywords": "Andazyaran,مهندسين,ئەندازیاران,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/385"
+  },
+  {
+    "id": "445",
+    "title": "موفتی",
+    "titleEn": "موفتی",
+    "keywords": "Mufti,مفتي,موفتی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/445"
+  },
+  {
+    "id": "368",
+    "title": "ڕووناکی",
+    "titleEn": "ڕووناکی",
+    "keywords": "Runaki,روناكي,ڕووناکی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/368"
+  },
+  {
+    "id": "2572",
+    "title": "تیمار",
+    "titleEn": "تیمار",
+    "keywords": "Temar,تیمار,تيمار,Temar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2572"
+  },
+  {
+    "id": "1791",
+    "title": "دوبەی سیتی",
+    "titleEn": "دوبەی سیتی",
+    "keywords": "Dubai City,دبي ستي,دوبەی سیتی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1791"
+  },
+  {
+    "id": "1646",
+    "title": "هەواری شار",
+    "titleEn": "هەواری شار",
+    "keywords": "Hawari Shar,هواري شار,هەواری شار,Hawari Shar",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1646"
+  },
+  {
+    "id": "2730",
+    "title": "کۆمەلگەی ئیمپێرەر هیڵز",
+    "titleEn": "کۆمەلگەی ئیمپێرەر هیڵز",
+    "keywords": "Emperor Hills Complex,مجمع امبيرور هيلز,کۆمەلگەی ئیمپێرەر هیڵز,Emperor Hills Complex",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2730"
+  },
+  {
+    "id": "1210",
+    "title": "گوندی ئەمریکی",
+    "titleEn": "گوندی ئەمریکی",
+    "keywords": "American Village,قرية الأمريكية,گوندی ئەمریکی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1210"
+  },
+  {
+    "id": "2738",
+    "title": "گەرە سۆری کارت",
+    "titleEn": "گەرە سۆری کارت",
+    "keywords": "Gara Soori Kart,Gara Soori Kart,گەرە سۆری کارت,کارا سوري کارت",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2738"
+  },
+  {
+    "id": "2741",
+    "title": "کەڕک (تاپۆ)",
+    "titleEn": "کەڕک (تاپۆ)",
+    "keywords": "Kark (Tapo),کەڕک (تاپۆ),كرك (طابو),Kark (Tapo)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2741"
+  },
+  {
+    "id": "2686",
+    "title": "ئالاسکا تاوەرز",
+    "titleEn": "ئالاسکا تاوەرز",
+    "keywords": "Alaska Towers,ئالاسکا تاوەرز,ألاسكا تاورز,Alaska Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2686"
+  },
+  {
+    "id": "1330",
+    "title": "کۆمەڵگەی نیشتەجێبوونی بوروج",
+    "titleEn": "کۆمەڵگەی نیشتەجێبوونی بوروج",
+    "keywords": "Buruj Residential Complex,مجمع بروج السكني,کۆمەڵگەی نیشتەجێبوونی بوروج,Buruj Konut Kompleksi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1330"
+  },
+  {
+    "id": "267",
+    "title": "دارەتوو",
+    "titleEn": "دارەتوو",
+    "keywords": "Daratu,دارتو,دارەتوو,Daratu",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/267"
+  },
+  {
+    "id": "425",
+    "title": "هەڤاڵان",
+    "titleEn": "هەڤاڵان",
+    "keywords": "Havalan,هفالان,هەڤاڵان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/425"
+  },
+  {
+    "id": "2405",
+    "title": "سێبەردان 2",
+    "titleEn": "سێبەردان 2",
+    "keywords": "Sebardan 2,سێبەردان 2,سيبردان 2,Sebardan 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2405"
+  },
+  {
+    "id": "2486",
+    "title": "سۆنە گۆلی",
+    "titleEn": "سۆنە گۆلی",
+    "keywords": "Sona Goly,سۆنە گۆلی,صونة كولى,Sona Goly",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2486"
+  },
+  {
+    "id": "1299",
+    "title": "ئاڵتون ستی",
+    "titleEn": "ئاڵتون ستی",
+    "keywords": "Altun City,التون ستي,ئاڵتون ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1299"
+  },
+  {
+    "id": "2757",
+    "title": "پێشمەرگە (تاپۆ)",
+    "titleEn": "پێشمەرگە (تاپۆ)",
+    "keywords": "Peshmarga,بیشمرکه (تابو),پێشمەرگە (تاپۆ),Peşmarga (Tapo)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2757"
+  },
+  {
+    "id": "2287",
+    "title": "مارینا سیتی",
+    "titleEn": "مارینا سیتی",
+    "keywords": "Marina City,مارینا سیتی,مارينا ستي,Marına City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2287"
+  },
+  {
+    "id": "1428",
+    "title": "سەروەران",
+    "titleEn": "سەروەران",
+    "keywords": "Sarwaran,سروران,سەروەران,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1428"
+  },
+  {
+    "id": "1542",
+    "title": "زانایان",
+    "titleEn": "زانایان",
+    "keywords": "Zanayan,العلماء,زانایان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1542"
+  },
+  {
+    "id": "1466",
+    "title": "121 گوڵان (گوڵان 1)",
+    "titleEn": "121 گوڵان (گوڵان 1)",
+    "keywords": "121 Gulan (Gulan 1),121 كولان (كولان 1),121 گوڵان (گوڵان 1),121 Gülan (Gülan 1)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1466"
+  },
+  {
+    "id": "556",
+    "title": "سیمی خاتوناوە",
+    "titleEn": "سیمی خاتوناوە",
+    "keywords": "Simy Khatwnawa,سيمي خاتوناوة,سیمی خاتوناوە",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/556"
+  },
+  {
+    "id": "2760",
+    "title": "جنائن بغداد",
+    "titleEn": "جنائن بغداد",
+    "keywords": "Baghdad Gardens,جنائن بغداد,Baghdad Gardens,جنائن بغداد",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2760"
+  },
+  {
+    "id": "2340",
+    "title": "عەنکاوە 128",
+    "titleEn": "عەنکاوە 128",
+    "keywords": "Ankawa 128,عەنکاوە 128,عنکاوة 128,Ankawa 128",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2340"
+  },
+  {
+    "id": "1227",
+    "title": "نوسەران",
+    "titleEn": "نوسەران",
+    "keywords": "Nusaran,نوسران,نوسەران,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1227"
+  },
+  {
+    "id": "2762",
+    "title": "حاکماوا",
+    "titleEn": "حاکماوا",
+    "keywords": "Hakmawa,حاکماوا,حاکماوا,Hakmava",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2762"
+  },
+  {
+    "id": "2763",
+    "title": "407 عنکاوە",
+    "titleEn": "407 عنکاوە",
+    "keywords": "407 Ankawa,407 عنکاوە,407 Ankawa,407 عنکاوة",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2763"
+  },
+  {
+    "id": "442",
+    "title": "چنار (شورتاوە)",
+    "titleEn": "چنار (شورتاوە)",
+    "keywords": "Chnar (Shurtawa),جنار (شورتاوة),چنار (شورتاوە),",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/442"
+  },
+  {
+    "id": "1084",
+    "title": "شاری سانا",
+    "titleEn": "شاری سانا",
+    "keywords": "Sana City,مجمع سانا,شاری سانا,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1084"
+  },
+  {
+    "id": "2567",
+    "title": "تورەق",
+    "titleEn": "تورەق",
+    "keywords": "Turaq,تورەق,تورق,Turak",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2567"
+  },
+  {
+    "id": "1780",
+    "title": "کوین تاوەر",
+    "titleEn": "کوین تاوەر",
+    "keywords": "Queen Tower,كوين تاور,کوین تاوەر,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1780"
+  },
+  {
+    "id": "1582",
+    "title": "نایس ڤیلەج",
+    "titleEn": "نایس ڤیلەج",
+    "keywords": "Nice Village,نايس فيلج,نایس ڤیلەج",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1582"
+  },
+  {
+    "id": "279",
+    "title": "نیو ئیسکان",
+    "titleEn": "نیو ئیسکان",
+    "keywords": "New Eskan,نيو اسكان,نیو ئیسکان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/279"
+  },
+  {
+    "id": "2452",
+    "title": "پڕۆژەی لؤلؤی نیشتەجێبوون",
+    "titleEn": "پڕۆژەی لؤلؤی نیشتەجێبوون",
+    "keywords": "Louloua Residential Compound,پڕۆژەی لؤلؤی نیشتەجێبوون,مجمع اللؤلؤة السكني,Lulu Sitesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2452"
+  },
+  {
+    "id": "2609",
+    "title": "ئازادی 1",
+    "titleEn": "ئازادی 1",
+    "keywords": "Azady 1,ئازادی 1,ازادي 1,Azadi 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2609"
+  },
+  {
+    "id": "2433",
+    "title": "ئازادی 2",
+    "titleEn": "ئازادی 2",
+    "keywords": "Azady 2,ئازاد�� 2,ازادي 2,Azadı 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2433"
+  },
+  {
+    "id": "2767",
+    "title": "ڕاپەڕین",
+    "titleEn": "ڕاپەڕین",
+    "keywords": "Raparin,Raparin 63,ڕاپەڕین,رابرين,Raparin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2767"
+  },
+  {
+    "id": "1395",
+    "title": "لالاڤ سەن تاوەرز",
+    "titleEn": "لالاڤ سەن تاوەرز",
+    "keywords": "Lalav Sun Towers,لالاف سن  تاورز,لالاڤ سەن تاوەرز,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1395"
+  },
+  {
+    "id": "2768",
+    "title": "ئەندازیاران",
+    "titleEn": "ئەندازیاران",
+    "keywords": "Andazyaran,Engineers 15,ئەندازیاران,اندازياران,Andazyaran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2768"
+  },
+  {
+    "id": "2423",
+    "title": "کارۆخ",
+    "titleEn": "کارۆخ",
+    "keywords": "Karox,کارۆخ,كاروخ,Karuh",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2423"
+  },
+  {
+    "id": "2775",
+    "title": "شارەوانی",
+    "titleEn": "شارەوانی",
+    "keywords": "Sharawani,sharewani,شارەوانی,شارواني,Şarevani",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2775"
+  },
+  {
+    "id": "2783",
+    "title": "کۆدۆ",
+    "titleEn": "کۆدۆ",
+    "keywords": "Kodo,کۆدۆ,کودو,Kodo",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2783"
+  },
+  {
+    "id": "2791",
+    "title": "ئاشتی",
+    "titleEn": "ئاشتی",
+    "keywords": "Ashti,ئاشتی,آشتي,Ati",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2791"
+  },
+  {
+    "id": "2777",
+    "title": "ئیمیڕاڵد ستی",
+    "titleEn": "ئیمیڕاڵد ستی",
+    "keywords": "Emerald City,ئیمیڕاڵد ستی,امرالد ستي,Emerald City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2777"
+  },
+  {
+    "id": "2801",
+    "title": "رزگاری 1",
+    "titleEn": "رزگاری 1",
+    "keywords": "Rzgary 1,Rzgary 1,رزگاری 1,رزکاري 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2801"
+  },
+  {
+    "id": "2804",
+    "title": "بنار",
+    "titleEn": "بنار",
+    "keywords": "Bnar,Bnar,بنار,بنار",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2804"
+  },
+  {
+    "id": "2769",
+    "title": "دەروازە",
+    "titleEn": "دەروازە",
+    "keywords": "Darwaza,دەروازە,دروازة,Darvaza",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2769"
+  },
+  {
+    "id": "2770",
+    "title": "ڕوناکی",
+    "titleEn": "ڕوناکی",
+    "keywords": "Runaki,Rwnaki,ڕوناکی,روناكي,Runaki",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2770"
+  },
+  {
+    "id": "2771",
+    "title": "سەردەم",
+    "titleEn": "سەردەم",
+    "keywords": "Sardam,sardam 15,سەردەم,سردم,Sardam",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2771"
+  },
+  {
+    "id": "2802",
+    "title": "رزگاری 2",
+    "titleEn": "رزگاری 2",
+    "keywords": "Rzgary 2,Rzgary 2,رزگاری 2,رزکاري 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2802"
+  },
+  {
+    "id": "2792",
+    "title": "چوارچرا",
+    "titleEn": "چوارچرا",
+    "keywords": "Chwarchra,چوارچرا,جوارجرا,cwarcra",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2792"
+  },
+  {
+    "id": "2773",
+    "title": "زانکۆ",
+    "titleEn": "زانکۆ",
+    "keywords": "Zanko,زانکۆ,زانكو,Zanko",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2773"
+  },
+  {
+    "id": "2779",
+    "title": "کوێستان",
+    "titleEn": "کوێستان",
+    "keywords": "Kwestan,کوێستان,کویستان,Kwestan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2779"
+  },
+  {
+    "id": "2780",
+    "title": "ماکۆک",
+    "titleEn": "ماکۆک",
+    "keywords": "Makok,ماکۆک,ماکوک,Makok",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2780"
+  },
+  {
+    "id": "2772",
+    "title": "نەورۆز",
+    "titleEn": "نەورۆز",
+    "keywords": "Nawroz,Newroz,نوروز,Nevroz,نەورۆز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2772"
+  },
+  {
+    "id": "2799",
+    "title": "گزنگ",
+    "titleEn": "گزنگ",
+    "keywords": "Gzng,گزنگ,کزنک,Gzng",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2799"
+  },
+  {
+    "id": "2800",
+    "title": "هاوکاری",
+    "titleEn": "هاوکاری",
+    "keywords": "Hawkari,Hawkari,هاوکاری,هاوکاري",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2800"
+  },
+  {
+    "id": "2778",
+    "title": "بتوێن",
+    "titleEn": "بتوێن",
+    "keywords": "Bitwen,بتوێن,بتوین,Bitwin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2778"
+  },
+  {
+    "id": "2417",
+    "title": "شادی",
+    "titleEn": "شادی",
+    "keywords": "Shadi,شادی,شادي,Şadı",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2417"
+  },
+  {
+    "id": "2590",
+    "title": "میدیا",
+    "titleEn": "میدیا",
+    "keywords": "Midya,میدیا,ميديا,Midya",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2590"
+  },
+  {
+    "id": "2789",
+    "title": "ماردین",
+    "titleEn": "ماردین",
+    "keywords": "Mardin,ماردین,ماردين,Mardin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2789"
+  },
+  {
+    "id": "2766",
+    "title": "دایک",
+    "titleEn": "دایک",
+    "keywords": "Daik,Dayk,دایک,دايك,Dayik",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2766"
+  },
+  {
+    "id": "2810",
+    "title": "هەکاری",
+    "titleEn": "هەکاری",
+    "keywords": "Hakari,Hakari (14),هەکاری,هکاري,Hakari",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2810"
+  },
+  {
+    "id": "2796",
+    "title": "قەندیل",
+    "titleEn": "قەندیل",
+    "keywords": "Qandil,Qandil,قەندیل,قةنديل",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2796"
+  },
+  {
+    "id": "2795",
+    "title": "داستان",
+    "titleEn": "داستان",
+    "keywords": "Dastan,داستان,دستان,Dastan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2795"
+  },
+  {
+    "id": "2794",
+    "title": "ئایندە",
+    "titleEn": "ئایندە",
+    "keywords": "Ainda,ئایندە,آيندة,Ainda",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2794"
+  },
+  {
+    "id": "2782",
+    "title": "سەرا",
+    "titleEn": "سەرا",
+    "keywords": "Sara,سەرا,سةرا,Sara",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2782"
+  },
+  {
+    "id": "2781",
+    "title": "پێشەوا",
+    "titleEn": "پێشەوا",
+    "keywords": "Peshawa,پێشەوا,بیشةوا,Pesawa",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2781"
+  },
+  {
+    "id": "2786",
+    "title": "فەرمانبەران",
+    "titleEn": "فەرمانبەران",
+    "keywords": "Farmanbaran,فەرمانبەران,فرمانبران,Farmanbaran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2786"
+  },
+  {
+    "id": "2785",
+    "title": "مامۆستایان",
+    "titleEn": "مامۆستایان",
+    "keywords": "Mamostayan,مامۆستایان,ماموستایان,Mamostaian",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2785"
+  },
+  {
+    "id": "2798",
+    "title": "ڕابوون",
+    "titleEn": "ڕابوون",
+    "keywords": "Rabun,رابون,ڕابوون,Rabun,رةبون",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2798"
+  },
+  {
+    "id": "1548",
+    "title": "پیشەسازی باشور",
+    "titleEn": "پیشەسازی باشور",
+    "keywords": "South Industry,صناعة جنوبية,پیشەسازی باشور,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1548"
+  },
+  {
+    "id": "2820",
+    "title": "پڕۆژەی نیشتەجێبوونی ئەلجەواهیری",
+    "titleEn": "پڕۆژەی نیشتەجێبوونی ئەلجەواهیری",
+    "keywords": "Al Jawahery Residential City,Aljawahiri,مدينة الجواهري السكنية,پڕۆژەی نیشتەجێبوونی ئەلجەواهیری,Al Cavaheri Konut Kompleksi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2820"
+  },
+  {
+    "id": "2826",
+    "title": "قەرەبووی شاوێس",
+    "titleEn": "قەرەبووی شاوێس",
+    "keywords": "Qarabuy Shaways,Qarabu Shawes,قەرەبووی شاوێس,Kerebui Shaves,قربو شاويس",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2826"
+  },
+  {
+    "id": "2827",
+    "title": "کرێچیانی شاوێس",
+    "titleEn": "کرێچیانی شاوێس",
+    "keywords": "Krechyani Shaways,Krechyani Shawes,کرێچیانی شاوێس,کريجياني شاويس,Krechiani Shaves",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2827"
+  },
+  {
+    "id": "2828",
+    "title": "قەرەبووی کەلەکین",
+    "titleEn": "قەرەبووی کەلەکین",
+    "keywords": "Qarabuy Kalakin,Qarabuy Kalakn,قەرەبووی کەلەکین,Karabuy Kalakin,قربوي کلاکين",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2828"
+  },
+  {
+    "id": "2742",
+    "title": "دانیا ستی 1",
+    "titleEn": "دانیا ستی 1",
+    "keywords": "Dania City 1,Danya City1,دانیا ستی 1,دانيا ستي 1,Dania City 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2742"
+  },
+  {
+    "id": "1316",
+    "title": "ڵایف تاوەرز",
+    "titleEn": "ڵایف تاوەرز",
+    "keywords": "Life Towers,لايف تاورز,ڵایف تاوەرز,Life kulesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1316"
+  },
+  {
+    "id": "2833",
+    "title": "قۆپەقران (ڕوناکی نوێ)",
+    "titleEn": "قۆپەقران (ڕوناکی نوێ)",
+    "keywords": "Qopaqran (Runaki Nwe),qopa qran,قوبقران (روناکي نوي),قۆپەقران (ڕوناکی نوێ),Kopekran (Runaki Nwe)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2833"
+  },
+  {
+    "id": "1786",
+    "title": "سکای لاند",
+    "titleEn": "سکای لاند",
+    "keywords": "Sky Land,سكاي لاند,سکای لاند,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1786"
+  },
+  {
+    "id": "2837",
+    "title": "جدیدە",
+    "titleEn": "جدیدە",
+    "keywords": "Jadida,jdida,جدیدە,جديدة,Cedide",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2837"
+  },
+  {
+    "id": "2456",
+    "title": "گاردن ستی",
+    "titleEn": "گاردن ستی",
+    "keywords": "Garden City,گاردن ستی,كاردن ستي,Garden Sitesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2456"
+  },
+  {
+    "id": "2840",
+    "title": "(القضاة 2)دادوەران 2",
+    "titleEn": "(القضاة 2)دادوەران 2",
+    "keywords": "Al-Qudat 2,(القضاة 2)دادوەران 2,القضاة 2,Kuzat 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2840"
+  },
+  {
+    "id": "2448",
+    "title": "جوان ستی",
+    "titleEn": "جوان ستی",
+    "keywords": "Jwan City,جوان ستی,مجمع جوان ستي,Cvan Sitesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2448"
+  },
+  {
+    "id": "602",
+    "title": "دۆمیز",
+    "titleEn": "دۆمیز",
+    "keywords": "Domez,دوميز,دۆمیز,Domez",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/602"
+  },
+  {
+    "id": "2845",
+    "title": "سەیدان",
+    "titleEn": "سەیدان",
+    "keywords": "Saydan,Saidan,سەیدان,سيدان,Seydan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2845"
+  },
+  {
+    "id": "2608",
+    "title": "سەربەستی نوێ (8ی تورەق)",
+    "titleEn": "سەربەستی نوێ (8ی تورەق)",
+    "keywords": "New Sarbasti (8 Turaq),سەربەستی نوێ (8ی تورەق),سربستي نوي (8 تورق)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2608"
+  },
+  {
+    "id": "625",
+    "title": "شۆراو",
+    "titleEn": "شۆراو",
+    "keywords": "Shoraw,شوراو,شۆراو,Şorav",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/625"
+  },
+  {
+    "id": "2449",
+    "title": "کرکوک ستی",
+    "titleEn": "کرکوک ستی",
+    "keywords": "Kirkuk City,کرکوک ستی,كركوك ستي,Kirkuk Sitesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2449"
+  },
+  {
+    "id": "2846",
+    "title": "بیڤرلی هیڵز",
+    "titleEn": "بیڤرلی هیڵز",
+    "keywords": "Beverly Hills,بیڤرلی هیڵز,بیفرلي هيلز,Beverly Hills",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2846"
+  },
+  {
+    "id": "2847",
+    "title": "ئەدرێس ئەربیل",
+    "titleEn": "ئەدرێس ئەربیل",
+    "keywords": "Address Erbil,Address City Erbil,ئەدرێس ئەربیل,أدريس أربيل,Address Erbil",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2847"
+  },
+  {
+    "id": "220",
+    "title": "کارێزان",
+    "titleEn": "کارێزان",
+    "keywords": "Karezan,كاريزان,کارێزان,Karezan,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/220"
+  },
+  {
+    "id": "383",
+    "title": "94 باداوە",
+    "titleEn": "94 باداوە",
+    "keywords": "94 Badawa,94 باداوة,94 باداوە,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/383"
+  },
+  {
+    "id": "1581",
+    "title": "زیلان ستی",
+    "titleEn": "زیلان ستی",
+    "keywords": "Zeelan City,Zilan City,زيلان ستي,زیلان ستی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1581"
+  },
+  {
+    "id": "1421",
+    "title": "99 زانکۆ",
+    "titleEn": "99 زانکۆ",
+    "keywords": "99 Zanko,Zanko 1,99زانكو,99 زانکۆ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1421"
+  },
+  {
+    "id": "2870",
+    "title": "دیلان",
+    "titleEn": "دیلان",
+    "keywords": "Dilan,Delan,دیلان,ديلان,Dilan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2870"
+  },
+  {
+    "id": "631",
+    "title": "ئاری",
+    "titleEn": "ئاری",
+    "keywords": "Ari,aree,اري,ئاری",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/631"
+  },
+  {
+    "id": "2871",
+    "title": "گرین ستی",
+    "titleEn": "گرین ستی",
+    "keywords": "Green City,Green City,گرین ستی,مجمع كرين ستي السكني",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2871"
+  },
+  {
+    "id": "2872",
+    "title": "گوندی ئیسپانی",
+    "titleEn": "گوندی ئیسپانی",
+    "keywords": "Spanish Village,گوندی ئیسپانی,قرية اسبانية,Spanish Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2872"
+  },
+  {
+    "id": "243",
+    "title": "بنەسڵاوە",
+    "titleEn": "بنەسڵاوە",
+    "keywords": "Bnaslawa,بنصلاوة,بنەسڵاوە,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/243"
+  },
+  {
+    "id": "2727",
+    "title": "دارەتووی نوێ",
+    "titleEn": "دارەتووی نوێ",
+    "keywords": "Daratuy Nwe,دارەتووی نوێ,داراتو الجديدة,Daratuy Nwe",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2727"
+  },
+  {
+    "id": "2876",
+    "title": "ڕاستی (بەحرکە)",
+    "titleEn": "ڕاستی (بەحرکە)",
+    "keywords": "Rasti (Bahrka),Rasti Bahrka,ڕاستی (بەحرکە),راستي (بحرکة),Rasti (Bahrka)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2876"
+  },
+  {
+    "id": "2875",
+    "title": "فەرمانبەرانی بەحرکە",
+    "titleEn": "فەرمانبەرانی بەحرکە",
+    "keywords": "Farmanbarani Bahrka,فەرمانبەرانی بەحرکە,فرمانبراني بحرکة,Farmanbarani Bahrka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2875"
+  },
+  {
+    "id": "2208",
+    "title": "دارەبەن",
+    "titleEn": "دارەبەن",
+    "keywords": "Daraban,دارەبەن,داربن,Daraban",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2208"
+  },
+  {
+    "id": "2877",
+    "title": "خەرابەدراو",
+    "titleEn": "خەرابەدراو",
+    "keywords": "Kharabadraw,Xrabadraw,خەرابەدراو,خرابدراو,Harabadraw",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2877"
+  },
+  {
+    "id": "2450",
+    "title": "فاملی لاند",
+    "titleEn": "فاملی لاند",
+    "keywords": "Family Land Compound,فاملی لاند,فاملي لاند,Family Land",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2450"
+  },
+  {
+    "id": "2855",
+    "title": "میراج ستی",
+    "titleEn": "میراج ستی",
+    "keywords": "Mirage City,میراج ستی,ميراج ستي,Mirage City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2855"
+  },
+  {
+    "id": "2881",
+    "title": "سەیدان B",
+    "titleEn": "سەیدان B",
+    "keywords": "Saydan B,Saidan B,سەیدان B,سيدان B,Seydan B",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2881"
+  },
+  {
+    "id": "2075",
+    "title": "بەحرکەی نوێ",
+    "titleEn": "بەحرکەی نوێ",
+    "keywords": "New Bahrka,48 Bahrka,بەحرکەی نوێ,بحرکة الجديدة,Yeni Bahırka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2075"
+  },
+  {
+    "id": "2850",
+    "title": "ئۆلیڤ گاردن ستی",
+    "titleEn": "ئۆلیڤ گاردن ستی",
+    "keywords": "Olive Garden City,ئۆلیڤ گاردن ستی,اوليف كاردن ستي,Olive Garden City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2850"
+  },
+  {
+    "id": "2849",
+    "title": "ڤانە تاوەرز",
+    "titleEn": "ڤانە تاوەرز",
+    "keywords": "Vana Towers,ڤانە تاوەرز,فانه تاورز,Vana Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2849"
+  },
+  {
+    "id": "2882",
+    "title": "17 شۆراو",
+    "titleEn": "17 شۆراو",
+    "keywords": "17 Shoraw,Shoraw 17,17 شۆراو,17 شوراو,17 Şoraw",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2882"
+  },
+  {
+    "id": "2884",
+    "title": "شاری نیشتەجێبوونی نەخیل",
+    "titleEn": "شاری نیشتەجێبوونی نەخیل",
+    "keywords": "Alnakhil Residential City,Al Nakhil kompleksi,مدينة النخيل السكنية,شاری نیشتەجێبوونی نەخیل",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2884"
+  },
+  {
+    "id": "2354",
+    "title": "ئەربیل گاردن",
+    "titleEn": "ئەربیل گاردن",
+    "keywords": "Erbil Garden,أربيل جاردن,ئەربیل گاردن,Erbil Garden",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2354"
+  },
+  {
+    "id": "2886",
+    "title": "پڕۆژەی نیشتەجێبوونی ئەلبیدایە",
+    "titleEn": "پڕۆژەی نیشتەجێبوونی ئەلبیدایە",
+    "keywords": "Albidayaa Residential Project,al bidaya,Albidayaa Konut Projesi,مشروع البداية السکني,پڕۆژەی نیشتەجێبوونی ئەلبیدایە",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2886"
+  },
+  {
+    "id": "2888",
+    "title": "پڕۆژەی لؤلؤی نیشتەجێبوون",
+    "titleEn": "پڕۆژەی لؤلؤی نیشتەجێبوون",
+    "keywords": "Pearl complex,loulou,Lulu Sitesi,مجمع اللؤلؤة السكني,پڕۆژەی لؤلؤی نیشتەجێبوون",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2888"
+  },
+  {
+    "id": "2889",
+    "title": "ڤێلاکانی ئۆکلاند",
+    "titleEn": "ڤێلاکانی ئۆکلاند",
+    "keywords": "Oakland Villas,okland,ڤێلاکانی ئۆکلاند,فلل اوكلاند,Okland Villaları",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2889"
+  },
+  {
+    "id": "2890",
+    "title": "مەلا یاسین",
+    "titleEn": "مەلا یاسین",
+    "keywords": "Mala Yasin,malayasin,مەلا یاسین,ملا یاسين,Mela Yasin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2890"
+  },
+  {
+    "id": "2891",
+    "title": "کۆمەلگەی ژین (بەحرکە)",
+    "titleEn": "کۆمەلگەی ژین (بەحرکە)",
+    "keywords": "Zhin Complex (Bahrka),Jin Kompleksi (Bahrka),کۆمەلگەی ژین (بەحرکە),مجمع زین (بحرکة)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2891"
+  },
+  {
+    "id": "1556",
+    "title": "گوڵان ستی",
+    "titleEn": "گوڵان ستی",
+    "keywords": "Gulan City,كولان ستي,گوڵان ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1556"
+  },
+  {
+    "id": "2892",
+    "title": "برایەتی بەحرکە",
+    "titleEn": "برایەتی بەحرکە",
+    "keywords": "Brayati Bahrka,Brayati Bahrka,برایەتی بەحرکە,برايتي بحرکة,Brayati Bahrka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2892"
+  },
+  {
+    "id": "2893",
+    "title": "ئازادی بەحرکە",
+    "titleEn": "ئازادی بەحرکە",
+    "keywords": "Azadi Bahrka,ئازادی بەحرکە,ازادي بحرکة,Azadi Bahirka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2893"
+  },
+  {
+    "id": "2894",
+    "title": "دەریاچەی ئۆمنیات",
+    "titleEn": "دەریاچەی ئۆمنیات",
+    "keywords": "Al-Omniyat Lake,omnyat lake,دەریاچەی ئۆمنیات,بحیرة الامنيات,Al-Omniyat Gölü",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2894"
+  },
+  {
+    "id": "2895",
+    "title": "بەختیاری نوێ",
+    "titleEn": "بەختیاری نوێ",
+    "keywords": "Bakhtyari Nwe,بەختیاری نوێ,بختياري نوي,Bahtyari Nwe",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2895"
+  },
+  {
+    "id": "1553",
+    "title": "کورانی نوێ",
+    "titleEn": "کورانی نوێ",
+    "keywords": "Kurani Nwe,كوراني نوي,کورانی نوێ,null",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1553"
+  },
+  {
+    "id": "2896",
+    "title": "قەرەبوی کارێز",
+    "titleEn": "قەرەبوی کارێز",
+    "keywords": "Qarabuy Karez,قربوي كاريز,Karabuy Karez,قەرەبوی کارێز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2896"
+  },
+  {
+    "id": "242",
+    "title": "باداوە",
+    "titleEn": "باداوە",
+    "keywords": "Badawa,باداوة,باداوە,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/242"
+  },
+  {
+    "id": "2067",
+    "title": "سەیداوە",
+    "titleEn": "سەیداوە",
+    "keywords": "Saidawa,saydawa,سەیداوە,سيداوة,Saıdave",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2067"
+  },
+  {
+    "id": "2897",
+    "title": "خوێندنی باڵا",
+    "titleEn": "خوێندنی باڵا",
+    "keywords": "Xwendni Balla City,Higher Education,خوێندنی باڵا,خويندني بالا",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2897"
+  },
+  {
+    "id": "2087",
+    "title": "ئیمپایەر رۆیال ئەپارتمێنت",
+    "titleEn": "ئیمپایەر رۆیال ئەپارتمێنت",
+    "keywords": "Empire Royal Apartment,ئیمپایەر رۆیال ئەپارتمێنت,امباير رويال ابارتمينت,Empire Royal Apartman",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2087"
+  },
+  {
+    "id": "304",
+    "title": "کانی",
+    "titleEn": "کانی",
+    "keywords": "Kani,كاني,کانی",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/304"
+  },
+  {
+    "id": "2863",
+    "title": "ئارام گاردن",
+    "titleEn": "ئارام گاردن",
+    "keywords": "Aram Garden,ئارام گاردن,ارام كاردن,Aram Garden",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2863"
+  },
+  {
+    "id": "1768",
+    "title": "سێوەکە",
+    "titleEn": "سێوەکە",
+    "keywords": "Sewaka,سيوةكة,سێوەکە,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1768"
+  },
+  {
+    "id": "301",
+    "title": "کوێستان (قادسیە)",
+    "titleEn": "کوێستان (قادسیە)",
+    "keywords": "Kwestan (Qadisya),كويستان (قادسیة),کوێستان (قادسیە),Kvesta (Kadisiya)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/301"
+  },
+  {
+    "id": "2859",
+    "title": "شاری یۆنانی",
+    "titleEn": "شاری یۆنانی",
+    "keywords": "Greece City,Yonani,شاری یۆنانی,مدینة يونانية,Greece City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2859"
+  },
+  {
+    "id": "305",
+    "title": "شۆڕش",
+    "titleEn": "شۆڕش",
+    "keywords": "Shorsh,شورش,شۆڕش,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/305"
+  },
+  {
+    "id": "2218",
+    "title": "بازاری سپی",
+    "titleEn": "بازاری سپی",
+    "keywords": "Bazary Spi,بازاري سبي,بازاری سپی,Bazary Spi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2218"
+  },
+  {
+    "id": "1515",
+    "title": "پاك لاند",
+    "titleEn": "پاك لاند",
+    "keywords": "Pak Land,باك لاند,پاك لاند,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1515"
+  },
+  {
+    "id": "2597",
+    "title": "شاری سەفیران",
+    "titleEn": "شاری سەفیران",
+    "keywords": "Safiran City,Safiran,شاری سەفیران,مدینة سفیران,Safiran şehri",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2597"
+  },
+  {
+    "id": "1494",
+    "title": "ئاوێنەی شار",
+    "titleEn": "ئاوێنەی شار",
+    "keywords": "Awenay Shar,ئاوينةي شار,ئاوێنەی شار,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1494"
+  },
+  {
+    "id": "2901",
+    "title": "ژینی نوێ",
+    "titleEn": "ژینی نوێ",
+    "keywords": "Zhini Nwe,new zhin,ژینی نوێ,زيني نوي,Jini Nwe",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2901"
+  },
+  {
+    "id": "1591",
+    "title": "گرین وۆڵد",
+    "titleEn": "گرین وۆڵد",
+    "keywords": "Green World,جرين وولد,گرین وۆڵد,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1591"
+  },
+  {
+    "id": "2903",
+    "title": "لاڤێندەر سکای لاین تاوەر",
+    "titleEn": "لاڤێندەر سکای لاین تاوەر",
+    "keywords": "Lavender Skyline Tower,lavender skyline,Lavender Skyline Tower,لاڤێندەر سکای لاین تاوەر,لاڤندر سکای لاین تاور",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2903"
+  },
+  {
+    "id": "298",
+    "title": "نیشتیمان",
+    "titleEn": "نیشتیمان",
+    "keywords": "Nishteman,نشتمان,نیشتیمان,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/298"
+  },
+  {
+    "id": "1776",
+    "title": "ئازادی",
+    "titleEn": "ئازادی",
+    "keywords": "Azadi,آزادي,ئازادی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1776"
+  },
+  {
+    "id": "2906",
+    "title": "ئازادی 2",
+    "titleEn": "ئازادی 2",
+    "keywords": "Azadi 2,Azadi 2,آزادي 2,ئازادی 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2906"
+  },
+  {
+    "id": "2905",
+    "title": "تارین",
+    "titleEn": "تارین",
+    "keywords": "Tarin,Farmanbarani Kasnazan,تارین,تارين,Tarin",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2905"
+  },
+  {
+    "id": "2907",
+    "title": "عەدەن ستي",
+    "titleEn": "عەدەن ستي",
+    "keywords": "Adan City,aden,عەدەن ستي,حي عدن,Aden City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2907"
+  },
+  {
+    "id": "2681",
+    "title": "تەعجیلی نوێ",
+    "titleEn": "تەعجیلی نوێ",
+    "keywords": "New Taajeel,تەعجیلی نوێ,تعجيل الجديدة,New Taajeel",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2681"
+  },
+  {
+    "id": "2043",
+    "title": "ئالان ستی",
+    "titleEn": "ئالان ستی",
+    "keywords": "Alan City,ئالان ستی,الان ستي,Alan City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2043"
+  },
+  {
+    "id": "2848",
+    "title": "ئارام تاوەر",
+    "titleEn": "ئارام تاوەر",
+    "keywords": "Aram Tower,ئارام تاوەر,ارام تاور,Aram Tower",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2848"
+  },
+  {
+    "id": "2308",
+    "title": "101 کۆمپلیکس",
+    "titleEn": "101 کۆمپلیکس",
+    "keywords": "101 Complex,101 کۆمپلیکس,101 كومبليكس,101 Kompleks",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2308"
+  },
+  {
+    "id": "306",
+    "title": "خانزاد (دۆلاراوە)",
+    "titleEn": "خانزاد (دۆلاراوە)",
+    "keywords": "Khanzad (Dolarawa),خانزاد (دولاراوا),خانزاد (دۆلاراوە),Hanzad (Dolarava)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/306"
+  },
+  {
+    "id": "2066",
+    "title": "گوندی پانک",
+    "titleEn": "گوندی پانک",
+    "keywords": "Pank Village,گوندی پانک,قرية بانك,Pank Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2066"
+  },
+  {
+    "id": "2910",
+    "title": "کانی ئەڵمانی",
+    "titleEn": "کانی ئەڵمانی",
+    "keywords": "Kani Almani,kany Almany,Kani Almani,کانی ئەڵمانی,کاني الماني",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2910"
+  },
+  {
+    "id": "2049",
+    "title": "ئالا ستی",
+    "titleEn": "ئالا ستی",
+    "keywords": "Ala City,Chawder,ئالا ستی,الا ستي,Ala City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2049"
+  },
+  {
+    "id": "1816",
+    "title": "هەرشەم ستی ٢",
+    "titleEn": "هەرشەم ستی ٢",
+    "keywords": "Harsham City 2,حي هرشم 2,هەرشەم ستی ٢",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1816"
+  },
+  {
+    "id": "1626",
+    "title": "هەرشەم ستی",
+    "titleEn": "هەرشەم ستی",
+    "keywords": "Harsham City,هرشم ستي,هەرشەم ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1626"
+  },
+  {
+    "id": "2443",
+    "title": "پیرداوود",
+    "titleEn": "پیرداوود",
+    "keywords": "Pirdawd,پیرداوود,بيرداود,Pirdawd",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2443"
+  },
+  {
+    "id": "1592",
+    "title": "ئاراس",
+    "titleEn": "ئاراس",
+    "keywords": "Aras,آراس,ئاراس",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1592"
+  },
+  {
+    "id": "303",
+    "title": "سەڵاحەدین",
+    "titleEn": "سەڵاحەدین",
+    "keywords": "Salahadin,Jaday Surchyan,صلاح الدين,سەڵاحەدین,Salahadın",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/303"
+  },
+  {
+    "id": "2913",
+    "title": "بنەسڵاوەی نوێ",
+    "titleEn": "بنەسڵاوەی نوێ",
+    "keywords": "Bnaslaway Nwe,New Bnaslawa,بنصلاوة جديدة,Yeni Bnaslava,بنەسڵاوەی نوێ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2913"
+  },
+  {
+    "id": "2915",
+    "title": "گرد ئارەق 1",
+    "titleEn": "گرد ئارەق 1",
+    "keywords": "Grd Araq 1,grdaraq1,گرد ئارەق 1,کرد عارق 1,Grd Arak 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2915"
+  },
+  {
+    "id": "2916",
+    "title": "گرد ئارەق 2",
+    "titleEn": "گرد ئارەق 2",
+    "keywords": "Grd Araq 2,Grdaraq2,Grd Arak 2,گرد ئارەق 2,کرد عارق 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2916"
+  },
+  {
+    "id": "2917",
+    "title": "دووسەرە (فەرمانبەران)",
+    "titleEn": "دووسەرە (فەرمانبەران)",
+    "keywords": "Dusara (Farmanbaran),دووسەرە (فەرمانبەران),دوسرة (فرمانبران),Dusara (Farmanbaran)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2917"
+  },
+  {
+    "id": "2919",
+    "title": "ڕۆیاڵ گاردن",
+    "titleEn": "ڕۆیاڵ گاردن",
+    "keywords": "Royal Garden,ڕۆیاڵ گاردن,رویال کاردن,Royal Garden",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2919"
+  },
+  {
+    "id": "2307",
+    "title": "گردە چال",
+    "titleEn": "گردە چال",
+    "keywords": "Grda Chal,گردە چال,کردة جال,Grda Çal",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2307"
+  },
+  {
+    "id": "2860",
+    "title": "بریتش ڤیلج",
+    "titleEn": "بریتش ڤیلج",
+    "keywords": "British Village,بریتش ڤیلج,بريتش ڤلج,British Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2860"
+  },
+  {
+    "id": "2921",
+    "title": "CBC  (سەنتەری بازرگانی چین)",
+    "titleEn": "CBC  (سەنتەری بازرگانی چین)",
+    "keywords": "CBC (China Business Center),(CBC) مركز الأعمال الصيني,CBC  (سەنتەری بازرگانی چین),CBC (Çin İş Merkezi) Projesi",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2921"
+  },
+  {
+    "id": "2924",
+    "title": "لاڤندەر ستی",
+    "titleEn": "لاڤندەر ستی",
+    "keywords": "Lavender City,لاڤندەر ستی,لافندر ستي,Lavender City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2924"
+  },
+  {
+    "id": "2923",
+    "title": "سمارت ستی",
+    "titleEn": "سمارت ستی",
+    "keywords": "Smart City,سمارت ستی,سمارت ستي,Smart City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2923"
+  },
+  {
+    "id": "2925",
+    "title": "باسرمە",
+    "titleEn": "باسرمە",
+    "keywords": "Basrma,باسرمه,باسرمە,Baserma",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2925"
+  },
+  {
+    "id": "2911",
+    "title": "ئاسکۆ ڤلج",
+    "titleEn": "ئاسکۆ ڤلج",
+    "keywords": "Asco Village,ئاسکۆ ڤلج,اسكو فلج,Asco Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2911"
+  },
+  {
+    "id": "2930",
+    "title": "شاری نیشتەجێبوونی نجوم 2",
+    "titleEn": "شاری نیشتەجێبوونی نجوم 2",
+    "keywords": "Al-Njum Residential City 2,Njum City 2,مجمع النجوم السکني 2,شاری نیشتەجێبوونی نجوم 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2930"
+  },
+  {
+    "id": "2929",
+    "title": "شاری نیشتەجێبوونی نجوم",
+    "titleEn": "شاری نیشتەجێبوونی نجوم",
+    "keywords": "Al-Njum Residential City 1,مجمع النجوم السکني 1,شاری نیشتەجێبوونی نجوم,Njum City 1",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2929"
+  },
+  {
+    "id": "2931",
+    "title": "ئەمیرات ستي",
+    "titleEn": "ئەمیرات ستي",
+    "keywords": "Amerat City,ئەمیرات ستي,مدینة الاميرات,Amirat City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2931"
+  },
+  {
+    "id": "2932",
+    "title": "تالیا ستی",
+    "titleEn": "تالیا ستی",
+    "keywords": "Talia City,تالیا ستی,تالیا ستي,Talia City",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2932"
+  },
+  {
+    "id": "2933",
+    "title": "شاری ئەلجەواهیری",
+    "titleEn": "شاری ئەلجەواهیری",
+    "keywords": "Al Jawahiry City,مجمع الجواهري السكني,Al Javahiry City,شاری ئەلجەواهیری",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2933"
+  },
+  {
+    "id": "2935",
+    "title": "48ی وەزیران",
+    "titleEn": "48ی وەزیران",
+    "keywords": "48 Wazyiran,48ی وەزیران,48 وزيران,48 Wazyiran",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2935"
+  },
+  {
+    "id": "2944",
+    "title": "242 عنکاوە",
+    "titleEn": "242 عنکاوە",
+    "keywords": "242 Ankawa,5 Ankawa,242 Ankawa,242 عنکاوة,242 عنکاوە",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2944"
+  },
+  {
+    "id": "2198",
+    "title": "شاری کامەرانی",
+    "titleEn": "شاری کامەرانی",
+    "keywords": "Shari Kamarani,شاری کامەرانی,شاري كامراني,Şari Kamarani",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2198"
+  },
+  {
+    "id": "1896",
+    "title": "سێبيران",
+    "titleEn": "سێبيران",
+    "keywords": "Sebiran,سيبيران,سێبيران,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1896"
+  },
+  {
+    "id": "2948",
+    "title": "گوندی ڕۆنا",
+    "titleEn": "گوندی ڕۆنا",
+    "keywords": "Rona Village,گوندی ڕۆنا,قرية رونا,Rona Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2948"
+  },
+  {
+    "id": "1782",
+    "title": "کەورگۆسک",
+    "titleEn": "کەورگۆسک",
+    "keywords": "Kawrgosk,كوركوسك,کەورگۆسک,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1782"
+  },
+  {
+    "id": "2939",
+    "title": "ئیدن پارک",
+    "titleEn": "ئیدن پارک",
+    "keywords": "Eden Park,Eden park,ئیدن پارک,ایدن بارک",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2939"
+  },
+  {
+    "id": "2950",
+    "title": "ئەبراجی بابل",
+    "titleEn": "ئەبراجی بابل",
+    "keywords": "Abraj Babil,أبراج بابل,ئەبراجی بابل,Abraj Babil",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2950"
+  },
+  {
+    "id": "1579",
+    "title": "قەڵاتی نوێ",
+    "titleEn": "قەڵاتی نوێ",
+    "keywords": "Qalati Nwe,قلاتي نوي,قەڵاتی نوێ",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1579"
+  },
+  {
+    "id": "2512",
+    "title": "کۆڕێ تاوەر 5",
+    "titleEn": "کۆڕێ تاوەر 5",
+    "keywords": "Kore Tower 5,کۆڕێ تاوەر 5,كوري تاور 5,Kore Tower 5",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2512"
+  },
+  {
+    "id": "2951",
+    "title": "سڤار تاوەرز",
+    "titleEn": "سڤار تاوەرز",
+    "keywords": "Svar Towers,سڤار تاوەرز,سفار تاورز,Svar Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2951"
+  },
+  {
+    "id": "965",
+    "title": "گوندی کۆری",
+    "titleEn": "گوندی کۆری",
+    "keywords": "Korean Village,القرية الكورية,گوندی کۆری,Kore Köyü",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/965"
+  },
+  {
+    "id": "1647",
+    "title": "زاگرۆس تاوەرز",
+    "titleEn": "زاگرۆس تاوەرز",
+    "keywords": "Zagros Towers,زاكروس تاورز,زاگرۆس تاوەرز,Zagros Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1647"
+  },
+  {
+    "id": "221",
+    "title": "زانیاری تاوەر",
+    "titleEn": "زانیاری تاوەر",
+    "keywords": "Zanyari Towers,زانياري تاورز,زانیاری تاوەر,Zaniary Towers,Zanyari Apartman",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/221"
+  },
+  {
+    "id": "2952",
+    "title": "ئەنفال-بەحرکە",
+    "titleEn": "ئەنفال-بەحرکە",
+    "keywords": "Anfal-Bahrka,ئەنفال-بەحرکە,انفال-بحرکة,Anfal-Bahrka",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2952"
+  },
+  {
+    "id": "1546",
+    "title": "شیاو ستی",
+    "titleEn": "شیاو ستی",
+    "keywords": "Shyaw City,شياو ستي,شیاو ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1546"
+  },
+  {
+    "id": "2920",
+    "title": "مانهەتان تاوەرز",
+    "titleEn": "مانهەتان تاوەرز",
+    "keywords": "Manhattan Towers,مانهەتان تاوەرز,مانهتان تاورز,Manhattan Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2920"
+  },
+  {
+    "id": "2953",
+    "title": "ڤیلۆریا تاوەرس",
+    "titleEn": "ڤیلۆریا تاوەرس",
+    "keywords": "Veloria Towers,ڤیلۆریا تاوەرس,فيلوريا تاوەرس,Veloria Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2953"
+  },
+  {
+    "id": "2862",
+    "title": "کوارتەر فرانچایز",
+    "titleEn": "کوارتەر فرانچایز",
+    "keywords": "Quarter Franchise,کوارتەر فرانچایز,كوارتر فرانجايز,Quarter Franchise",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2862"
+  },
+  {
+    "id": "2107",
+    "title": "فۆنێکس تاوەر",
+    "titleEn": "فۆنێکس تاوەر",
+    "keywords": "Phoenix Tower,فۆنێکس تاوەر,فونيكس تاور,Foneks Tower",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2107"
+  },
+  {
+    "id": "2856",
+    "title": "سیراج تاوەرز",
+    "titleEn": "سیراج تاوەرز",
+    "keywords": "Siraj Towers,سیراج تاوەرز,سیراج تاورز,Siraj Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2856"
+  },
+  {
+    "id": "2954",
+    "title": "گلۆبال هيلز",
+    "titleEn": "گلۆبال هيلز",
+    "keywords": "Global Hills,گلۆبال هيلز,گلوبال هيلز,Global Hills",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2954"
+  },
+  {
+    "id": "2955",
+    "title": "ئاشتی جیولز",
+    "titleEn": "ئاشتی جیولز",
+    "keywords": "Ashti Jewels,Ashty Jewls,ئاشتی جیولز,اشتي جيولز,Ashti Jewels",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2955"
+  },
+  {
+    "id": "2143",
+    "title": "SK تاوەرز",
+    "titleEn": "SK تاوەرز",
+    "keywords": "SK Towers,SK تاوەرز,SK تاورز,SK Towers",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2143"
+  },
+  {
+    "id": "1539",
+    "title": "کاڤار ستی",
+    "titleEn": "کاڤار ستی",
+    "keywords": "Kavar City,كافار ستي,کاڤار ستی,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1539"
+  },
+  {
+    "id": "1416",
+    "title": "94 زانکۆ (زانکۆ 2)",
+    "titleEn": "94 زانکۆ (زانکۆ 2)",
+    "keywords": "94 Zanko (Zanko 2),94 زانكو (زانكو 2),94 زانکۆ (زانکۆ 2)",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1416"
+  },
+  {
+    "id": "2074",
+    "title": "بەهاری نوێ - شاوێس",
+    "titleEn": "بەهاری نوێ - شاوێس",
+    "keywords": "Bahari Nwe - Shawes,بەهاری نوێ - شاوێس,بهاري نوي - شاويس,Bahari Nwe - Shawes",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2074"
+  },
+  {
+    "id": "252",
+    "title": "گوندی فاملی لاند",
+    "titleEn": "گوندی فاملی لاند",
+    "keywords": "Family Land Village,قرية فاملي لاند,گوندی فاملی لاند,",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/252"
+  },
+  {
+    "id": "2956",
+    "title": "جەژنیکان",
+    "titleEn": "جەژنیکان",
+    "keywords": "Jazhnikan,Jezhnikan,جەژنیکان,جزنیکان,Cejnikan",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2956"
+  },
+  {
+    "id": "2957",
+    "title": "لایڤ تاوەرز 2",
+    "titleEn": "لایڤ تاوەرز 2",
+    "keywords": "Life Towers 2,life towers 2,لایڤ تاوەرز 2,لایف  تاورز 2",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2957"
+  },
+  {
+    "id": "1567",
+    "title": "نۆبڵ تاوەرز",
+    "titleEn": "نۆبڵ تاوەرز",
+    "keywords": "Nobel Towers,نوبل تاورز,نۆبڵ تاوەرز",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/1567"
+  },
+  {
+    "id": "2959",
+    "title": "پێشانگاكانی هەولێری نوێ لەلایەن ئەڵكۆڤ",
+    "titleEn": "پێشانگاكانی هەولێری نوێ لەلایەن ئەڵكۆڤ",
+    "keywords": "New Erbil Showrooms by Alcove,New Erbil Showrooms by Alcove,پێشانگاكانی هەولێری نوێ لەلایەن ئەڵكۆڤ,معارض اربیل الجدیدة من الکوف",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2959"
+  },
+  {
+    "id": "2960",
+    "title": "سیدرا ڤلج",
+    "titleEn": "سیدرا ڤلج",
+    "keywords": "Sidra Village,سیدرا ڤلج,صدرا فلج,Sidra Village",
+    "latlng": null,
+    "plotMapUrl": "https://homele.com/plots/2960"
+  }
+]

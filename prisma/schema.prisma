@@ -1,0 +1,1083 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Locale {
+  ku
+  ar
+  en
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ACCOUNTANT
+  SALESPERSON
+  SITE_SUPERVISOR
+  VIEW_ONLY
+}
+
+enum PermissionKey {
+  // SEE — pages / modules
+  VIEW_DASHBOARD
+  VIEW_ACCOUNTING
+  VIEW_PROJECTS
+  VIEW_PROPERTIES
+  VIEW_CONTRACTS
+  VIEW_RENTALS
+  VIEW_ANKET
+  VIEW_REPORTS
+  VIEW_USERS
+  VIEW_CASH_VAULT
+  VIEW_PAYABLES
+  VIEW_CONSTRUCTION_COST
+  VIEW_INVENTORY
+  // DO — actions
+  ADD_VOUCHERS
+  EDIT_TRANSACTIONS
+  REVERSE_VOUCHERS
+  CHANGE_FX_RATE
+  MANAGE_CONTRACTS
+  MANAGE_RENTALS
+  MANAGE_ANKET
+  MANAGE_PROJECTS
+  MANAGE_USERS
+  EXPORT_FINANCE
+  APPROVE_FINANCE
+  MANAGE_PROJECT_BUDGET
+  MANAGE_INVENTORY
+  ISSUE_MATERIALS
+  APPROVE_WASTE
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ContractKind {
+  SALE
+  PURCHASE
+}
+
+enum ContractCurrency {
+  IQD
+  USD
+}
+
+enum PropertyAssetType {
+  HOUSE
+  APARTMENT
+  LAND
+  SHOP
+  BUILDING
+}
+
+enum LeaseStatus {
+  ACTIVE
+  EXPIRED
+  TERMINATED
+}
+
+enum DepositStatus {
+  HELD
+  PARTIAL_RETURNED
+  RETURNED
+  FORFEITED
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum ReceiptType {
+  PAYMENT
+  INCOME
+  EXPENSE
+}
+
+enum ProjectStatus {
+  IN_CONSTRUCTION
+  SOLD
+  FINISHED
+}
+
+enum ExpenseCategory {
+  STEEL
+  CEMENT
+  LABOR
+  PERMITS
+  MATERIALS
+  EQUIPMENT
+  UTILITIES
+  OTHER
+  /// Office / overhead
+  OFFICE_RENT
+  OFFICE_UTILITIES
+  OFFICE_SUPPLIES
+  OFFICE_TRANSPORT
+  OFFICE_COMM
+  OTHER_OFFICE
+  /// Payroll
+  SALARY
+  BONUS
+  ALLOWANCE
+}
+
+enum VoucherAccountType {
+  EXPENSE
+  VENDOR_PAYMENT
+  BUYER_PAYMENT
+  RECEIVABLE
+  PAYABLE
+  RENTAL_INCOME
+  OFFICE_EXPENSE
+  EMPLOYEE_SALARY
+}
+
+enum PaymentMethod {
+  CASH_VAULT
+  CREDIT
+}
+
+enum VoucherStatus {
+  POSTED
+  REVERSED
+}
+
+model User {
+  id           String              @id @default(cuid())
+  email        String              @unique
+  passwordHash String
+  name         String
+  role         UserRole            @default(VIEW_ONLY)
+  locale       Locale              @default(ku)
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  vouchers     Voucher[]           @relation("VoucherCreator")
+  unlocks      Voucher[]           @relation("VoucherUnlocker")
+  permissions  UserPermission[]
+  activityLogs ActivityLog[]
+  resetTokens  PasswordResetToken[]
+  dealContracts Contract[]         @relation("ContractDealEmployee")
+  dealLeases    Lease[]            @relation("LeaseDealEmployee")
+  salaryVouchers Voucher[]         @relation("SalaryEmployee")
+  ledgerCreated  LedgerTransaction[] @relation("LedgerCreator")
+  ledgerEmployee LedgerTransaction[] @relation("LedgerEmployee")
+  inventoryTxns  InventoryTransaction[] @relation("InventoryTxnCreator")
+  wasteApproved  MaterialWaste[]   @relation("WasteApprover")
+  wasteCreated   MaterialWaste[]   @relation("WasteCreator")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model UserPermission {
+  id        String        @id @default(cuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key       PermissionKey
+  granted   Boolean       @default(true)
+  updatedAt DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+
+  @@unique([userId, key])
+  @@index([userId])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName    String
+  action      String
+  projectCode String?
+  amountIqd   Float?
+  meta        String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId])
+}
+
+model Owner {
+  id         String     @id @default(cuid())
+  name       String
+  phone      String?
+  email      String?
+  address    String?
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  properties Property[]
+}
+
+model Customer {
+  id         String     @id @default(cuid())
+  name       String
+  phone      String?
+  email      String?
+  address    String?
+  nationalId String?
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  contracts  Contract[]
+  vouchers   Voucher[]
+  ledgerTxns LedgerTransaction[]
+
+  @@index([name])
+  @@index([phone])
+  @@index([nationalId])
+}
+
+model Supplier {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String?
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vouchers  Voucher[]
+  ledgerTxns LedgerTransaction[]
+  materials Material[]
+  inventoryTxns InventoryTransaction[]
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  name        String
+  location    String?
+  description String?
+  ownerId     String?
+  owner       Owner?   @relation(fields: [ownerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  houses      House[]
+  ledgerTxns  LedgerTransaction[]
+}
+
+model House {
+  id          String         @id @default(cuid())
+  code        String         @unique
+  name        String
+  unitNumber  String?
+  area        Float?
+  price       Float?
+  budgetIqd   Float          @default(0)
+  location    String?
+  status      ProjectStatus  @default(IN_CONSTRUCTION)
+  description String?
+  propertyId  String?
+  property    Property?      @relation(fields: [propertyId], references: [id])
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  contracts   Contract[]
+  vouchers    Voucher[]
+  leases      Lease[]
+  ledgerTxns  LedgerTransaction[]
+  constructionProject ConstructionProject?
+}
+
+model Contract {
+  id              String            @id @default(cuid())
+  contractNo      String            @unique
+  title           String
+  kind            ContractKind      @default(SALE)
+  propertyType    PropertyAssetType @default(HOUSE)
+  description     String?
+  /// Amounts are stored in IQD for finance consistency; USD mirrors locked at save.
+  currency        ContractCurrency  @default(IQD)
+  exchangeRate    Float             @default(150000)
+  totalAmount     Float
+  totalAmountUsd  Float             @default(0)
+  downPayment     Float             @default(0)
+  downPaymentUsd  Float             @default(0)
+  /// پێشەکی لای عەقارات دەمێنێتەوە
+  downPaymentHeld Boolean           @default(true)
+  areaSqm         Float?
+  cancelFeeIqd    Float             @default(0)
+  dailyPenaltyIqd Float             @default(0)
+  commissionSellerIqd Float         @default(0)
+  commissionBuyerIqd  Float         @default(0)
+  status          ContractStatus    @default(DRAFT)
+  /// true = گرێبەستی دەرەکی؛ false = ناوخۆیی
+  isExternal      Boolean           @default(false)
+  tapuCode        String?
+  buyerName       String?
+  buyerPhone      String?
+  buyerIdNo       String?
+  sellerName      String?
+  sellerPhone     String?
+  sellerIdNo      String?
+  witness1Name    String?
+  witness1IdNo    String?
+  witness1Phone   String?
+  witness2Name    String?
+  witness2IdNo    String?
+  witness2Phone   String?
+  guarantorName   String?
+  guarantorPhone  String?
+  lawyerName      String?
+  lawyerPhone     String?
+  legalConditions String?
+  notes           String?
+  staffNote       String?
+  organizerName   String?
+  showOrganizer   Boolean           @default(true)
+  /// کارمەندی کرین/فرۆشتن — تەنها بۆ هەژمار؛ لەسەر پەڕەی گرێبەست دەرناکەوێت
+  dealEmployeeId  String?
+  dealEmployee    User?             @relation("ContractDealEmployee", fields: [dealEmployeeId], references: [id], onDelete: SetNull)
+  dealEmployeeName String?
+  startDate       DateTime?
+  endDate         DateTime?
+  /// ڕێکەوتی ڕادەستکردنی موڵک
+  handoverDate    DateTime?
+  signingDate     DateTime?
+  /// ڕێکەوتی پێدانی بڕی ماوە
+  remainingDueDate DateTime?
+  customerId      String?
+  customer        Customer?         @relation(fields: [customerId], references: [id])
+  houseId         String?
+  house           House?            @relation(fields: [houseId], references: [id])
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  installments    Installment[]
+  receipts        Receipt[]
+
+  @@index([dealEmployeeId])
+}
+
+model Lease {
+  id                    String           @id @default(cuid())
+  leaseNo               String           @unique
+  propertyCode          String
+  propertyName          String?
+  /// Landlord (بەکرێدەر)
+  landlordName          String?
+  landlordPhone         String?
+  tenantName            String
+  tenantPhone           String?
+  witness1Name          String?
+  witness1Phone         String?
+  witness2Name          String?
+  witness2Phone         String?
+  guarantorName         String?
+  guarantorPhone        String?
+  propertyType          PropertyAssetType @default(HOUSE)
+  areaSqm               Float?
+  rentPurpose           String?
+  startDate             DateTime
+  endDate               DateTime
+  durationMonths        Int?
+  signingDate           DateTime?
+  currency              ContractCurrency @default(IQD)
+  exchangeRate          Float            @default(150000)
+  monthlyRentIqd        Float
+  advancePaymentIqd     Float            @default(0)
+  securityDepositIqd    Float            @default(0)
+  dailyPenaltyIqd       Float            @default(0)
+  cancelFeeIqd          Float            @default(0)
+  lateFeeIqd            Float            @default(0)
+  commissionTenantIqd   Float            @default(0)
+  commissionLandlordIqd Float            @default(0)
+  depositStatus         DepositStatus    @default(HELD)
+  status                LeaseStatus      @default(ACTIVE)
+  propertyStatusNote    String?
+  notes                 String?
+  staffNote             String?
+  organizerName         String?
+  showOrganizer         Boolean          @default(true)
+  /// کارمەندی بەکرێدان — تەنها بۆ هەژمار؛ لەسەر پەڕەی گرێبەست دەرناکەوێت
+  dealEmployeeId        String?
+  dealEmployee          User?            @relation("LeaseDealEmployee", fields: [dealEmployeeId], references: [id], onDelete: SetNull)
+  dealEmployeeName      String?
+  /// Planned rent schedule [{dueDate, amountIqd, label}]
+  paymentSchedule       String?
+  houseId               String?
+  house                 House?           @relation(fields: [houseId], references: [id])
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  rentPayments          RentPayment[]
+  receipts              Receipt[]
+
+  @@index([endDate, status])
+  @@index([propertyCode])
+  @@index([dealEmployeeId])
+}
+
+model RentPayment {
+  id          String   @id @default(cuid())
+  leaseId     String
+  lease       Lease    @relation(fields: [leaseId], references: [id], onDelete: Cascade)
+  periodLabel String
+  amountIqd   Float
+  voucherId   String?
+  paidAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([leaseId])
+}
+
+model Installment {
+  id         String            @id @default(cuid())
+  amount     Float
+  dueDate    DateTime
+  paidDate   DateTime?
+  status     InstallmentStatus @default(PENDING)
+  notes      String?
+  contractId String
+  contract   Contract          @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Receipt {
+  id               String           @id @default(cuid())
+  receiptNo        String           @unique
+  /// PAYMENT = money paid out; INCOME = money received
+  type             ReceiptType      @default(PAYMENT)
+  /// Counterparty name (payer or payee) — admin editable
+  partyName        String           @default("")
+  currency         ContractCurrency @default(IQD)
+  amount           Float
+  /// Optional contract/total due — admin editable
+  totalAmount      Float?
+  /// Remaining balance after this receipt — admin editable
+  remainingAmount  Float?
+  description      String?
+  issuedAt         DateTime         @default(now())
+  contractId       String?
+  contract         Contract?        @relation(fields: [contractId], references: [id])
+  /// Linked rental lease (کرێ / تأمینات)
+  leaseId          String?
+  lease            Lease?           @relation(fields: [leaseId], references: [id], onDelete: SetNull)
+  /// GENERAL | RENT | SECURITY_DEPOSIT — deposit receipts skip general ledger
+  purpose          ReceiptPurpose   @default(GENERAL)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([leaseId])
+  @@index([purpose])
+}
+
+enum ReceiptPurpose {
+  GENERAL
+  RENT
+  SECURITY_DEPOSIT
+}
+
+enum AnketKind {
+  SALE
+  RENT
+}
+
+enum AnketStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+}
+
+/// Security clearance survey (ئەنکێتی ئاسایش) for sale/rent deals.
+model Anket {
+  id                   String           @id @default(cuid())
+  anketNo              String           @unique
+  kind                 AnketKind        @default(RENT)
+  status               AnketStatus      @default(DRAFT)
+  branch               String           @default("بارەگای سەرەکی")
+  issuedAt             DateTime         @default(now())
+  securityStationName  String           @default("")
+  location             String           @default("")
+  propertyType         PropertyAssetType @default(APARTMENT)
+  propertyNo           String           @default("")
+  propertyName         String           @default("")
+  projectName          String           @default("")
+  buildingNo           String           @default("")
+  floorNo              String           @default("")
+  unitNo               String           @default("")
+  propertyStatus       String           @default("empty")
+  /// First party — owner / seller / landlord
+  party1Name           String           @default("")
+  party1Phone          String           @default("")
+  party1Address        String           @default("")
+  party1Nationality    String           @default("")
+  party1Occupation     String           @default("")
+  party1Code           String           @default("")
+  /// Second party — tenant / buyer
+  party2Name           String           @default("")
+  party2Phone          String           @default("")
+  party2Address        String           @default("")
+  party2Nationality    String           @default("")
+  party2Occupation     String           @default("")
+  party2Origin         String           @default("")
+  /// JSON string array of document keys
+  documents            String           @default("[]")
+  notes                String?
+  organizerName        String           @default("عەقارات ڕۆد هۆم")
+  mukhtarName          String           @default("")
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([issuedAt])
+  @@index([kind, status])
+}
+
+/// Official support / recommendation letter (پشتگیری) — for government departments & consulates.
+model SupportLetter {
+  id           String   @id @default(cuid())
+  supportNo    String   @unique
+  /// GOVERNMENT | CONSULATE | OTHER
+  recipientKind String  @default("GOVERNMENT")
+  /// OWNERSHIP | RENTAL | RESIDENCY | TRANSACTION | OTHER
+  purpose      String   @default("OWNERSHIP")
+  /// داواکار / سوودمەند
+  applicant    String   @default("Road Home ZMKH Real Estate")
+  beneficiaryName String?
+  beneficiaryIdNo String?
+  beneficiaryPhone String?
+  /// لە (کۆمپانیا / دەزگا)
+  fromName     String?
+  /// بۆ — ناوی دائیرە یان کونسوڵخانە
+  toName       String
+  recipientAddress String?
+  /// بابەت
+  subject      String
+  /// ناوەڕۆک
+  content      String
+  /// ناونیشان / ژمارەی گرێبەست / موڵک
+  propertyRef  String?
+  /// بەڕێوەبەری کارگێڕی
+  managerName  String
+  /// پۆست
+  managerTitle String?
+  /// لق
+  branch       String?  @default("بارەگای سەرەکی")
+  issuedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([issuedAt])
+  @@index([recipientKind])
+  @@index([purpose])
+}
+
+/// Named places / neighborhoods used when creating contracts (شوێنەکان).
+model Place {
+  id String @id @default(cuid())
+  /// کۆدی خانوو — هەڵدەبژێردرێت لە گرێبەست
+  code String @unique
+  /// ناوی گەرەک
+  neighborhood String @default("")
+  /// ناوی شوێن
+  name String
+  /// پارێزگا
+  province String @default("هەولێر")
+  /// شار
+  city String @default("هەولێر")
+  /// رەقەمی ئەرز / ژمارەی پارچە (cadastral plot)
+  plotNo String @default("")
+  /// پۆلێکی نەخشە — لە OpenStreetMap / Nominatim یان دەستی
+  lat Float?
+  lng Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([neighborhood])
+  @@index([plotNo])
+}
+
+/// Immutable financial voucher — never delete; use reversal vouchers.
+model Voucher {
+  id               String             @id @default(cuid())
+  voucherNo        String             @unique
+  /// Null for office / salary vouchers (not tied to a construction house)
+  houseId          String?
+  house            House?             @relation(fields: [houseId], references: [id])
+  accountType      VoucherAccountType
+  category         ExpenseCategory?
+  amountIqd        Float
+  amountUsd        Float
+  /// FX rate locked at posting time (IQD per 1 USD)
+  exchangeRate     Float
+  exchangeLockedAt DateTime
+  paymentMethod    PaymentMethod
+  partyName        String
+  /// e.g. "2026-09" for salary period
+  periodLabel      String?
+  /// Gross deductions (tax / loan / etc.) — net is amountIqd
+  deductionIqd     Float              @default(0)
+  employeeUserId   String?
+  employeeUser     User?              @relation("SalaryEmployee", fields: [employeeUserId], references: [id])
+  supplierId       String?
+  supplier         Supplier?          @relation(fields: [supplierId], references: [id])
+  customerId       String?
+  customer         Customer?          @relation(fields: [customerId], references: [id])
+  note             String?
+  attachmentUrl    String?
+  status           VoucherStatus      @default(POSTED)
+  dueDate          DateTime?
+  /// If set, this voucher reverses `reversesId`
+  reversesId       String?
+  reverses         Voucher?           @relation("VoucherReversal", fields: [reversesId], references: [id])
+  reversedBy       Voucher[]          @relation("VoucherReversal")
+  createdById      String?
+  createdBy        User?              @relation("VoucherCreator", fields: [createdById], references: [id])
+  /// Super Admin unlock for vouchers older than 12 hours
+  unlockApprovedById String?
+  unlockApprovedBy   User?            @relation("VoucherUnlocker", fields: [unlockApprovedById], references: [id])
+  unlockApprovedAt   DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([houseId, status])
+  @@index([accountType, status])
+  @@index([voucherNo])
+}
+
+// ─── Double-entry Accounting Engine ─────────────────────────────────────────
+
+enum AccountClass {
+  ASSET
+  LIABILITY
+  EQUITY
+  INCOME
+  EXPENSE
+}
+
+enum LedgerTxnType {
+  INCOME
+  EXPENSE
+  CUSTOMER_PAYMENT
+  CUSTOMER_REFUND
+  SUPPLIER_PAYMENT
+  CUSTOMER_DEBT
+  SUPPLIER_DEBT
+  PROPERTY_PURCHASE
+  PROPERTY_SALE
+  PROPERTY_RENTAL
+  INSTALLMENT
+  COMMISSION
+  EMPLOYEE_COMMISSION
+  INVESTMENT
+  OWNER_CAPITAL
+  OWNER_WITHDRAWAL
+  CASH_DEPOSIT
+  CASH_WITHDRAWAL
+  BANK_DEPOSIT
+  BANK_WITHDRAWAL
+  TRANSFER
+  ADJUSTMENT
+  SALARY
+  INVENTORY_PURCHASE
+  INVENTORY_ISSUE
+  INVENTORY_WASTE
+  INVENTORY_ADJUST
+  INVENTORY_TRANSFER
+}
+
+enum MoneyAccountKind {
+  CASH
+  BANK
+}
+
+enum LedgerCurrency {
+  IQD
+  USD
+  EUR
+}
+
+enum LedgerPayMethod {
+  CASH
+  BANK
+  CREDIT
+  TRANSFER
+  OTHER
+}
+
+/// Physical cash drawer / safe
+model CashAccount {
+  id             String         @id @default(cuid())
+  code           String         @unique
+  name           String
+  currency       LedgerCurrency @default(IQD)
+  openingBalance Float          @default(0)
+  isActive       Boolean        @default(true)
+  allowNegative  Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  ledgerAccount  LedgerAccount?
+  transactions   LedgerTransaction[] @relation("TxnCash")
+}
+
+/// Bank account
+model BankAccount {
+  id             String         @id @default(cuid())
+  code           String         @unique
+  name           String
+  bankName       String
+  accountNumber  String?
+  currency       LedgerCurrency @default(IQD)
+  openingBalance Float          @default(0)
+  isActive       Boolean        @default(true)
+  allowNegative  Boolean        @default(false)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  ledgerAccount  LedgerAccount?
+  transactions   LedgerTransaction[] @relation("TxnBank")
+}
+
+/// Chart of accounts
+model LedgerAccount {
+  id            String         @id @default(cuid())
+  code          String         @unique
+  name          String
+  nameKu        String?
+  class         AccountClass
+  isSystem      Boolean        @default(true)
+  isActive      Boolean        @default(true)
+  cashAccountId String?        @unique
+  cashAccount   CashAccount?   @relation(fields: [cashAccountId], references: [id])
+  bankAccountId String?        @unique
+  bankAccount   BankAccount?   @relation(fields: [bankAccountId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  lines         TransactionLine[]
+}
+
+/// Header of every financial posting (single source of truth with lines)
+model LedgerTransaction {
+  id               String          @id @default(cuid())
+  txnNo            String          @unique
+  date             DateTime
+  type             LedgerTxnType
+  category         String
+  amountOriginal   Float
+  currency         LedgerCurrency  @default(IQD)
+  exchangeRate     Float           @default(1)
+  amountBaseIqd    Float
+  partyName        String?
+  customerId       String?
+  customer         Customer?       @relation(fields: [customerId], references: [id])
+  supplierId       String?
+  supplier         Supplier?       @relation(fields: [supplierId], references: [id])
+  employeeUserId   String?
+  employeeUser     User?           @relation("LedgerEmployee", fields: [employeeUserId], references: [id])
+  propertyId       String?
+  property         Property?       @relation(fields: [propertyId], references: [id])
+  houseId          String?
+  house            House?          @relation(fields: [houseId], references: [id])
+  paymentMethod    LedgerPayMethod @default(CASH)
+  cashAccountId    String?
+  cashAccount      CashAccount?    @relation("TxnCash", fields: [cashAccountId], references: [id])
+  bankAccountId    String?
+  bankAccount      BankAccount?    @relation("TxnBank", fields: [bankAccountId], references: [id])
+  /// For transfers: destination money account
+  transferCashId   String?
+  transferBankId   String?
+  receiptNo        String?
+  voucherNo        String?
+  description      String?
+  attachmentUrl    String?
+  createdById      String?
+  createdBy        User?           @relation("LedgerCreator", fields: [createdById], references: [id])
+  editedById       String?
+  editedAt         DateTime?
+  deletedAt        DateTime?
+  deletedById      String?
+  sourceVoucherId  String?         @unique
+  sourceReceiptId  String?         @unique
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  lines            TransactionLine[]
+  inventoryTxn     InventoryTransaction?
+
+  @@index([date, type])
+  @@index([deletedAt])
+  @@index([customerId])
+  @@index([supplierId])
+  @@index([propertyId])
+  @@index([houseId])
+  @@index([category])
+}
+
+model TransactionLine {
+  id              String            @id @default(cuid())
+  transactionId   String
+  transaction     LedgerTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  ledgerAccountId String
+  ledgerAccount   LedgerAccount     @relation(fields: [ledgerAccountId], references: [id])
+  debitIqd        Float             @default(0)
+  creditIqd       Float             @default(0)
+  memo            String?
+
+  @@index([transactionId])
+  @@index([ledgerAccountId])
+}
+
+model MonthlyReport {
+  id          String   @id @default(cuid())
+  year        Int
+  month       Int
+  generatedAt DateTime @default(now())
+  generatedBy String?
+  snapshotJson String
+  htmlPath    String?
+
+  @@unique([year, month])
+  @@index([year, month])
+}
+
+model AgentCommissionRule {
+  id        String   @id @default(cuid())
+  name      String
+  ratePct   Float    @default(2)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Construction Cost Control + Inventory (Phase 1) ─────────────────────────
+
+enum ConstructionProjectStatus {
+  ACTIVE
+  ON_HOLD
+  CLOSED
+}
+
+enum MaterialUnit {
+  KG
+  TON
+  BAG
+  M3
+  M2
+  M
+  PCS
+  LITER
+  SET
+  OTHER
+}
+
+enum InventoryTxnKind {
+  PURCHASE
+  RECEIVE
+  TRANSFER
+  ISSUE
+  RETURN
+  WASTE
+  ADJUSTMENT
+}
+
+enum WasteReason {
+  DAMAGE
+  CONSTRUCTION_WASTE
+  INCORRECT_MEASUREMENT
+  THEFT_LOSS
+  EXPIRED
+  OTHER
+}
+
+enum WasteApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  NOT_REQUIRED
+}
+
+model ConstructionProject {
+  id              String                     @id @default(cuid())
+  houseId         String                     @unique
+  house           House                      @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  status          ConstructionProjectStatus  @default(ACTIVE)
+  closedAt        DateTime?
+  closedById      String?
+  reopenCount     Int                        @default(0)
+  lastReopenedAt  DateTime?
+  notes           String?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  budgets         ProjectBudget[]
+  inventoryTxns   InventoryTransaction[]
+  wastes          MaterialWaste[]
+
+  @@index([status])
+}
+
+model ProjectBudget {
+  id             String              @id @default(cuid())
+  projectId      String
+  project        ConstructionProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  originalIqd    Decimal
+  revisedIqd     Decimal
+  currency       String              @default("IQD")
+  effectiveFrom  DateTime            @default(now())
+  note           String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([projectId, effectiveFrom])
+}
+
+/// Singleton-style config rows (key unique). Seeded with budget thresholds etc.
+model SystemFinanceConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  valueJson String
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Warehouse {
+  id          String             @id @default(cuid())
+  code        String             @unique
+  name        String
+  location    String?
+  isActive    Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  balances    InventoryBalance[]
+  txnsFrom    InventoryTransaction[] @relation("TxnFromWarehouse")
+  txnsTo      InventoryTransaction[] @relation("TxnToWarehouse")
+}
+
+model MaterialCategory {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  name      String
+  nameKu    String?
+  sortOrder Int        @default(0)
+  materials Material[]
+}
+
+model Material {
+  id              String             @id @default(cuid())
+  code            String             @unique
+  name            String
+  nameKu          String?
+  categoryId      String
+  category        MaterialCategory   @relation(fields: [categoryId], references: [id])
+  unit            MaterialUnit       @default(PCS)
+  avgCostIqd      Decimal            @default(0)
+  minStock        Decimal            @default(0)
+  currency        String             @default("IQD")
+  defaultSupplierId String?
+  defaultSupplier Supplier?          @relation(fields: [defaultSupplierId], references: [id])
+  isActive        Boolean            @default(true)
+  notes           String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  balances        InventoryBalance[]
+  lines           InventoryTxnLine[]
+  wastes          MaterialWaste[]
+
+  @@index([categoryId])
+  @@index([isActive])
+}
+
+model InventoryBalance {
+  id          String    @id @default(cuid())
+  materialId  String
+  material    Material  @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  quantity    Decimal   @default(0)
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([materialId, warehouseId])
+  @@index([warehouseId])
+}
+
+model InventoryTransaction {
+  id              String              @id @default(cuid())
+  txnNo           String              @unique
+  kind            InventoryTxnKind
+  date            DateTime
+  warehouseId     String?
+  warehouse       Warehouse?          @relation("TxnFromWarehouse", fields: [warehouseId], references: [id])
+  toWarehouseId   String?
+  toWarehouse     Warehouse?          @relation("TxnToWarehouse", fields: [toWarehouseId], references: [id])
+  projectId       String?
+  project         ConstructionProject? @relation(fields: [projectId], references: [id])
+  houseId         String?
+  supplierId      String?
+  supplier        Supplier?           @relation(fields: [supplierId], references: [id])
+  employeeUserId  String?
+  reason          String?
+  note            String?
+  totalCostIqd    Decimal             @default(0)
+  ledgerTxnId     String?             @unique
+  ledgerTxn       LedgerTransaction?  @relation(fields: [ledgerTxnId], references: [id])
+  createdById     String?
+  createdBy       User?               @relation("InventoryTxnCreator", fields: [createdById], references: [id])
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  lines           InventoryTxnLine[]
+  waste           MaterialWaste?
+
+  @@index([kind, date])
+  @@index([projectId])
+  @@index([houseId])
+  @@index([warehouseId])
+}
+
+model InventoryTxnLine {
+  id            String               @id @default(cuid())
+  transactionId String
+  transaction   InventoryTransaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  materialId    String
+  material      Material             @relation(fields: [materialId], references: [id])
+  quantity      Decimal
+  unitCostIqd   Decimal
+  totalCostIqd  Decimal
+
+  @@index([transactionId])
+  @@index([materialId])
+}
+
+model MaterialWaste {
+  id                String               @id @default(cuid())
+  inventoryTxnId    String               @unique
+  inventoryTxn      InventoryTransaction @relation(fields: [inventoryTxnId], references: [id], onDelete: Cascade)
+  materialId        String
+  material          Material             @relation(fields: [materialId], references: [id])
+  projectId         String?
+  project           ConstructionProject? @relation(fields: [projectId], references: [id])
+  quantity          Decimal
+  estimatedValueIqd Decimal
+  reason            WasteReason
+  reasonNote        String?
+  date              DateTime
+  approvalStatus    WasteApprovalStatus  @default(NOT_REQUIRED)
+  approvedById      String?
+  approvedBy        User?                @relation("WasteApprover", fields: [approvedById], references: [id])
+  approvedAt        DateTime?
+  createdById       String?
+  createdBy         User?                @relation("WasteCreator", fields: [createdById], references: [id])
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  @@index([projectId])
+  @@index([approvalStatus])
+}

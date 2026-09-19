@@ -1,0 +1,36 @@
+{
+  "id": "1364",
+  "title": "Italian village 2",
+  "titleKu": "القرية الايطالية 2",
+  "tileFolder": "1364",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/1364/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 6,
+  "center": {
+    "x": 5061,
+    "y": 3675.6240854427715
+  },
+  "image": {
+    "width": 10240,
+    "height": 7680,
+    "corners": {
+      "tl": [
+        36.196228,
+        43.94283
+      ],
+      "tr": [
+        36.195045,
+        44.002826
+      ],
+      "br": [
+        36.15934,
+        44.002109
+      ],
+      "bl": [
+        36.160584,
+        43.942011
+      ]
+    }
+  },
+  "pointerCount": 1563
+}

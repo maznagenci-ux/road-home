@@ -1,0 +1,36 @@
+{
+  "id": "226",
+  "title": "Atlantic City",
+  "titleKu": "بەرامبەر زانکۆی بەریتانی نێودەولەتی",
+  "tileFolder": "226_spnhf",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/226_spnhf/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 5,
+  "center": {
+    "x": 2184,
+    "y": 1384.2430375404674
+  },
+  "image": {
+    "width": 4608,
+    "height": 2560,
+    "corners": {
+      "tl": [
+        36.221021,
+        44.132969
+      ],
+      "tr": [
+        36.226757,
+        44.168072
+      ],
+      "br": [
+        36.210954,
+        44.172004
+      ],
+      "bl": [
+        36.205219,
+        44.136901
+      ]
+    }
+  },
+  "pointerCount": 671
+}

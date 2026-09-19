@@ -1,0 +1,36 @@
+{
+  "id": "550",
+  "title": "Wavey Avenue",
+  "titleKu": "ويفي افينيو",
+  "tileFolder": "550_q0ibf",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/550_q0ibf/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 3,
+  "center": {
+    "x": 696,
+    "y": 397.8567416332569
+  },
+  "image": {
+    "width": 1196.5116300007,
+    "height": 738.83959346001,
+    "corners": {
+      "tl": [
+        36.197279,
+        43.962445
+      ],
+      "tr": [
+        36.197279,
+        43.965022
+      ],
+      "br": [
+        36.19599,
+        43.965022
+      ],
+      "bl": [
+        36.19599,
+        43.962445
+      ]
+    }
+  },
+  "pointerCount": 48
+}

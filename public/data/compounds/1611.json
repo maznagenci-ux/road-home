@@ -1,0 +1,36 @@
+{
+  "id": "1611",
+  "title": "Zaiton Plus City",
+  "titleKu": "زيتون بلص ستي",
+  "tileFolder": "1611",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/1611/{z}/{x}/{y}.png",
+  "minZoom": 2,
+  "maxZoom": 6,
+  "center": {
+    "x": 7096,
+    "y": 5005.238920191741
+  },
+  "image": {
+    "width": 14336,
+    "height": 10240,
+    "corners": {
+      "tl": [
+        36.150242,
+        44.037836
+      ],
+      "tr": [
+        36.153173,
+        44.096919
+      ],
+      "br": [
+        36.118939,
+        44.0995
+      ],
+      "bl": [
+        36.116008,
+        44.040417
+      ]
+    }
+  },
+  "pointerCount": 272
+}

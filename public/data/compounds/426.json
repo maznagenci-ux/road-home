@@ -1,0 +1,36 @@
+{
+  "id": "426",
+  "title": "32 Park (Sarbasti)",
+  "titleKu": "٣٢ پارک (سەربەستی)",
+  "tileFolder": "426_lsjxs",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/426_lsjxs/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 6,
+  "center": {
+    "x": 7279.5183387986035,
+    "y": 3696.3343849631383
+  },
+  "image": {
+    "width": 15360,
+    "height": 7936,
+    "corners": {
+      "tl": [
+        36.176817,
+        43.949154
+      ],
+      "tr": [
+        36.207228,
+        43.948941
+      ],
+      "br": [
+        36.207407,
+        43.968074
+      ],
+      "bl": [
+        36.177003,
+        43.968289
+      ]
+    }
+  },
+  "pointerCount": 5570
+}

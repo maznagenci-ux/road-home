@@ -1,0 +1,36 @@
+{
+  "id": "1821",
+  "title": "Four Season Park",
+  "titleKu": "فۆرسیزن پارک",
+  "tileFolder": "1821",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/1821/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 3,
+  "center": {
+    "x": 806,
+    "y": 304.0126145824572
+  },
+  "image": {
+    "width": 1585.5,
+    "height": 484.75,
+    "corners": {
+      "tl": [
+        36.245278,
+        44.063338
+      ],
+      "tr": [
+        36.245278,
+        44.065076
+      ],
+      "br": [
+        36.244847,
+        44.065076
+      ],
+      "bl": [
+        36.244847,
+        44.063338
+      ]
+    }
+  },
+  "pointerCount": 32
+}

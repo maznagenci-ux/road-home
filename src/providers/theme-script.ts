@@ -1,0 +1,2 @@
+/** Inline script for root layout — prevents theme flash (Server Component safe). */
+export const themeInitScript = `(function(){try{var k='theme';var t=localStorage.getItem(k)||'system';var d=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';var r=t==='system'?d:t;var e=document.documentElement;e.classList.remove('light','dark');e.classList.add(r);e.style.colorScheme=r;}catch(e){}})();`;

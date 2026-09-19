@@ -1,0 +1,36 @@
+{
+  "id": "825",
+  "title": "Rami Towers",
+  "titleKu": "رامي تاورز",
+  "tileFolder": "825_pf9xq",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/825_pf9xq/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 5,
+  "center": {
+    "x": 3160,
+    "y": 2152.5997898934456
+  },
+  "image": {
+    "width": 6386,
+    "height": 3446.1885822153,
+    "corners": {
+      "tl": [
+        36.191414,
+        43.968155
+      ],
+      "tr": [
+        36.191414,
+        43.969889
+      ],
+      "br": [
+        36.190656,
+        43.969889
+      ],
+      "bl": [
+        36.190656,
+        43.968155
+      ]
+    }
+  },
+  "pointerCount": 96
+}

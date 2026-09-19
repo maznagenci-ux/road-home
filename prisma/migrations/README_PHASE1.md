@@ -1,0 +1,3 @@
+-- Phase 1 construction cost control + inventory
+-- Applied via `prisma db push` (this project uses SQLite without a migrations history folder).
+-- Schema sources of truth: prisma/schema.prisma

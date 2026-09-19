@@ -1,0 +1,36 @@
+{
+  "id": "2224",
+  "title": "Kani Qirzhala (34 Park)",
+  "titleKu": "کانی قرژالە (٣٤ پارک)",
+  "tileFolder": "2224_dzrav",
+  "plotBaseUrl": "https://static.homele.com/maps/plots/tiles/2224_dzrav/{z}/{x}/{y}.png",
+  "minZoom": 0,
+  "maxZoom": 6,
+  "center": {
+    "x": 5312,
+    "y": 5584
+  },
+  "image": {
+    "width": 10752,
+    "height": 8704,
+    "corners": {
+      "tl": [
+        36.21407,
+        43.846467
+      ],
+      "tr": [
+        36.219806,
+        43.892177
+      ],
+      "br": [
+        36.189814,
+        43.897905
+      ],
+      "bl": [
+        36.184079,
+        43.852195
+      ]
+    }
+  },
+  "pointerCount": 5519
+}
