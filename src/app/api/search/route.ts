@@ -65,10 +65,10 @@ export async function GET(req: Request) {
       prisma.user.findMany({
         where: {
           isActive: true,
-          OR: [{ name: { contains: q } }, { email: { contains: q } }],
+          OR: [{ name: { contains: q } }, { phone: { contains: q } }],
         },
         take: 5,
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, phone: true },
       }),
       prisma.receipt.findMany({
         where: {
@@ -165,7 +165,7 @@ export async function GET(req: Request) {
       type: 'user' as const,
       id: u.id,
       title: u.name,
-      subtitle: u.email,
+      subtitle: u.phone,
       href: `/access`,
     })),
     ...receipts.map((r) => ({

@@ -13,10 +13,12 @@ const schema = z.object({
   name: z.string().min(1).optional(),
   unitNumber: z.string().optional().nullable(),
   area: z.number().optional().nullable(),
+  price: z.number().optional().nullable(),
   budgetIqd: z.number().min(0).optional(),
   description: z.string().optional().nullable(),
   propertyId: z.string().optional().nullable(),
   status: z.enum(['IN_CONSTRUCTION', 'SOLD', 'FINISHED']).optional(),
+  targetFinishAt: z.string().datetime().optional().nullable().or(z.string().optional().nullable()),
   neighborhood: z.string().min(1).optional(),
   province: z.string().min(1).optional(),
   city: z.string().min(1).optional(),
@@ -52,16 +54,25 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       });
     }
 
+    const finish =
+      data.targetFinishAt === undefined
+        ? undefined
+        : data.targetFinishAt === null || data.targetFinishAt === ''
+          ? null
+          : new Date(data.targetFinishAt);
+
     const item = await prisma.house.update({
       where: { id },
       data: {
         ...(data.name != null ? { name: data.name.trim() } : {}),
         ...(data.unitNumber !== undefined ? { unitNumber: data.unitNumber } : {}),
         ...(data.area !== undefined ? { area: data.area } : {}),
+        ...(data.price !== undefined ? { price: data.price } : {}),
         ...(data.budgetIqd !== undefined ? { budgetIqd: data.budgetIqd } : {}),
         ...(data.description !== undefined ? { description: data.description } : {}),
         ...(data.propertyId !== undefined ? { propertyId: data.propertyId || null } : {}),
         ...(data.status != null ? { status: data.status } : {}),
+        ...(finish !== undefined ? { targetFinishAt: finish } : {}),
         location,
       },
       include: { property: { select: { id: true, name: true } } },

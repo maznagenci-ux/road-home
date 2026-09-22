@@ -10,7 +10,7 @@ export type PermMap = Record<string, boolean>;
 export type EditableUser = {
   id?: string;
   name: string;
-  email: string;
+  phone: string;
   role: string;
   isActive: boolean;
   permissions: PermMap;
@@ -40,7 +40,7 @@ export function UserFormModal({
   onSaved: () => void;
 }) {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<string>('VIEW_ONLY');
   const [isActive, setIsActive] = useState(true);
@@ -53,7 +53,7 @@ export function UserFormModal({
     const baseRole = initial?.role ?? 'VIEW_ONLY';
     const defaults = roleDefaults[baseRole] ?? {};
     setName(initial?.name ?? '');
-    setEmail(initial?.email ?? '');
+    setPhone(initial?.phone ?? '');
     setPassword('');
     setRole(baseRole);
     setIsActive(initial?.isActive ?? true);
@@ -125,7 +125,7 @@ export function UserFormModal({
           mode === 'create'
             ? {
                 name: name.trim(),
-                email: email.trim(),
+                phone: phone.trim(),
                 password,
                 role,
                 isActive,
@@ -134,7 +134,7 @@ export function UserFormModal({
             : {
                 userId: initial!.id,
                 name: name.trim(),
-                email: email.trim(),
+                phone: phone.trim(),
                 role,
                 isActive,
                 permissions: perms,
@@ -144,11 +144,13 @@ export function UserFormModal({
       });
 
       if (res.status === 409) {
-        setError(t.pages.access.emailExists);
+        setError(t.pages.access.phoneExists);
         return;
       }
       if (!res.ok) {
-        setError(t.common.error);
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (data.error === 'VALIDATION') setError(t.auth.errors.invalidPhone ?? t.common.error);
+        else setError(t.common.error);
         return;
       }
       onSaved();
@@ -191,12 +193,15 @@ export function UserFormModal({
               <input className={field} value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1.5">{t.table.email}</label>
+              <label className="block text-xs text-muted-foreground mb-1.5">{t.table.phone}</label>
               <input
-                type="email"
+                type="tel"
+                inputMode="numeric"
                 className={field}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="07"
+                dir="ltr"
                 required
               />
             </div>

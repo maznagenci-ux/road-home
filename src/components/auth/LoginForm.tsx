@@ -43,18 +43,20 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
   const lang = locale || initialLang;
   const dict = t ?? initialT;
 
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const creditPrefix = dict.auth.developerCreditPrefix || 'دیزاین و گەشەپێدان لەلایەن';
   const creditName = dict.auth.developerName || BRAND_NAME;
+  const fieldClass =
+    'w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!email || !password) {
+    if (!phone || !password) {
       setError(dict.auth.errors.required);
       return;
     }
@@ -63,7 +65,7 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ phone, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -112,16 +114,19 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
               className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-sm space-y-4"
             >
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-muted-foreground mb-1.5">
-                  {dict.auth.email}
+                <label htmlFor="phone" className="block text-sm font-medium text-muted-foreground mb-1.5">
+                  {dict.auth.phone}
                 </label>
                 <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                  autoComplete="email"
+                  id="phone"
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="07"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={fieldClass}
+                  autoComplete="tel"
+                  dir="ltr"
                 />
               </div>
 
@@ -142,7 +147,7 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                  className={fieldClass}
                   autoComplete="current-password"
                 />
               </div>

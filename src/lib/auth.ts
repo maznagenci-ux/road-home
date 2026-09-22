@@ -11,7 +11,7 @@ function secret() {
 
 export interface SessionUser {
   id: string;
-  email: string;
+  phone: string;
   name: string;
   role: string;
   locale: string;
@@ -47,7 +47,7 @@ export async function getSession(): Promise<SessionUser | null> {
     const { payload } = await jwtVerify(token, secret());
     return {
       id: payload.sub as string,
-      email: payload.email as string,
+      phone: (payload.phone as string) || (payload.email as string) || '',
       name: payload.name as string,
       role: payload.role as string,
       locale: payload.locale as string,

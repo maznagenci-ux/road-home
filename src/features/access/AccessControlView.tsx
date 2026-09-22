@@ -18,7 +18,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 type MatrixUser = {
   id: string;
   name: string;
-  email: string;
+  phone: string;
   role: string;
   isActive: boolean;
   permissions: Record<string, boolean>;
@@ -131,7 +131,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
     setModalMode('create');
     setEditing({
       name: '',
-      email: '',
+      phone: '',
       role: 'SALESPERSON',
       isActive: true,
       permissions: { ...(roleDefaults.SALESPERSON ?? {}) },
@@ -144,7 +144,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
     setEditing({
       id: u.id,
       name: u.name,
-      email: u.email,
+      phone: u.phone,
       role: u.role,
       isActive: u.isActive,
       permissions: { ...u.permissions },
@@ -257,7 +257,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
                       <tr key={u.id} className="border-b border-border hover:bg-muted/40">
                         <td className="px-4 py-3">
                           <p className="font-medium text-foreground">{u.name}</p>
-                          <p className="text-[11px] text-muted-foreground">{u.email}</p>
+                          <p className="text-[11px] text-muted-foreground" dir="ltr">{u.phone}</p>
                         </td>
                         <td className="px-4 py-3">
                           <select

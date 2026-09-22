@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import type { PermissionKey } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { normalizeLoginPhone } from '@/lib/phone';
 import {
   ASSIGNABLE_ROLES,
   getEffectivePermissions,
@@ -17,9 +18,21 @@ import {
 
 const permRecord = z.record(z.string(), z.boolean()).optional();
 
+const phoneField = z
+  .string()
+  .min(1)
+  .transform((v, ctx) => {
+    const n = normalizeLoginPhone(v);
+    if (!n) {
+      ctx.addIssue({ code: 'custom', message: 'INVALID_PHONE' });
+      return z.NEVER;
+    }
+    return n;
+  });
+
 const createSchema = z.object({
   name: z.string().min(2).max(120),
-  email: z.string().email(),
+  phone: phoneField,
   password: z.string().min(6).max(100),
   role: z.enum(['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY', 'SITE_SUPERVISOR']),
   isActive: z.boolean().optional().default(true),
@@ -29,7 +42,7 @@ const createSchema = z.object({
 const updateSchema = z.object({
   userId: z.string().min(1),
   name: z.string().min(2).max(120).optional(),
-  email: z.string().email().optional(),
+  phone: phoneField.optional(),
   password: z.string().min(6).max(100).optional(),
   role: z
     .enum(['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY', 'SITE_SUPERVISOR'])
@@ -59,7 +72,7 @@ export async function GET() {
     select: {
       id: true,
       name: true,
-      email: true,
+      phone: true,
       role: true,
       isActive: true,
       createdAt: true,
@@ -93,16 +106,16 @@ export async function POST(req: Request) {
   try {
     const body = createSchema.parse(await req.json());
     const role = toStoredRole(body.role);
-    const existing = await prisma.user.findUnique({ where: { email: body.email.toLowerCase() } });
+    const existing = await prisma.user.findUnique({ where: { phone: body.phone } });
     if (existing) {
-      return NextResponse.json({ error: 'EMAIL_EXISTS' }, { status: 409 });
+      return NextResponse.json({ error: 'PHONE_EXISTS' }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
     const user = await prisma.user.create({
       data: {
         name: body.name.trim(),
-        email: body.email.toLowerCase().trim(),
+        phone: body.phone,
         passwordHash,
         role,
         isActive: body.isActive,
@@ -123,14 +136,14 @@ export async function POST(req: Request) {
       userId: session.id,
       userName: session.name,
       action: 'USER_CREATE',
-      meta: JSON.stringify({ targetUserId: user.id, email: user.email, role }),
+      meta: JSON.stringify({ targetUserId: user.id, phone: user.phone, role }),
     });
 
     return NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
+        phone: user.phone,
         role,
         isActive: user.isActive,
         permissions: await getEffectivePermissions(user.id, role),
@@ -156,9 +169,9 @@ export async function PATCH(req: Request) {
     const target = await prisma.user.findUnique({ where: { id: body.userId } });
     if (!target) return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
 
-    if (body.email && body.email.toLowerCase() !== target.email) {
-      const clash = await prisma.user.findUnique({ where: { email: body.email.toLowerCase() } });
-      if (clash) return NextResponse.json({ error: 'EMAIL_EXISTS' }, { status: 409 });
+    if (body.phone && body.phone !== target.phone) {
+      const clash = await prisma.user.findUnique({ where: { phone: body.phone } });
+      if (clash) return NextResponse.json({ error: 'PHONE_EXISTS' }, { status: 409 });
     }
 
     const role = body.role ? toStoredRole(body.role) : undefined;
@@ -168,7 +181,7 @@ export async function PATCH(req: Request) {
       where: { id: body.userId },
       data: {
         name: body.name?.trim(),
-        email: body.email?.toLowerCase().trim(),
+        phone: body.phone,
         role,
         isActive: body.isActive,
         passwordHash,
@@ -190,14 +203,14 @@ export async function PATCH(req: Request) {
       userId: session.id,
       userName: session.name,
       action: 'USER_UPDATE',
-      meta: JSON.stringify({ targetUserId: user.id, email: user.email, role: user.role }),
+      meta: JSON.stringify({ targetUserId: user.id, phone: user.phone, role: user.role }),
     });
 
     return NextResponse.json({
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
+        phone: user.phone,
         role: toStoredRole(user.role),
         isActive: user.isActive,
         permissions: await getEffectivePermissions(user.id, user.role),

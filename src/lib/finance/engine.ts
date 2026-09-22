@@ -109,6 +109,7 @@ export type CreateVoucherInput = {
   exchangeRate: number;
   paymentMethod: PaymentMethod;
   partyName: string;
+  buyerName?: string | null;
   periodLabel?: string | null;
   deductionIqd?: number | null;
   employeeUserId?: string | null;
@@ -153,6 +154,7 @@ export async function createVoucher(input: CreateVoucherInput) {
       exchangeLockedAt: lockedAt,
       paymentMethod: input.paymentMethod,
       partyName: input.partyName.trim(),
+      buyerName: input.buyerName?.trim() || null,
       periodLabel: input.periodLabel?.trim() || null,
       deductionIqd,
       employeeUserId: input.employeeUserId ?? null,

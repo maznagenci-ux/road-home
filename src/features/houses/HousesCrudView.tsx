@@ -12,10 +12,12 @@ type HouseRow = {
   name: string;
   unitNumber: string | null;
   area: number | null;
+  price: number | null;
   budgetIqd: number;
   location: string | null;
   description: string | null;
   status: string;
+  targetFinishAt: string | null;
   property: { id: string; name: string } | null;
   place: {
     neighborhood: string;
@@ -32,10 +34,12 @@ const emptyForm = () => ({
   name: '',
   unitNumber: '',
   area: '',
+  price: '',
   budgetIqd: '',
   description: '',
   propertyId: '',
   status: 'IN_CONSTRUCTION',
+  targetFinishAt: '',
   neighborhood: '',
   province: 'هەولێر',
   city: 'هەولێر',
@@ -90,10 +94,12 @@ export function HousesCrudView({ t, lang }: { t: Dictionary; lang: string }) {
       name: row.name,
       unitNumber: row.unitNumber ?? '',
       area: row.area != null ? String(row.area) : '',
+      price: row.price != null ? String(row.price) : '',
       budgetIqd: row.budgetIqd ? String(row.budgetIqd) : '',
       description: row.description ?? '',
       propertyId: row.property?.id ?? '',
       status: row.status || 'IN_CONSTRUCTION',
+      targetFinishAt: row.targetFinishAt ? row.targetFinishAt.slice(0, 10) : '',
       neighborhood: row.place?.neighborhood ?? '',
       province: row.place?.province || 'هەولێر',
       city: row.place?.city || 'هەولێر',
@@ -110,10 +116,14 @@ export function HousesCrudView({ t, lang }: { t: Dictionary; lang: string }) {
       name: form.name.trim(),
       unitNumber: form.unitNumber || null,
       area: form.area ? Number(form.area) : null,
+      price: form.price ? Number(form.price) : null,
       budgetIqd: form.budgetIqd ? Number(form.budgetIqd) : 0,
       description: form.description || null,
       propertyId: form.propertyId || null,
       status: form.status,
+      targetFinishAt: form.targetFinishAt
+        ? new Date(`${form.targetFinishAt}T12:00:00`).toISOString()
+        : null,
       neighborhood: form.neighborhood.trim(),
       province: form.province.trim() || 'هەولێر',
       city: form.city.trim() || 'هەولێر',
@@ -241,6 +251,20 @@ export function HousesCrudView({ t, lang }: { t: Dictionary; lang: string }) {
               placeholder={t.dashboard.budget}
               value={form.budgetIqd}
               onChange={(e) => setForm({ ...form, budgetIqd: e.target.value })}
+            />
+            <input
+              type="number"
+              className={cn(field, 'tabular-nums')}
+              placeholder={h.salePrice ?? 'نرخی فرۆشتن'}
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+            />
+            <input
+              type="date"
+              className={field}
+              title={h.finishDate ?? 'کاتی تەواوبوون'}
+              value={form.targetFinishAt}
+              onChange={(e) => setForm({ ...form, targetFinishAt: e.target.value })}
             />
             <select
               className={field}

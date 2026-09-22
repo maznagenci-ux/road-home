@@ -33,12 +33,19 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# sqlite local databases
+/prisma/*.db
+/prisma/*.db-journal
+
 # full-quality map PDF export cache
 /data/map-exports
 /data/backups
 
 # vercel
 .vercel
+
+# uploaded receipts
+/public/uploads
 
 # typescript
 *.tsbuildinfo

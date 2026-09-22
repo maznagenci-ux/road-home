@@ -3,15 +3,19 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { createSession } from '@/lib/auth';
 import { fromDbLocale } from '@/i18n/locale-config';
+import { normalizeLoginPhone } from '@/lib/phone';
 
 export async function POST(req: Request) {
   try {
-    const { email, password } = await req.json();
-    if (!email || !password) {
+    const body = await req.json();
+    const password = body.password as string | undefined;
+    const phone = normalizeLoginPhone(String(body.phone ?? body.email ?? ''));
+
+    if (!phone || !password) {
       return NextResponse.json({ error: 'Missing credentials' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email: email.trim().toLowerCase() } });
+    const user = await prisma.user.findUnique({ where: { phone } });
     if (!user || !user.isActive) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
@@ -23,7 +27,7 @@ export async function POST(req: Request) {
 
     await createSession({
       id: user.id,
-      email: user.email,
+      phone: user.phone,
       name: user.name,
       role: user.role,
       locale: user.locale,
@@ -32,7 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       user: {
         id: user.id,
-        email: user.email,
+        phone: user.phone,
         name: user.name,
         role: user.role,
         locale: fromDbLocale(user.locale),

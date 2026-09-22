@@ -22,8 +22,8 @@ export default async function SettingsPage({ params }: { params: Promise<{ lang:
               <dd className="text-foreground font-medium">{session.name}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">{t.table.email}</dt>
-              <dd className="text-foreground">{session.email}</dd>
+              <dt className="text-muted-foreground">{t.table.phone}</dt>
+              <dd className="text-foreground dir-ltr" dir="ltr">{session.phone}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-muted-foreground">{t.pages.users.role}</dt>

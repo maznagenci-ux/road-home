@@ -21,7 +21,7 @@ export async function PATCH(req: Request) {
 
   await createSession({
     id: user.id,
-    email: user.email,
+    phone: user.phone,
     name: user.name,
     role: user.role,
     locale: user.locale,

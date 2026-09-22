@@ -10,10 +10,12 @@ const schema = z.object({
   name: z.string().min(1),
   unitNumber: z.string().optional().nullable(),
   area: z.number().optional().nullable(),
+  price: z.number().optional().nullable(),
   budgetIqd: z.number().min(0).default(0),
   description: z.string().optional().nullable(),
   propertyId: z.string().optional().nullable(),
   status: z.enum(['IN_CONSTRUCTION', 'SOLD', 'FINISHED']).default('IN_CONSTRUCTION'),
+  targetFinishAt: z.string().datetime().optional().nullable().or(z.string().min(1).optional().nullable()),
   neighborhood: z.string().min(1),
   province: z.string().min(1).default('هەولێر'),
   city: z.string().min(1).default('هەولێر'),
@@ -71,17 +73,26 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'CODE_EXISTS' }, { status: 409 });
     }
 
+    const finish =
+      data.targetFinishAt === null || data.targetFinishAt === ''
+        ? null
+        : data.targetFinishAt
+          ? new Date(data.targetFinishAt)
+          : undefined;
+
     const item = await prisma.house.create({
       data: {
         code,
         name: data.name.trim(),
         unitNumber: data.unitNumber ?? null,
         area: data.area ?? null,
+        price: data.price ?? null,
         budgetIqd: data.budgetIqd,
         location,
         description: data.description ?? null,
         propertyId: data.propertyId || null,
         status: data.status,
+        ...(finish !== undefined ? { targetFinishAt: finish } : {}),
       },
       include: { property: { select: { id: true, name: true } } },
     });

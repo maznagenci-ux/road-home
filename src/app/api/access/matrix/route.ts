@@ -28,7 +28,7 @@ export async function GET() {
     select: {
       id: true,
       name: true,
-      email: true,
+      phone: true,
       role: true,
       isActive: true,
     },
@@ -38,7 +38,7 @@ export async function GET() {
     users.map(async (u) => ({
       id: u.id,
       name: u.name,
-      email: u.email,
+      phone: u.phone,
       role: toStoredRole(u.role),
       isActive: u.isActive,
       permissions: await getEffectivePermissions(u.id, u.role),
@@ -93,7 +93,7 @@ export async function PATCH(req: Request) {
         userId: session.id,
         userName: session.name,
         action: `ROLE_CHANGE → ${role}`,
-        meta: JSON.stringify({ targetUserId: user.id, email: user.email }),
+        meta: JSON.stringify({ targetUserId: user.id, phone: user.phone }),
       });
       return NextResponse.json({
         user: {

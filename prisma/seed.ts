@@ -23,10 +23,10 @@ async function main() {
   }
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@raothome.com' },
+    where: { phone: '07500000001' },
     update: { role: 'SUPER_ADMIN', name: 'Super Admin' },
     create: {
-      email: 'admin@raothome.com',
+      phone: '07500000001',
       passwordHash,
       name: 'Super Admin',
       role: 'SUPER_ADMIN',
@@ -36,10 +36,10 @@ async function main() {
 
   const accountantHash = await bcrypt.hash('account123', 10);
   await prisma.user.upsert({
-    where: { email: 'accountant@raothome.com' },
+    where: { phone: '07500000002' },
     update: { role: 'ACCOUNTANT' },
     create: {
-      email: 'accountant@raothome.com',
+      phone: '07500000002',
       passwordHash: accountantHash,
       name: 'Sara Accountant',
       role: 'ACCOUNTANT',
@@ -49,10 +49,10 @@ async function main() {
 
   const salesHash = await bcrypt.hash('sales123', 10);
   await prisma.user.upsert({
-    where: { email: 'sales@raothome.com' },
+    where: { phone: '07500000003' },
     update: { role: 'SALESPERSON', name: 'Dilan Sales' },
     create: {
-      email: 'sales@raothome.com',
+      phone: '07500000003',
       passwordHash: salesHash,
       name: 'Dilan Sales',
       role: 'SALESPERSON',
@@ -63,17 +63,17 @@ async function main() {
   // Migrate legacy site supervisor account if present
   await prisma.user
     .updateMany({
-      where: { email: 'site@raothome.com' },
+      where: { phone: '07500000004' },
       data: { role: 'SALESPERSON' },
     })
     .catch(() => undefined);
 
   const viewerHash = await bcrypt.hash('view123', 10);
   await prisma.user.upsert({
-    where: { email: 'viewer@raothome.com' },
+    where: { phone: '07500000005' },
     update: { role: 'VIEW_ONLY', name: 'Rawa Staff' },
     create: {
-      email: 'viewer@raothome.com',
+      phone: '07500000005',
       passwordHash: viewerHash,
       name: 'Rawa Staff',
       role: 'VIEW_ONLY',

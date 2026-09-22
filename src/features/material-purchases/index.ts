@@ -1,0 +1,1 @@
+export { MaterialPurchasesView } from './MaterialPurchasesView';

@@ -156,7 +156,8 @@ enum VoucherStatus {
 
 model User {
   id           String              @id @default(cuid())
-  email        String              @unique
+  /// ژمارەی تەلەفۆن بۆ داخڵبوون — دەبێت بە 07 دەست پێبکات (١١ ژمارە)
+  phone        String              @unique
   passwordHash String
   name         String
   role         UserRole            @default(VIEW_ONLY)
@@ -189,6 +190,20 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@index([userId])
+  @@index([expiresAt])
+}
+
+/// کۆدی OTP بۆ داخڵبوون (OTPIQ)
+model LoginOtp {
+  id        String   @id @default(cuid())
+  phone     String
+  codeHash  String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  consumedAt DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([phone])
   @@index([expiresAt])
 }
 
@@ -290,6 +305,8 @@ model House {
   location    String?
   status      ProjectStatus  @default(IN_CONSTRUCTION)
   description String?
+  /// بەرواری پلانکراو بۆ تەواوبوونی بیناسازی
+  targetFinishAt DateTime?
   propertyId  String?
   property    Property?      @relation(fields: [propertyId], references: [id])
   createdAt   DateTime       @default(now())
@@ -625,6 +642,8 @@ model Voucher {
   exchangeLockedAt DateTime
   paymentMethod    PaymentMethod
   partyName        String
+  /// Who physically bought the materials (staff / buyer name)
+  buyerName        String?
   /// e.g. "2026-09" for salary period
   periodLabel      String?
   /// Gross deductions (tax / loan / etc.) — net is amountIqd
