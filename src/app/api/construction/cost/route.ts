@@ -72,21 +72,7 @@ export async function POST(req: Request) {
     const ok = await hasPermission(session.id, session.role, 'APPROVE_FINANCE');
     if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
     const data = configSchema.parse(body);
-    const config = await updateFinanceConfig({
-      budget: data.budget
-        ? {
-            ...(data.budget.warnPct !== undefined ? { warnPct: data.budget.warnPct } : {}),
-            ...(data.budget.criticalPct !== undefined
-              ? { criticalPct: data.budget.criticalPct }
-              : {}),
-            ...(data.budget.severePct !== undefined ? { severePct: data.budget.severePct } : {}),
-          }
-        : undefined,
-      waste: data.waste?.approvalThresholdIqd !== undefined
-        ? { approvalThresholdIqd: data.waste.approvalThresholdIqd }
-        : undefined,
-      progressGapPct: data.progressGapPct,
-    });
+    const config = await updateFinanceConfig(data);
     return NextResponse.json({ config });
   }
 
