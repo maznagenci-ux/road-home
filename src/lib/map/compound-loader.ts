@@ -84,13 +84,18 @@ function parseCompound(id: string, html: string): { meta: CompoundMeta; pointers
   const folder = tileFolder(plot, page.props.plot_base_url);
   if (!folder) throw new Error('no tile folder');
 
-  let georef: { img_w?: number; img_h?: number; corners?: Record<string, [number, number]> } | null =
-    null;
+  type Georef = {
+    img_w?: number;
+    img_h?: number;
+    corners?: Record<string, [number, number]>;
+  };
+  let georef: Georef | null = null;
   try {
-    georef =
-      typeof plot.georef === 'string'
-        ? (JSON.parse(plot.georef) as typeof georef)
-        : ((plot.georef as typeof georef) ?? null);
+    if (typeof plot.georef === 'string') {
+      georef = JSON.parse(plot.georef) as Georef;
+    } else if (plot.georef && typeof plot.georef === 'object') {
+      georef = plot.georef as Georef;
+    }
   } catch {
     georef = null;
   }

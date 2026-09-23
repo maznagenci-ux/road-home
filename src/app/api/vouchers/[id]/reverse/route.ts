@@ -38,7 +38,7 @@ export async function POST(
       userId: session.id,
       userName: session.name,
       action: 'REVERSE_VOUCHER',
-      projectCode: original.house.code,
+      projectCode: original.house?.code ?? 'SYSTEM',
       amountIqd: original.amountIqd,
       meta: original.voucherNo,
     });

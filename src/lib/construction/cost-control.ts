@@ -52,7 +52,11 @@ export async function ensureFinanceConfig(): Promise<FinanceConfigBundle> {
 }
 
 export async function updateFinanceConfig(
-  patch: Partial<FinanceConfigBundle>,
+  patch: {
+    budget?: Partial<BudgetThresholds>;
+    waste?: Partial<WasteConfig>;
+    progressGapPct?: number;
+  },
 ): Promise<FinanceConfigBundle> {
   const current = await ensureFinanceConfig();
   const next: FinanceConfigBundle = {

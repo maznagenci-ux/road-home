@@ -46,7 +46,7 @@ export async function POST(
     userId: session.id,
     userName: session.name,
     action: 'UNLOCK_VOUCHER',
-    projectCode: voucher.house.code,
+    projectCode: voucher.house?.code ?? 'SYSTEM',
     amountIqd: voucher.amountIqd,
     meta: voucher.voucherNo,
   });
