@@ -1,11 +1,9 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  # Do NOT set publish = ".next" — OpenNext adapter sets the correct output.
+  # A custom .next publish path causes production 404s for SSR/App Router.
 
 [build.environment]
   NODE_VERSION = "20"
-  # Ensure build tooling installs even when NODE_ENV=production is set in UI
   NPM_FLAGS = "--include=dev"
   PRISMA_CLI_BINARY_TARGETS = "rhel-openssl-3.0.x"
-
-# Next.js is auto-detected via Netlify OpenNext adapter — no plugin pin needed.
