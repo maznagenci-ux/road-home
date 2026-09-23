@@ -1,14 +1,20 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { createSession } from '@/lib/auth';
+import { attachSessionCookie, createSessionToken } from '@/lib/auth';
 import { fromDbLocale } from '@/i18n/locale-config';
 import { normalizeLoginPhone } from '@/lib/phone';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const password = body.password as string | undefined;
+    let body: { phone?: string; email?: string; password?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json({ error: 'INVALID_JSON' }, { status: 400 });
+    }
+
+    const password = body.password;
     const phone = normalizeLoginPhone(String(body.phone ?? body.email ?? ''));
 
     if (!phone || !password) {
@@ -25,15 +31,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    await createSession({
+    const sessionUser = {
       id: user.id,
       phone: user.phone,
       name: user.name,
       role: user.role,
       locale: user.locale,
-    });
+    };
 
-    return NextResponse.json({
+    const token = await createSessionToken(sessionUser);
+    const res = NextResponse.json({
       user: {
         id: user.id,
         phone: user.phone,
@@ -42,10 +49,10 @@ export async function POST(req: Request) {
         locale: fromDbLocale(user.locale),
       },
     });
+    return attachSessionCookie(res, token);
   } catch (err) {
     console.error('login_error', err);
     const message = err instanceof Error ? err.message : 'Server error';
-    // Surface connection/config failures clearly for hosted debugging
     const code =
       message.includes('JWT_SECRET')
         ? 'JWT_SECRET_MISSING'

@@ -65,15 +65,22 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
         body: JSON.stringify({ phone, password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(dict.auth.errors.invalid);
+        const code = typeof data.error === 'string' ? data.error : '';
+        if (code === 'DATABASE_UNREACHABLE' || code === 'DATABASE_AUTH') {
+          setError(dict.auth.errors.server);
+        } else {
+          setError(dict.auth.errors.invalid);
+        }
         return;
       }
       const userLocale = data.user?.locale ?? lang;
-      router.push(`/${userLocale}`);
+      router.replace(`/${userLocale}`);
+      router.refresh();
     } catch {
       setError(dict.auth.errors.server);
     } finally {
