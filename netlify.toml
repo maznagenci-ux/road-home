@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Prisma needs DATABASE_URL at generate/build time (set real value in Netlify UI)
+  PRISMA_CLI_BINARY_TARGETS = "rhel-openssl-3.0.x"
+
+# Next.js is auto-detected via Netlify OpenNext adapter — no plugin pin needed.
