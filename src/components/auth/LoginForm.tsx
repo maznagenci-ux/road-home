@@ -51,7 +51,7 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
   const creditPrefix = dict.auth.developerCreditPrefix || 'دیزاین و گەشەپێدان لەلایەن';
   const creditName = dict.auth.developerName || BRAND_NAME;
   const fieldClass =
-    'w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary';
+    'w-full px-3.5 py-3 rounded-xl border border-border bg-background text-foreground text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary';
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,13 +121,18 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
                   id="phone"
                   type="tel"
                   inputMode="numeric"
-                  placeholder="07"
+                  pattern="[0-9]*"
+                  placeholder="07501234567"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => setPhone(e.target.value.replace(/[^\d\u0660-\u0669\u06f0-\u06f9]/g, ''))}
                   className={fieldClass}
                   autoComplete="tel"
+                  enterKeyHint="next"
                   dir="ltr"
                 />
+                <p className="mt-1.5 text-[11px] text-muted-foreground">
+                  {dict.auth.phoneHint ?? 'تەنها ژمارەی مۆبایل — وەک 0750xxxxxxx (ئیمەیڵ نا)'}
+                </p>
               </div>
 
               <div>
@@ -161,7 +166,7 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 rounded-xl text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60 shadow-sm"
+                className="w-full min-h-12 py-3 rounded-xl text-base sm:text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 transition-colors disabled:opacity-60 shadow-sm"
               >
                 {loading ? dict.common.loading : dict.auth.loginButton}
               </button>

@@ -1,7 +1,14 @@
 /** Iraqi mobile: 11 digits starting with 07 (e.g. 07501234567). */
 
+/** Convert Arabic-Indic / Extended Arabic-Indic digits to ASCII 0-9. */
+export function toAsciiDigits(input: string): string {
+  return String(input || '')
+    .replace(/[\u0660-\u0669]/g, (d) => String(d.charCodeAt(0) - 0x0660))
+    .replace(/[\u06f0-\u06f9]/g, (d) => String(d.charCodeAt(0) - 0x06f0));
+}
+
 export function digitsOnly(input: string): string {
-  return String(input || '').replace(/\D/g, '');
+  return toAsciiDigits(input).replace(/\D/g, '');
 }
 
 /** Normalize to 07XXXXXXXXX or null if invalid. */
