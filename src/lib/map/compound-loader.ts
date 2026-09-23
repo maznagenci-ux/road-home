@@ -89,16 +89,33 @@ function parseCompound(id: string, html: string): { meta: CompoundMeta; pointers
     img_h?: number;
     corners?: Record<string, [number, number]>;
   };
+
+  function toGeoref(value: unknown): Georef | null {
+    if (!value || typeof value !== 'object') return null;
+    const obj = value as Record<string, unknown>;
+    const out: Georef = {};
+    if (typeof obj.img_w === 'number') out.img_w = obj.img_w;
+    if (typeof obj.img_h === 'number') out.img_h = obj.img_h;
+    if (obj.corners && typeof obj.corners === 'object') {
+      out.corners = obj.corners as Record<string, [number, number]>;
+    }
+    return out.img_w !== undefined || out.img_h !== undefined || out.corners ? out : out;
+  }
+
   let georef: Georef | null = null;
   try {
     if (typeof plot.georef === 'string') {
-      georef = JSON.parse(plot.georef) as Georef;
-    } else if (plot.georef && typeof plot.georef === 'object') {
-      georef = plot.georef as Georef;
+      georef = toGeoref(JSON.parse(plot.georef));
+    } else {
+      georef = toGeoref(plot.georef);
     }
   } catch {
     georef = null;
   }
+
+  const imageWidth = georef?.img_w;
+  const imageHeight = georef?.img_h;
+  const imageCorners = georef?.corners;
 
   const [cx, cy] = String(plot.center || '0,0')
     .split(',')
@@ -129,11 +146,11 @@ function parseCompound(id: string, html: string): { meta: CompoundMeta; pointers
     minZoom: plot.min_zoom ?? 0,
     maxZoom: plot.max_zoom ?? 6,
     center: { x: cx || 0, y: cy || 0 },
-    image: georef?.img_w
+    image: imageWidth
       ? {
-          width: Number(georef.img_w),
-          height: Number(georef.img_h ?? georef.img_w),
-          corners: georef.corners,
+          width: Number(imageWidth),
+          height: Number(imageHeight ?? imageWidth),
+          corners: imageCorners,
         }
       : null,
     pointerCount: pointers.length,
