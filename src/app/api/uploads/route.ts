@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { mkdir, writeFile } from 'fs/promises';
-import path from 'path';
 import { randomBytes } from 'crypto';
+import path from 'path';
 import { getSession } from '@/lib/auth';
 import { hasPermission } from '@/lib/access/permissions';
+import { getSupabaseAdmin, RECEIPTS_BUCKET } from '@/lib/supabase';
 
 const MAX_BYTES = 8 * 1024 * 1024; // 8 MB
 const ALLOWED = new Set([
@@ -22,6 +22,18 @@ function extFor(mime: string, original: string) {
   if (mime === 'image/webp') return '.webp';
   if (mime === 'image/gif') return '.gif';
   return '.jpg';
+}
+
+async function ensureBucket() {
+  const supabase = getSupabaseAdmin();
+  const { data: buckets } = await supabase.storage.listBuckets();
+  if (buckets?.some((b) => b.name === RECEIPTS_BUCKET)) return;
+
+  await supabase.storage.createBucket(RECEIPTS_BUCKET, {
+    public: true,
+    fileSizeLimit: MAX_BYTES,
+    allowedMimeTypes: [...ALLOWED],
+  });
 }
 
 export async function POST(req: Request) {
@@ -45,18 +57,32 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'FILE_TYPE' }, { status: 400 });
     }
 
+    await ensureBucket();
+
     const buf = Buffer.from(await file.arrayBuffer());
     const stamp = Date.now().toString(36);
     const rand = randomBytes(4).toString('hex');
     const ext = extFor(mime, file.name);
-    const filename = `${stamp}-${rand}${ext}`;
-    const dir = path.join(process.cwd(), 'public', 'uploads', 'receipts');
-    await mkdir(dir, { recursive: true });
-    await writeFile(path.join(dir, filename), buf);
+    const objectPath = `receipts/${stamp}-${rand}${ext}`;
 
-    const url = `/uploads/receipts/${filename}`;
-    return NextResponse.json({ url, name: file.name, size: file.size, mime });
-  } catch {
-    return NextResponse.json({ error: 'UPLOAD_FAILED' }, { status: 500 });
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase.storage
+      .from(RECEIPTS_BUCKET)
+      .upload(objectPath, buf, { contentType: mime, upsert: false });
+
+    if (error) {
+      return NextResponse.json({ error: 'UPLOAD_FAILED', detail: error.message }, { status: 500 });
+    }
+
+    const { data } = supabase.storage.from(RECEIPTS_BUCKET).getPublicUrl(objectPath);
+    return NextResponse.json({
+      url: data.publicUrl,
+      name: file.name,
+      size: file.size,
+      mime,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'UPLOAD_FAILED';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
