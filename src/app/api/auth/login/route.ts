@@ -42,7 +42,18 @@ export async function POST(req: Request) {
         locale: fromDbLocale(user.locale),
       },
     });
-  } catch {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (err) {
+    console.error('login_error', err);
+    const message = err instanceof Error ? err.message : 'Server error';
+    // Surface connection/config failures clearly for hosted debugging
+    const code =
+      message.includes('JWT_SECRET')
+        ? 'JWT_SECRET_MISSING'
+        : message.includes("Can't reach database") || message.includes('P1001')
+          ? 'DATABASE_UNREACHABLE'
+          : message.includes('P1000') || message.includes('Authentication failed')
+            ? 'DATABASE_AUTH'
+            : 'SERVER_ERROR';
+    return NextResponse.json({ error: code, detail: message.slice(0, 200) }, { status: 500 });
   }
 }
