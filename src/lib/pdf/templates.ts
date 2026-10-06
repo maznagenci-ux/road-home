@@ -1424,8 +1424,8 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     }
 
     .to-block, .subject-block {
-      text-align: start; margin: 0 0 10px; font-weight: 700; font-size: 14px;
-      unicode-bidi: isolate; color: #0f2744; line-height: 1.7;
+      text-align: center; margin: 0 0 10px; font-weight: 700; font-size: 14px;
+      unicode-bidi: isolate; color: #111; line-height: 1.7;
     }
     .to-block .k, .subject-block .k {
       margin-inline-end: 6px; font-weight: 700;
