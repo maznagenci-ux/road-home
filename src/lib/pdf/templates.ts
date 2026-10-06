@@ -1351,7 +1351,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       line-height: 1.85;
     }
     .toolbar {
-      max-width: 210mm; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; padding: 0 4px;
+      max-width: 794px; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; padding: 0 4px;
     }
     .toolbar button {
       font-family: inherit; border: 0; background: #0f2744; color: #fff;
@@ -1360,33 +1360,26 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .toolbar button.secondary {
       background: #fff; color: #0f2744; border: 1px solid #0f2744;
     }
+    /* Fixed px A4 — html2canvas breaks on CSS grid/flex + mm units */
     .sheet {
-      width: 210mm; min-height: 297mm; margin: 8px auto 16px; background: #fff;
-      padding: 16mm 18mm 14mm; position: relative;
+      width: 794px; min-height: 1123px; margin: 8px auto 16px; background: #fff;
+      padding: 52px 58px 44px; position: relative; overflow: hidden;
       box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
-      display: flex; flex-direction: column;
     }
     .wm {
-      position: absolute; inset: 38% 22% 30%; display: flex; align-items: center; justify-content: center;
-      opacity: 0.04; pointer-events: none; z-index: 0;
+      position: absolute; left: 22%; right: 22%; top: 38%; bottom: 30%;
+      text-align: center; opacity: 0.04; pointer-events: none; z-index: 0;
     }
     .wm img { width: 42%; max-width: 190px; height: auto; }
-    .page {
-      position: relative; z-index: 1; flex: 1;
-      min-height: calc(297mm - 30mm);
-      display: flex; flex-direction: column;
-    }
+    .page { position: relative; z-index: 1; }
 
-    /* Formal letterhead — fixed physical order: AR | logo | KU */
-    .head {
-      display: grid;
-      grid-template-columns: 1fr 88px 1fr;
-      gap: 14px;
-      align-items: center;
-      direction: ltr;
-      margin-bottom: 0;
-      padding-bottom: 10px;
+    /* Table letterhead — reliable in html2canvas (AR | logo | KU) */
+    table.head {
+      width: 100%; border-collapse: collapse; direction: ltr; table-layout: fixed;
+      margin: 0 0 8px; padding: 0;
     }
+    table.head td { vertical-align: middle; padding: 0 6px; border: 0; }
+    table.head td.emblem-cell { width: 88px; text-align: center; padding: 0; }
     .head-side {
       color: #0f2744;
       direction: rtl;
@@ -1399,25 +1392,15 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       font-family: 'Noto Kufi Arabic', 'Noto Naskh Arabic', sans-serif;
     }
     .head-side .line { display: block; unicode-bidi: isolate; }
-    .head-side .org {
-      font-size: 13.5px; font-weight: 700; letter-spacing: 0;
-    }
-    .head-side .dept {
-      font-size: 11.5px; font-weight: 600; margin-top: 2px; color: #1a3358;
-    }
-    .head-side .place {
-      font-size: 10.5px; font-weight: 600; margin-top: 3px; color: #475569;
-    }
-    .emblem-wrap {
-      display: flex; align-items: center; justify-content: center;
-      direction: ltr;
-    }
+    .head-side .org { font-size: 13.5px; font-weight: 700; }
+    .head-side .dept { font-size: 11.5px; font-weight: 600; margin-top: 2px; color: #1a3358; }
+    .head-side .place { font-size: 10.5px; font-weight: 600; margin-top: 3px; color: #475569; }
     .emblem {
-      width: 72px; height: 72px; object-fit: contain; display: block;
-      background: #fff;
+      width: 72px; height: 72px; object-fit: contain; display: inline-block;
+      background: #fff; vertical-align: middle;
     }
     .rules {
-      margin: 0 0 12px;
+      margin: 0 0 14px;
       border: 0;
       border-top: 2.5px solid #0f2744;
       border-bottom: 0.6px solid #0f2744;
@@ -1428,12 +1411,12 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       border: 0; border-top: 2.4px solid #0f2744; margin: 14px 0 0; padding-top: 0;
     }
 
-    .meta {
-      display: flex; justify-content: space-between; gap: 16px; align-items: flex-start;
-      font-size: 12.5px; font-weight: 700; margin-bottom: 20px; color: #0f2744;
+    table.meta {
+      width: 100%; border-collapse: collapse; direction: inherit;
+      font-size: 12.5px; font-weight: 700; margin-bottom: 18px; color: #0f2744;
     }
-    .meta .pair { white-space: nowrap; unicode-bidi: isolate; }
-    .meta .lbl { font-weight: 700; }
+    table.meta td { border: 0; padding: 0; vertical-align: top; white-space: nowrap; }
+    table.meta td.date-cell { text-align: end; }
     .meta .val {
       display: inline-block; min-width: 7rem; border-bottom: 1px solid #0f2744;
       padding: 0 6px 1px; margin-inline-start: 4px;
@@ -1443,15 +1426,13 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 
     .to-block, .subject-block {
       text-align: center; margin: 0 0 10px; font-weight: 700; font-size: 14px;
-      unicode-bidi: isolate; color: #111; line-height: 1.7;
+      unicode-bidi: isolate; color: #0b1220; line-height: 1.7;
     }
-    .to-block .k, .subject-block .k {
-      margin-inline-end: 6px; font-weight: 700;
-    }
+    .to-block .k, .subject-block .k { margin-inline-end: 6px; font-weight: 700; }
     .to-block .v, .subject-block .v { font-weight: 700; }
 
     .body {
-      margin-top: 16px; text-align: justify; font-size: 13.5px; line-height: 2.05;
+      margin-top: 14px; text-align: justify; font-size: 13.5px; line-height: 2.05;
       color: #111; unicode-bidi: isolate;
     }
     .body p { margin: 0 0 0.9em; text-indent: 1.2em; }
@@ -1467,43 +1448,25 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       color: #111;
     }
 
-    .foot {
-      margin-top: auto;
-      padding-top: 28px;
-      flex-shrink: 0;
-    }
-
-    .bottom {
-      display: flex;
-      justify-content: flex-end;
-      align-items: flex-end;
-      direction: inherit;
-      margin-top: 8px;
-    }
-    .copies { display: none; }
-
+    .foot { margin-top: 36px; padding-top: 8px; }
+    .bottom { text-align: end; margin-top: 8px; direction: inherit; }
     .sign-block {
+      display: inline-block;
       text-align: center;
       unicode-bidi: isolate;
       min-width: 12rem;
     }
-    .sign-block .space { height: 28px; }
-    .sign-block .name {
-      font-weight: 700; font-size: 15px;
-      display: block; padding-top: 0; margin-top: 0;
-      color: #111;
-    }
-    .sign-block .role {
-      font-size: 13px; font-weight: 700; margin-top: 4px; color: #111;
-    }
+    .sign-block .space { height: 40px; }
+    .sign-block .name { font-weight: 700; font-size: 15px; color: #111; }
+    .sign-block .role { font-size: 13px; font-weight: 700; margin-top: 4px; color: #111; }
 
     .contact-bar {
       margin-top: 14px; text-align: center; font-size: 11.5px; font-weight: 700;
       color: #0f2744; direction: ltr; unicode-bidi: isolate;
     }
     .contact-bar .addr { direction: rtl; unicode-bidi: isolate; margin-bottom: 4px; font-weight: 600; color: #475569; }
-    .contact-bar .phones { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
-    .contact-bar .phones .sep { color: #94a3b8; font-weight: 500; }
+    .contact-bar .phones { font-variant-numeric: tabular-nums; }
+    .contact-bar .phones .sep { color: #94a3b8; font-weight: 500; margin: 0 4px; }
 
     @media print {
       html, body {
@@ -1512,21 +1475,33 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       }
       .toolbar { display: none !important; }
       .sheet {
-        width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+        width: 210mm; min-height: 297mm; height: 297mm;
         margin: 0; padding: 14mm 16mm 12mm; box-shadow: none;
         overflow: hidden; page-break-after: avoid; break-after: avoid;
       }
-      .page {
-        min-height: 0; height: 100%;
-        page-break-inside: avoid; break-inside: avoid;
-      }
-      .foot { page-break-inside: avoid; break-inside: avoid; }
+      .page, .foot { page-break-inside: avoid; break-inside: avoid; }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script>
     function rhSupportPrint() {
       window.print();
+    }
+    function rhWaitAssets(root) {
+      var imgs = Array.prototype.slice.call(root.querySelectorAll('img'));
+      var imgReady = Promise.all(imgs.map(function (img) {
+        if (img.complete && img.naturalWidth) return Promise.resolve();
+        return new Promise(function (resolve) {
+          var done = function () { resolve(); };
+          img.addEventListener('load', done, { once: true });
+          img.addEventListener('error', done, { once: true });
+          setTimeout(done, 2500);
+        });
+      }));
+      var fontsReady = (document.fonts && document.fonts.ready)
+        ? document.fonts.ready.catch(function () {})
+        : Promise.resolve();
+      return Promise.all([fontsReady, imgReady]);
     }
     function rhSupportDownloadPdf() {
       var sheet = document.querySelector('.sheet');
@@ -1540,37 +1515,55 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         return;
       }
       if (btn) { btn.disabled = true; btn.textContent = '…'; }
-      if (toolbar) toolbar.style.visibility = 'hidden';
-      html2pdf()
-        .set({
-          margin: 0,
-          filename: filename,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 2,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 794,
-            windowHeight: 1123
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-          pagebreak: { mode: ['avoid-all'] }
-        })
-        .from(sheet)
-        .save()
-        .then(function () {
-          if (toolbar) toolbar.style.visibility = 'visible';
-          if (btn) { btn.disabled = false; btn.textContent = label; }
-        })
-        .catch(function () {
-          if (toolbar) toolbar.style.visibility = 'visible';
-          if (btn) { btn.disabled = false; btn.textContent = label; }
-          window.print();
-        });
+      if (toolbar) toolbar.style.display = 'none';
+      rhWaitAssets(sheet).then(function () {
+        return html2pdf()
+          .set({
+            margin: 0,
+            filename: filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+              backgroundColor: '#ffffff',
+              logging: false,
+              scrollX: 0,
+              scrollY: 0,
+              x: 0,
+              y: 0,
+              width: 794,
+              windowWidth: 794,
+              onclone: function (clonedDoc) {
+                var body = clonedDoc.body;
+                var clonedSheet = clonedDoc.querySelector('.sheet');
+                var clonedToolbar = clonedDoc.querySelector('.toolbar');
+                if (clonedToolbar) clonedToolbar.style.display = 'none';
+                body.style.background = '#ffffff';
+                body.style.margin = '0';
+                body.style.padding = '0';
+                if (clonedSheet) {
+                  clonedSheet.style.width = '794px';
+                  clonedSheet.style.minHeight = '1123px';
+                  clonedSheet.style.margin = '0';
+                  clonedSheet.style.boxShadow = 'none';
+                  clonedSheet.style.transform = 'none';
+                }
+              }
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: { mode: [] }
+          })
+          .from(sheet)
+          .save();
+      }).then(function () {
+        if (toolbar) toolbar.style.display = '';
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+      }).catch(function () {
+        if (toolbar) toolbar.style.display = '';
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+        window.print();
+      });
     }
   </script>
 </head>
@@ -1582,34 +1575,38 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   <div class="sheet">
     <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
     <div class="page">
-      <header class="head">
-        <div class="head-side ar" dir="rtl" lang="ar">
-          <span class="line org">${esc(headAr[0])}</span>
-          <span class="line dept">${esc(headAr[1])}</span>
-          <span class="line place">${esc(headAr[2])}</span>
-        </div>
-        <div class="emblem-wrap">
-          <img class="emblem" src="${esc(logoMark)}" alt="" onerror="this.src='${esc(logoFull)}'" />
-        </div>
-        <div class="head-side ku" dir="rtl" lang="ckb">
-          <span class="line org">${esc(headKu[0])}</span>
-          <span class="line dept">${esc(headKu[1])}</span>
-          <span class="line place">${esc(headKu[2])}</span>
-        </div>
-      </header>
+      <table class="head" dir="ltr" role="presentation">
+        <tr>
+          <td class="head-side ar" dir="rtl" lang="ar">
+            <span class="line org">${esc(headAr[0])}</span>
+            <span class="line dept">${esc(headAr[1])}</span>
+            <span class="line place">${esc(headAr[2])}</span>
+          </td>
+          <td class="emblem-cell">
+            <img class="emblem" src="${esc(logoMark)}" alt="" onerror="this.src='${esc(logoFull)}'" />
+          </td>
+          <td class="head-side ku" dir="rtl" lang="ckb">
+            <span class="line org">${esc(headKu[0])}</span>
+            <span class="line dept">${esc(headKu[1])}</span>
+            <span class="line place">${esc(headKu[2])}</span>
+          </td>
+        </tr>
+      </table>
 
       <div class="rules" aria-hidden="true"></div>
 
-      <div class="meta">
-        <div class="pair">
-          <span class="lbl">${esc(s.number ?? 'ژمارە')}:</span>
-          <span class="val" dir="ltr">${esc(data.supportNo)}</span>
-        </div>
-        <div class="pair">
-          <span class="lbl">${esc(s.date ?? 'ڕێکەوت')}:</span>
-          <span class="val" dir="ltr">${esc(dateStr)}</span>
-        </div>
-      </div>
+      <table class="meta" role="presentation">
+        <tr>
+          <td>
+            <span class="lbl">${esc(s.number ?? 'ژمارە')}:</span>
+            <span class="val" dir="ltr">${esc(data.supportNo)}</span>
+          </td>
+          <td class="date-cell">
+            <span class="lbl">${esc(s.date ?? 'ڕێکەوت')}:</span>
+            <span class="val" dir="ltr">${esc(dateStr)}</span>
+          </td>
+        </tr>
+      </table>
 
       <p class="to-block">
         <span class="k">${esc(toLabel)}/</span>
@@ -1648,9 +1645,9 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         if (typeof rhSupportDownloadPdf === "function") rhSupportDownloadPdf();
       }
       if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(function () { setTimeout(go, 200); });
+        document.fonts.ready.then(function () { setTimeout(go, 500); });
       } else {
-        setTimeout(go, 600);
+        setTimeout(go, 900);
       }
     });
   </script>`
