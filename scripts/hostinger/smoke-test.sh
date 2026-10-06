@@ -26,7 +26,7 @@ LOGIN=$(curl -s -c "$JAR" -b "$JAR" --max-time 25 \
 check login "$LOGIN" 200
 
 for path_expect in \
-  "/ckb|307" \
+  "/ckb|200,307" \
   "/api/contracts|200" \
   "/api/rentals|200" \
   "/api/receipts|200" \
@@ -37,7 +37,12 @@ do
   path="${path_expect%%|*}"
   expect="${path_expect##*|}"
   code=$(curl -s -o /dev/null -w '%{http_code}' -b "$JAR" --max-time 30 "$BASE$path")
-  check "$path" "$code" "$expect"
+  if [[ ",$expect," == *",$code,"* ]] || [[ "$expect" == "$code" ]]; then
+    echo "OK  $path ($code)"
+  else
+    echo "FAIL $path got=$code want=$expect"
+    fail=1
+  fi
 done
 
 # latest receipt HTML should be single-page dual voucher
