@@ -1360,10 +1360,11 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .toolbar button.secondary {
       background: #fff; color: #0f2744; border: 1px solid #0f2744;
     }
-    /* Fixed px A4 — html2canvas breaks on CSS grid/flex + mm units */
+    /* Exact A4 px — one page only; footer pinned to bottom */
     .sheet {
-      width: 794px; min-height: 1123px; margin: 8px auto 16px; background: #fff;
-      padding: 52px 58px 44px; position: relative; overflow: hidden;
+      width: 794px; height: 1123px; min-height: 1123px; max-height: 1123px;
+      margin: 8px auto 16px; background: #fff;
+      padding: 48px 56px 0; position: relative; overflow: hidden;
       box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
     }
     .wm {
@@ -1371,7 +1372,10 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       text-align: center; opacity: 0.04; pointer-events: none; z-index: 0;
     }
     .wm img { width: 42%; max-width: 190px; height: auto; }
-    .page { position: relative; z-index: 1; }
+    .page {
+      position: relative; z-index: 1;
+      padding-bottom: 170px; /* leave room for pinned footer */
+    }
 
     /* Table letterhead — reliable in html2canvas (AR | logo | KU) */
     table.head {
@@ -1440,7 +1444,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .body p:last-child { margin-bottom: 0; }
 
     .closing {
-      margin: 22px 0 0;
+      margin: 18px 0 0;
       text-align: center;
       font-weight: 700;
       font-size: 15px;
@@ -1448,20 +1452,29 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       color: #111;
     }
 
-    .foot { margin-top: 36px; padding-top: 8px; }
-    .bottom { text-align: end; margin-top: 8px; direction: inherit; }
+    /* Signature + contact locked to bottom of the A4 sheet */
+    .foot {
+      position: absolute;
+      left: 56px;
+      right: 56px;
+      bottom: 32px;
+      margin: 0;
+      padding: 0;
+      z-index: 2;
+    }
+    .bottom { text-align: end; margin-top: 0; direction: inherit; }
     .sign-block {
       display: inline-block;
       text-align: center;
       unicode-bidi: isolate;
       min-width: 12rem;
     }
-    .sign-block .space { height: 40px; }
+    .sign-block .space { height: 36px; }
     .sign-block .name { font-weight: 700; font-size: 15px; color: #111; }
     .sign-block .role { font-size: 13px; font-weight: 700; margin-top: 4px; color: #111; }
 
     .contact-bar {
-      margin-top: 14px; text-align: center; font-size: 11.5px; font-weight: 700;
+      margin-top: 12px; text-align: center; font-size: 11.5px; font-weight: 700;
       color: #0f2744; direction: ltr; unicode-bidi: isolate;
     }
     .contact-bar .addr { direction: rtl; unicode-bidi: isolate; margin-bottom: 4px; font-weight: 600; color: #475569; }
@@ -1475,11 +1488,15 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       }
       .toolbar { display: none !important; }
       .sheet {
-        width: 210mm; min-height: 297mm; height: 297mm;
-        margin: 0; padding: 14mm 16mm 12mm; box-shadow: none;
+        width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+        margin: 0; padding: 12mm 14mm 0; box-shadow: none;
         overflow: hidden; page-break-after: avoid; break-after: avoid;
       }
-      .page, .foot { page-break-inside: avoid; break-inside: avoid; }
+      .page { padding-bottom: 42mm; }
+      .foot {
+        left: 14mm; right: 14mm; bottom: 10mm;
+        page-break-inside: avoid; break-inside: avoid;
+      }
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
@@ -1517,6 +1534,10 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       if (btn) { btn.disabled = true; btn.textContent = '…'; }
       if (toolbar) toolbar.style.display = 'none';
       rhWaitAssets(sheet).then(function () {
+        sheet.style.width = '794px';
+        sheet.style.height = '1123px';
+        sheet.style.maxHeight = '1123px';
+        sheet.style.overflow = 'hidden';
         return html2pdf()
           .set({
             margin: 0,
@@ -1533,7 +1554,9 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
               x: 0,
               y: 0,
               width: 794,
+              height: 1123,
               windowWidth: 794,
+              windowHeight: 1123,
               onclone: function (clonedDoc) {
                 var body = clonedDoc.body;
                 var clonedSheet = clonedDoc.querySelector('.sheet');
@@ -1544,10 +1567,13 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
                 body.style.padding = '0';
                 if (clonedSheet) {
                   clonedSheet.style.width = '794px';
+                  clonedSheet.style.height = '1123px';
                   clonedSheet.style.minHeight = '1123px';
+                  clonedSheet.style.maxHeight = '1123px';
                   clonedSheet.style.margin = '0';
                   clonedSheet.style.boxShadow = 'none';
                   clonedSheet.style.transform = 'none';
+                  clonedSheet.style.overflow = 'hidden';
                 }
               }
             },
@@ -1555,6 +1581,13 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
             pagebreak: { mode: [] }
           })
           .from(sheet)
+          .toPdf()
+          .get('pdf')
+          .then(function (pdf) {
+            // Force exactly one A4 page
+            var n = pdf.internal.getNumberOfPages();
+            for (var i = n; i > 1; i--) pdf.deletePage(i);
+          })
           .save();
       }).then(function () {
         if (toolbar) toolbar.style.display = '';
@@ -1620,6 +1653,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       <div class="body">${bodyHtml || `<p>${esc(s.emptyBody ?? '—')}</p>`}</div>
 
       <p class="closing">${esc(withRespect)}</p>
+    </div>
 
       <footer class="foot">
         <div class="bottom">
@@ -1635,7 +1669,6 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
           <div class="phones">${phonesHtml || '—'}</div>
         </div>
       </footer>
-    </div>
   </div>
   ${
     data.autoDownload
