@@ -12,7 +12,12 @@ export async function requireAuth(lang: string) {
   const locale = normalizeLocale(lang);
   if (!hasLocale(lang) && lang !== 'ku') redirect('/ckb');
   const session = await getSession();
-  if (!session) redirect(`/${locale}/auth/login`);
+  if (!session) {
+    // Drop stale token so middleware cannot bounce login ↔ dashboard
+    const { destroySession } = await import('@/lib/auth');
+    await destroySession().catch(() => undefined);
+    redirect(`/${locale}/auth/login`);
+  }
   const t = await getDictionary(locale);
   return {
     session: { ...session, locale: fromDbLocale(session.locale) },
@@ -26,6 +31,9 @@ export async function requireGuest(lang: string) {
   if (!hasLocale(lang) && lang !== 'ku') redirect('/ckb');
   const session = await getSession();
   if (session) redirect(`/${fromDbLocale(session.locale)}`);
+  // Invalid leftover cookie: clear so next navigation is clean
+  const { destroySession } = await import('@/lib/auth');
+  await destroySession().catch(() => undefined);
   const t = await getDictionary(locale);
   return { t, lang: locale };
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { jwtVerify } from 'jose';
 import { locales, defaultLocale, normalizeLocale } from '@/i18n/locale-config';
 import { isSmartTvUserAgent } from '@/lib/tv-detect';
 
@@ -31,7 +32,35 @@ function withTvCookie(res: NextResponse, enable: boolean) {
   return res;
 }
 
-export function middleware(request: NextRequest) {
+function clearAuthCookie(res: NextResponse) {
+  res.cookies.set(AUTH_COOKIE, '', {
+    path: '/',
+    maxAge: 0,
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
+  return res;
+}
+
+/**
+ * Presence of cookie alone is not enough — expired/invalid JWT caused
+ * ERR_TOO_MANY_REDIRECTS (middleware → /ckb, layout → /login, middleware → /ckb).
+ */
+async function hasValidSession(request: NextRequest): Promise<'yes' | 'no' | 'bad'> {
+  const token = request.cookies.get(AUTH_COOKIE)?.value;
+  if (!token) return 'no';
+  const secret = process.env.JWT_SECRET;
+  if (!secret) return 'bad';
+  try {
+    await jwtVerify(token, new TextEncoder().encode(secret));
+    return 'yes';
+  } catch {
+    return 'bad';
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (
@@ -79,8 +108,8 @@ export function middleware(request: NextRequest) {
     pathname.includes('/auth/reset-password');
   const isPublicMap = /\/[^/]+\/map\/?$/.test(pathname) || pathname.endsWith('/map');
   const isLoginPage = pathname.includes('/auth/login') && !isTvPath;
-  const isLoggedIn = !!request.cookies.get(AUTH_COOKIE)?.value;
-  const useTv = wantsTv(request);
+  const sessionState = await hasValidSession(request);
+  const isLoggedIn = sessionState === 'yes';
 
   // Explicit desktop escape from TV
   if (wantsDesktop(request)) {
@@ -88,11 +117,13 @@ export function middleware(request: NextRequest) {
     url.pathname = isLoggedIn ? `/${locale}` : `/${locale}/auth/login`;
     url.searchParams.delete('desktop');
     url.searchParams.delete('tv');
-    return withTvCookie(NextResponse.redirect(url), false);
+    const res = withTvCookie(NextResponse.redirect(url), false);
+    if (sessionState === 'bad') clearAuthCookie(res);
+    return res;
   }
 
   // Real Smart TV / ?tv=1 → public map-only TV
-  if (useTv && !isTvPath) {
+  if (wantsTv(request) && !isTvPath) {
     const url = request.nextUrl.clone();
     url.searchParams.delete('tv');
     url.pathname = `/${locale}/tv`;
@@ -118,7 +149,9 @@ export function middleware(request: NextRequest) {
   if (!isLoggedIn && !isAuthPage && !isPublicMap) {
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}/auth/login`;
-    return withTvCookie(NextResponse.redirect(url), false);
+    const res = withTvCookie(NextResponse.redirect(url), false);
+    if (sessionState === 'bad') clearAuthCookie(res);
+    return res;
   }
 
   if (isLoggedIn && isLoginPage) {
@@ -129,12 +162,14 @@ export function middleware(request: NextRequest) {
 
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', pathname);
-  return withTvCookie(
+  const res = withTvCookie(
     NextResponse.next({
       request: { headers: requestHeaders },
     }),
     false,
   );
+  if (sessionState === 'bad') clearAuthCookie(res);
+  return res;
 }
 
 export const config = {
