@@ -1289,13 +1289,24 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   const headKu = ['کۆمپانیای ZMKH ڕۆد هۆم', 'عەقارات و بیناسازی', branch];
   const headAr = ['شركة ZMKH رود هوم', 'للعقارات والمقاولات', branch];
 
-  /** Drop trailing closing lines from body — PDF prints one closing + signature. */
-  const bodyRaw = (data.content || '')
-    .replace(
-      /(?:\r?\n|[\s.·…])*((?:لەگەڵ\s*ڕ?ێزدا|مع فائق الاحترام|With respect|Respectfully|بە\s*ڕێزەوە|وتفضلوا بقبول فائق الاحترام)[.\s…·]*)+\s*$/iu,
-      '',
-    )
-    .trim();
+  /** Drop body lines that are only a closing — PDF prints one centered closing. */
+  const bodyRaw = (() => {
+    const lines = (data.content || '').split(/\r?\n/);
+    const closingOnly =
+      /^(لەگەڵ\s*[ڕر]?ێزدا|مع فائق الاحترام|With respect|Respectfully|بە\s*[ڕر]?ێزەوە|وتفضلوا بقبول فائق الاحترام)[.٫…·\s]*$/iu;
+    while (lines.length) {
+      const last = (lines[lines.length - 1] ?? '').trim();
+      if (!last || closingOnly.test(last)) {
+        lines.pop();
+        continue;
+      }
+      break;
+    }
+    return lines
+      .filter((line) => !closingOnly.test(line.trim()))
+      .join('\n')
+      .trim();
+  })();
 
   const bodyHtml = esc(bodyRaw)
     .split(/\n{2,}/)
@@ -1508,15 +1519,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   <script>
     function rhSupportPrint() {
       document.title = ${JSON.stringify(pdfFileTitle)};
-      var prev = location.href;
-      try { history.replaceState(null, '', '/'); } catch (e) {}
-      function restore() {
-        window.removeEventListener('afterprint', restore);
-        try { history.replaceState(null, '', prev); } catch (e) {}
-      }
-      window.addEventListener('afterprint', restore);
       window.print();
-      setTimeout(restore, 2000);
     }
   </script>
 </head>

@@ -200,7 +200,16 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
       toName: form.toName,
       recipientAddress: form.recipientAddress || null,
       subject: form.subject,
-      content: form.content,
+      content: form.content
+        .split(/\r?\n/)
+        .filter(
+          (line) =>
+            !/^(لەگەڵ\s*[ڕر]?ێزدا|مع فائق الاحترام|With respect|Respectfully)[.٫…·\s]*$/iu.test(
+              line.trim(),
+            ),
+        )
+        .join('\n')
+        .trim(),
       propertyRef: form.propertyRef || null,
       managerName: form.managerName,
       managerTitle: form.managerTitle || null,
@@ -241,7 +250,10 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
   const printItem = (id: string, pdfLocale: Locale) => {
     setPrintMenuId(null);
     setPrintAnchor(null);
-    window.open(`/api/pdf/support/${id}?locale=${pdfLocale}&print=1`, '_blank', 'noopener,noreferrer');
+    // Open preview with Download PDF button (auto-print is often blocked by browsers)
+    const url = `/api/pdf/support/${id}?locale=${pdfLocale}`;
+    const w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
   };
 
   const regenerateBody = () => {
