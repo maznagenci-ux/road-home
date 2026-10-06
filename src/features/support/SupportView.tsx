@@ -401,7 +401,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <a
-                          href={`/api/pdf/support/${row.id}?locale=${locale}`}
+                          href={`/api/pdf/support/${row.id}?locale=${locale}&download=1`}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
@@ -676,7 +676,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
               <div className="flex justify-end gap-2 pt-1">
                 {editingId ? (
                   <a
-                    href={`/api/pdf/support/${editingId}?locale=${locale}`}
+                    href={`/api/pdf/support/${editingId}?locale=${locale}&download=1`}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-primary/40 text-primary hover:bg-primary/10"

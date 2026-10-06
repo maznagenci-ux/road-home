@@ -1253,6 +1253,7 @@ export interface SupportPdfData {
   branch?: string | null;
   issuedAt: Date;
   autoPrint?: boolean;
+  autoDownload?: boolean;
   assetBase?: string;
 }
 
@@ -1516,16 +1517,57 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       .foot { page-break-inside: avoid; break-inside: avoid; }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script>
-    function rhSupportPrint() {
-      document.title = ${JSON.stringify(pdfFileTitle)};
-      window.print();
+    function rhSupportDownloadPdf() {
+      var sheet = document.querySelector('.sheet');
+      var toolbar = document.querySelector('.toolbar');
+      var btn = document.querySelector('.toolbar button');
+      if (!sheet) return;
+      var label = ${JSON.stringify(downloadPdfLabel)};
+      var filename = ${JSON.stringify(pdfFileTitle + '.pdf')};
+      if (typeof html2pdf === 'undefined') {
+        window.print();
+        return;
+      }
+      if (btn) { btn.disabled = true; btn.textContent = '…'; }
+      if (toolbar) toolbar.style.visibility = 'hidden';
+      html2pdf()
+        .set({
+          margin: 0,
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: '#ffffff',
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: 794,
+            windowHeight: 1123
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all'] }
+        })
+        .from(sheet)
+        .save()
+        .then(function () {
+          if (toolbar) toolbar.style.visibility = 'visible';
+          if (btn) { btn.disabled = false; btn.textContent = label; }
+        })
+        .catch(function () {
+          if (toolbar) toolbar.style.visibility = 'visible';
+          if (btn) { btn.disabled = false; btn.textContent = label; }
+          window.print();
+        });
     }
   </script>
 </head>
 <body>
   <div class="toolbar">
-    <button type="button" onclick="rhSupportPrint()">${esc(downloadPdfLabel)}</button>
+    <button type="button" onclick="rhSupportDownloadPdf()">${esc(downloadPdfLabel)}</button>
   </div>
   <div class="sheet">
     <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
@@ -1589,9 +1631,22 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     </div>
   </div>
   ${
-    data.autoPrint
-      ? `<script>window.addEventListener("load",function(){setTimeout(function(){if(typeof rhSupportPrint==="function")rhSupportPrint()},300)});</script>`
-      : ''
+    data.autoDownload
+      ? `<script>
+    window.addEventListener("load", function () {
+      function go() {
+        if (typeof rhSupportDownloadPdf === "function") rhSupportDownloadPdf();
+      }
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () { setTimeout(go, 200); });
+      } else {
+        setTimeout(go, 600);
+      }
+    });
+  </script>`
+      : data.autoPrint
+        ? `<script>window.addEventListener("load",function(){setTimeout(function(){if(typeof rhSupportDownloadPdf==="function")rhSupportDownloadPdf()},400)});</script>`
+        : ''
   }
 </body>
 </html>`;
