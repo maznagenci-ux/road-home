@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Plus, Printer, Pencil, Star, X, Trash2, Download } from 'lucide-react';
+import { Loader2, Plus, Pencil, Star, X, Trash2, Download } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { type Locale } from '@/i18n/locale-config';
 import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
