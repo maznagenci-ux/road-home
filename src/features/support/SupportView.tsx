@@ -506,7 +506,9 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{s.to ?? 'بۆ'}</label>
+                  <label className="block text-xs text-muted-foreground mb-1">
+                    {s.toRespected ?? s.to ?? 'بۆ بەرێزان'}
+                  </label>
                   <input
                     className={field}
                     value={form.toName}
@@ -647,7 +649,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">
-                      {s.manager ?? 'بەڕێوەبەری کارگێڕی'}
+                      {s.managerName ?? 'ناوی بەڕێوەبەر'}
                     </label>
                     <input
                       className={field}
@@ -656,11 +658,14 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground mb-1">{s.post ?? 'پۆست'}</label>
+                    <label className="block text-xs text-muted-foreground mb-1">
+                      {s.post ?? 'پیشە / پۆست'}
+                    </label>
                     <input
                       className={field}
                       value={form.managerTitle}
                       onChange={(e) => set('managerTitle', e.target.value)}
+                      placeholder={s.manager ?? 'بەڕێوەبەری کارگێڕی'}
                     />
                   </div>
                   <div>

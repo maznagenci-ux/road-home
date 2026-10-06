@@ -70,219 +70,125 @@ const SUBJECTS: Record<SupportPurpose, Record<Locale, string>> = {
   },
 };
 
+/** Body only — PDF prints بۆ بەرێزان / بابەت / لەگەڵ ڕێزدا + manager separately. */
 const BODIES: Record<SupportPurpose, Record<Locale, string>> = {
   OWNERSHIP: {
-    ckb: `بە ناوی خودای گەورە و میهرەبان
-
-بۆ: {toName}
-
-دوای سڵاو و ڕێز،
+    ckb: `دوای سڵاو و ڕێز،
 
 ئەمە پشتگیرییەکی فەرمییە لەلایەن {company} کە پشتڕاستی دەکاتەوە خاتوون/بەڕێز ({beneficiary})، خاوەنی ناسنامە/پاسپۆرت ژمارە ({idNo})، پەیوەندی: ({phone})، خاوەنی ئەو موڵک/ناونیشانەیە کە لە سیستەمی ئێمە تۆمارکراوە:
 
 {propertyRef}
 
-ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرە فەرمییەکانی حکومەت یان کونسوڵخانە دەردەچێت و تەنها بۆ مەبەستی فەرمی بەکاردێت.
-
-بە ڕێزەوە،
-{company}`,
-    ar: `بسم الله الرحمن الرحيم
-
-إلى: {toName}
-
-بعد التحية والتقدير،
+ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرە فەرمییەکانی حکومەت یان کونسوڵخانە دەردەچێت و تەنها بۆ مەبەستی فەرمی بەکاردێت.`,
+    ar: `بعد التحية والتقدير،
 
 هذا كتاب تأييد رسمي صادر عن {company} يؤكد أن السيد/ة ({beneficiary})، حامل/ة هوية/جواز رقم ({idNo})، الهاتف ({phone})، هو/هي مالك العقار/العنوان المسجّل لدينا:
 
 {propertyRef}
 
-يُصدر هذا التأييد لتقديمه إلى الدوائر الحكومية الرسمية أو القنصليات، ويُستخدم للأغراض الرسمية فقط.
-
-وتفضلوا بقبول فائق الاحترام،
-{company}`,
-    en: `To: {toName}
-
-Dear Sir/Madam,
+يُصدر هذا التأييد لتقديمه إلى الدوائر الحكومية الرسمية أو القنصليات، ويُستخدم للأغراض الرسمية فقط.`,
+    en: `Dear Sir/Madam,
 
 This is an official confirmation letter issued by {company} verifying that ({beneficiary}), ID/Passport No. ({idNo}), Phone ({phone}), is the owner of the property/address registered with us:
 
 {propertyRef}
 
-This letter is issued for submission to official government departments or consulates and is intended for official use only.
-
-Respectfully,
-{company}`,
+This letter is issued for submission to official government departments or consulates and is intended for official use only.`,
   },
   RENTAL: {
-    ckb: `بە ناوی خودای گەورە و میهرەبان
-
-بۆ: {toName}
-
-دوای سڵاو و ڕێز،
+    ckb: `دوای سڵاو و ڕێز،
 
 ئەمە پشتگیرییەکی فەرمییە لەلایەن {company} کە پشتڕاستی دەکاتەوە خاتوون/بەڕێز ({beneficiary})، ناسنامە/پاسپۆرت ({idNo})، پەیوەندی ({phone})، لایەنێکە لە گرێبەستی کرێی تۆمارکراو لە کۆمپانیاکەماندا سەبارەت بە:
 
 {propertyRef}
 
-ئەم پشتگیرییە بۆ دائیرە فەرمییەکان یان کونسوڵخانە دەردەچێت.
-
-بە ڕێزەوە،
-{company}`,
-    ar: `بسم الله الرحمن الرحيم
-
-إلى: {toName}
-
-بعد التحية والتقدير،
+ئەم پشتگیرییە بۆ دائیرە فەرمییەکان یان کونسوڵخانە دەردەچێت.`,
+    ar: `بعد التحية والتقدير،
 
 هذا كتاب تأييد رسمي صادر عن {company} يؤكد أن السيد/ة ({beneficiary})، هوية/جواز ({idNo})، الهاتف ({phone})، طرف في عقد إيجار مسجّل لدى شركتنا بخصوص:
 
 {propertyRef}
 
-يُصدر هذا التأييد للدوائر الرسمية أو القنصليات.
-
-وتفضلوا بقبول فائق الاحترام،
-{company}`,
-    en: `To: {toName}
-
-Dear Sir/Madam,
+يُصدر هذا التأييد للدوائر الرسمية أو القنصليات.`,
+    en: `Dear Sir/Madam,
 
 This official letter from {company} confirms that ({beneficiary}), ID/Passport ({idNo}), Phone ({phone}), is a party to a rental contract registered with our company regarding:
 
 {propertyRef}
 
-Issued for official government departments or consulates.
-
-Respectfully,
-{company}`,
+Issued for official government departments or consulates.`,
   },
   RESIDENCY: {
-    ckb: `بە ناوی خودای گەورە و میهرەبان
-
-بۆ: {toName}
-
-دوای سڵاو و ڕێز،
+    ckb: `دوای سڵاو و ڕێز،
 
 ئەمە پشتگیرییەکی فەرمییە لەلایەن {company} کە پشتڕاستی دەکاتەوە ناونیشانی خاتوون/بەڕێز ({beneficiary})، ناسنامە/پاسپۆرت ({idNo})، پەیوەندی ({phone})، بەپێی تۆمارەکانی ئێمە:
 
 {propertyRef}
 
-ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرەی فەرمی یان کونسوڵخانە دەردەچێت.
-
-بە ڕێزەوە،
-{company}`,
-    ar: `بسم الله الرحمن الرحيم
-
-إلى: {toName}
-
-بعد التحية والتقدير،
+ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرەی فەرمی یان کونسوڵخانە دەردەچێت.`,
+    ar: `بعد التحية والتقدير،
 
 هذا كتاب تأييد رسمي صادر عن {company} يؤكد عنوان السيد/ة ({beneficiary})، هوية/جواز ({idNo})، الهاتف ({phone})، وفق سجلاتنا:
 
 {propertyRef}
 
-يُصدر هذا التأييد لتقديمه إلى دائرة رسمية أو قنصلية.
-
-وتفضلوا بقبول فائق الاحترام،
-{company}`,
-    en: `To: {toName}
-
-Dear Sir/Madam,
+يُصدر هذا التأييد لتقديمه إلى دائرة رسمية أو قنصلية.`,
+    en: `Dear Sir/Madam,
 
 This official letter from {company} confirms the address of ({beneficiary}), ID/Passport ({idNo}), Phone ({phone}), according to our records:
 
 {propertyRef}
 
-Issued for submission to an official department or consulate.
-
-Respectfully,
-{company}`,
+Issued for submission to an official department or consulate.`,
   },
   TRANSACTION: {
-    ckb: `بە ناوی خودای گەورە و میهرەبان
-
-بۆ: {toName}
-
-دوای سڵاو و ڕێز،
+    ckb: `دوای سڵاو و ڕێز،
 
 ئەمە پشتگیرییەکی فەرمییە لەلایەن {company} کە پشتڕاستی دەکاتەوە خاتوون/بەڕێز ({beneficiary})، ناسنامە/پاسپۆرت ({idNo})، پەیوەندی ({phone})، لایەنێکە لە مامەڵەی کڕین و فرۆشتنی موڵک کە لە کۆمپانیاکەماندا تۆمارکراوە:
 
 {propertyRef}
 
-ئەم پشتگیرییە بۆ دائیرە فەرمییەکان یان کونسوڵخانە دەردەچێت.
-
-بە ڕێزەوە،
-{company}`,
-    ar: `بسم الله الرحمن الرحيم
-
-إلى: {toName}
-
-بعد التحية والتقدير،
+ئەم پشتگیرییە بۆ دائیرە فەرمییەکان یان کونسوڵخانە دەردەچێت.`,
+    ar: `بعد التحية والتقدير،
 
 هذا كتاب تأييد رسمي صادر عن {company} يؤكد أن السيد/ة ({beneficiary})، هوية/جواز ({idNo})، الهاتف ({phone})، طرف في معاملة بيع وشراء عقار مسجّلة لدى شركتنا:
 
 {propertyRef}
 
-يُصدر هذا التأييد للدوائر الرسمية أو القنصليات.
-
-وتفضلوا بقبول فائق الاحترام،
-{company}`,
-    en: `To: {toName}
-
-Dear Sir/Madam,
+يُصدر هذا التأييد للدوائر الرسمية أو القنصليات.`,
+    en: `Dear Sir/Madam,
 
 This official letter from {company} confirms that ({beneficiary}), ID/Passport ({idNo}), Phone ({phone}), is a party to a buy/sell property transaction registered with our company:
 
 {propertyRef}
 
-Issued for official government departments or consulates.
-
-Respectfully,
-{company}`,
+Issued for official government departments or consulates.`,
   },
   OTHER: {
-    ckb: `بە ناوی خودای گەورە و میهرەبان
-
-بۆ: {toName}
-
-دوای سڵاو و ڕێز،
+    ckb: `دوای سڵاو و ڕێز،
 
 ئەمە پشتگیرییەکی فەرمییە لەلایەن {company} سەبارەت بە خاتوون/بەڕێز ({beneficiary})، ناسنامە/پاسپۆرت ({idNo})، پەیوەندی ({phone}).
 
 زانیاریی پەیوەندیدار:
 {propertyRef}
 
-ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرەی فەرمی یان کونسوڵخانە دەردەچێت.
-
-بە ڕێزەوە،
-{company}`,
-    ar: `بسم الله الرحمن الرحيم
-
-إلى: {toName}
-
-بعد التحية والتقدير،
+ئەم پشتگیرییە بۆ پێشکەشکردن بە دائیرەی فەرمی یان کونسوڵخانە دەردەچێت.`,
+    ar: `بعد التحية والتقدير،
 
 هذا كتاب تأييد رسمي صادر عن {company} بخصوص السيد/ة ({beneficiary})، هوية/جواز ({idNo})، الهاتف ({phone}).
 
 المعلومات ذات الصلة:
 {propertyRef}
 
-يُصدر هذا التأييد لتقديمه إلى دائرة رسمية أو قنصلية.
-
-وتفضلوا بقبول فائق الاحترام،
-{company}`,
-    en: `To: {toName}
-
-Dear Sir/Madam,
+يُصدر هذا التأييد لتقديمه إلى دائرة رسمية أو قنصلية.`,
+    en: `Dear Sir/Madam,
 
 This is an official support letter from {company} regarding ({beneficiary}), ID/Passport ({idNo}), Phone ({phone}).
 
 Related information:
 {propertyRef}
 
-Issued for submission to an official department or consulate.
-
-Respectfully,
-{company}`,
+Issued for submission to an official department or consulate.`,
   },
 };
 

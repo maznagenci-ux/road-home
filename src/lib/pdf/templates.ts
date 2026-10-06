@@ -1274,12 +1274,16 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         ? 'مع فائق الاحترام…'
         : (s.withRespect ?? 'لەگەڵ ڕێزدا…');
 
-  const copyToLabel =
+  const toLabel =
     locale === 'en'
-      ? 'Copy to:'
+      ? (s.toRespected ?? 'To the respected')
       : locale === 'ar'
-        ? 'نسخة إلى:'
-        : (s.copyTo ?? 'وێنەیەک بۆ:');
+        ? (s.toRespected ?? 'إلى السادة')
+        : (s.toRespected ?? 'بۆ بەرێزان');
+
+  const managerTitle =
+    (data.managerTitle ?? '').trim() ||
+    (s.manager ?? (locale === 'en' ? 'Administrative Manager' : locale === 'ar' ? 'المدير الإداري' : 'بەڕێوەبەری کارگێڕی'));
 
   // Formal letterhead: Arabic (left) | emblem | Kurdish (right) — like gov letters
   const headKu = ['کۆمپانیای ZMKH ڕۆد هۆم', 'عەقارات و بیناسازی', branch];
@@ -1291,13 +1295,6 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .filter(Boolean)
     .map((p) => `<p>${p.replaceAll('\n', '<br/>')}</p>`)
     .join('');
-
-  const copies =
-    locale === 'en'
-      ? ['Archive', 'Company records']
-      : locale === 'ar'
-        ? ['الأرشيف', 'سجل الشركة']
-        : ['ئەرشیف', 'تۆماری کۆمپانیا'];
 
   const phonesHtml = phonesInlineHtml(phones);
   return `<!DOCTYPE html>
@@ -1408,14 +1405,16 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     }
 
     .to-block, .subject-block {
-      text-align: center; margin: 0 0 8px; font-weight: 700; font-size: 14px;
-      unicode-bidi: isolate; color: #0f2744;
+      text-align: start; margin: 0 0 10px; font-weight: 700; font-size: 14px;
+      unicode-bidi: isolate; color: #0f2744; line-height: 1.7;
     }
-    .to-block .k, .subject-block .k { margin-inline-end: 4px; }
+    .to-block .k, .subject-block .k {
+      margin-inline-end: 6px; font-weight: 700;
+    }
     .to-block .v, .subject-block .v { font-weight: 700; }
 
     .body {
-      margin-top: 14px; text-align: justify; font-size: 13.5px; line-height: 2.05;
+      margin-top: 16px; text-align: justify; font-size: 13.5px; line-height: 2.05;
       color: #111; unicode-bidi: isolate;
     }
     .body p { margin: 0 0 0.9em; text-indent: 1.2em; }
@@ -1423,47 +1422,42 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .body p:last-child { margin-bottom: 0; }
 
     .closing {
-      margin: 10px 0 0;
+      margin: 18px 0 0;
       text-align: center;
       font-weight: 700;
-      font-size: 13.5px;
+      font-size: 14px;
       unicode-bidi: isolate;
       color: #0f2744;
     }
 
     .foot {
       margin-top: auto;
-      padding-top: 20px;
+      padding-top: 28px;
       flex-shrink: 0;
     }
 
     .bottom {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: end;
-      direction: ltr;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      direction: inherit;
     }
-    .copies {
-      font-size: 12px; line-height: 1.7; unicode-bidi: isolate;
-      text-align: right; direction: rtl; justify-self: end;
-    }
-    .copies .title { font-weight: 700; margin-bottom: 4px; }
-    .copies ul { list-style: disc; padding-inline-start: 1.2em; margin: 0; }
-    .copies li { margin: 1px 0; }
+    .copies { display: none; }
 
     .sign-block {
       text-align: center;
       unicode-bidi: isolate;
-      justify-self: start;
+      min-width: 12rem;
     }
-    .sign-block .space { height: 40px; }
+    .sign-block .space { height: 36px; }
     .sign-block .name {
-      font-weight: 700; font-size: 14px; border-top: 1px solid #0f2744;
-      display: inline-block; min-width: 11rem; padding-top: 6px; margin-top: 4px;
+      font-weight: 700; font-size: 15px;
+      display: block; padding-top: 0; margin-top: 0;
       color: #0f2744;
     }
-    .sign-block .role { font-size: 12px; font-weight: 700; margin-top: 2px; color: #0f2744; }
+    .sign-block .role {
+      font-size: 13px; font-weight: 700; margin-top: 4px; color: #0f2744;
+    }
 
     .contact-bar {
       margin-top: 14px; text-align: center; font-size: 11.5px; font-weight: 700;
@@ -1541,11 +1535,11 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       </div>
 
       <p class="to-block">
-        <span class="k">${esc(s.to ?? 'بۆ')}/</span>
+        <span class="k">${esc(toLabel)}/</span>
         <span class="v">${esc(data.toName)}</span>
       </p>
       <p class="subject-block">
-        <span class="k">${esc(s.subject ?? 'بابەت')}/</span>
+        <span class="k">${esc(s.subject ?? 'بابەت')} /</span>
         <span class="v">${esc(data.subject)}</span>
       </p>
 
@@ -1558,13 +1552,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
           <div class="sign-block">
             <div class="space" aria-hidden="true"></div>
             <div class="name">${esc(data.managerName)}</div>
-            <div class="role">${esc(s.manager ?? 'بەڕێوەبەری کارگێڕی')}</div>
-          </div>
-          <div class="copies">
-            <div class="title">${esc(copyToLabel)}</div>
-            <ul>
-              ${copies.map((c) => `<li>${esc(c)}</li>`).join('')}
-            </ul>
+            <div class="role">${esc(managerTitle)}</div>
           </div>
         </div>
         <hr class="rule-thick" />
