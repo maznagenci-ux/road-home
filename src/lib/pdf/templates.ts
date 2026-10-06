@@ -1442,11 +1442,11 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 
     .closing {
       margin: 22px 0 0;
-      text-align: start;
+      text-align: center;
       font-weight: 700;
-      font-size: 14px;
+      font-size: 15px;
       unicode-bidi: isolate;
-      color: #0f2744;
+      color: #111;
     }
 
     .foot {
@@ -1457,7 +1457,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 
     .bottom {
       display: flex;
-      justify-content: flex-start;
+      justify-content: flex-end;
       align-items: flex-end;
       direction: inherit;
       margin-top: 8px;
@@ -1465,7 +1465,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .copies { display: none; }
 
     .sign-block {
-      text-align: start;
+      text-align: center;
       unicode-bidi: isolate;
       min-width: 12rem;
     }
@@ -1473,10 +1473,10 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .sign-block .name {
       font-weight: 700; font-size: 15px;
       display: block; padding-top: 0; margin-top: 0;
-      color: #0f2744;
+      color: #111;
     }
     .sign-block .role {
-      font-size: 13px; font-weight: 700; margin-top: 4px; color: #0f2744;
+      font-size: 13px; font-weight: 700; margin-top: 4px; color: #111;
     }
 
     .contact-bar {
