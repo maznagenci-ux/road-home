@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Plus, Pencil, Star, X, Trash2, Download } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { type Locale } from '@/i18n/locale-config';
-import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
 import { BRAND_NAME } from '@/lib/brand';
 import type { Dictionary } from '@/i18n/dictionaries';
 import {
@@ -98,8 +97,6 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
   const [error, setError] = useState('');
   const [branchOptions, setBranchOptions] = useState<{ id: string; name: string }[]>([]);
   const [ok, setOk] = useState('');
-  const [printMenuId, setPrintMenuId] = useState<string | null>(null);
-  const [printAnchor, setPrintAnchor] = useState<HTMLElement | null>(null);
   const contentTouched = useRef(false);
 
   const field =
@@ -247,15 +244,6 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
     await load();
   };
 
-  const printItem = (id: string, pdfLocale: Locale) => {
-    setPrintMenuId(null);
-    setPrintAnchor(null);
-    // Open preview with Download PDF button (auto-print is often blocked by browsers)
-    const url = `/api/pdf/support/${id}?locale=${pdfLocale}`;
-    const w = window.open(url, '_blank');
-    if (!w) window.location.href = url;
-  };
-
   const regenerateBody = () => {
     contentTouched.current = false;
     setForm((prev) => ({
@@ -371,7 +359,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                 <th className="px-4 py-3 font-medium">{s.beneficiary ?? 'سوودمەند'}</th>
                 <th className="px-4 py-3 font-medium">{s.to ?? 'بۆ'}</th>
                 <th className="px-4 py-3 font-medium">{s.date ?? 'ڕێکەوت'}</th>
-                <th className="px-4 py-3 font-medium">{s.downloadPdf ?? t.common.download ?? 'داگرتنی PDF'}</th>
+                <th className="px-4 py-3 font-medium">{s.actions ?? 'کردارەکان'}</th>
               </tr>
             </thead>
             <tbody>
@@ -411,7 +399,17 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <td className="px-4 py-3 max-w-[14rem] truncate">{row.toName}</td>
                     <td className="px-4 py-3 text-muted-foreground">{formatDate(row.issuedAt, lang)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-0.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <a
+                          href={`/api/pdf/support/${row.id}?locale=${locale}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+                          title={s.downloadPdf ?? 'داگرتنی PDF'}
+                        >
+                          <Download className="h-3.5 w-3.5" />
+                          {s.downloadPdf ?? 'داگرتنی PDF'}
+                        </a>
                         <button
                           type="button"
                           onClick={() => openEdit(row)}
@@ -420,26 +418,6 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              if (printMenuId === row.id) {
-                                setPrintMenuId(null);
-                                setPrintAnchor(null);
-                              } else {
-                                setPrintMenuId(row.id);
-                                setPrintAnchor(e.currentTarget);
-                              }
-                            }}
-                            className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                            title={s.downloadPdf ?? 'داگرتنی PDF'}
-                            aria-expanded={printMenuId === row.id}
-                            aria-label={s.downloadPdf ?? 'داگرتنی PDF'}
-                          >
-                            <Download className="h-4 w-4" />
-                          </button>
-                        </div>
                         <button
                           type="button"
                           disabled={busyId === row.id}
@@ -696,6 +674,17 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
               {error ? <p className="text-sm text-rose-600">{error}</p> : null}
 
               <div className="flex justify-end gap-2 pt-1">
+                {editingId ? (
+                  <a
+                    href={`/api/pdf/support/${editingId}?locale=${locale}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-primary/40 text-primary hover:bg-primary/10"
+                  >
+                    <Download className="h-4 w-4" />
+                    {s.downloadPdf ?? 'داگرتنی PDF'}
+                  </a>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
@@ -717,20 +706,6 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
           </div>
         </div>
       ) : null}
-
-      <PdfPrintLangMenu
-        open={Boolean(printMenuId)}
-        anchorEl={printAnchor}
-        title={s.downloadPdfLang ?? s.downloadPdf ?? 'زمانی PDF'}
-        currentLocale={lang}
-        onSelect={(loc) => {
-          if (printMenuId) printItem(printMenuId, loc);
-        }}
-        onClose={() => {
-          setPrintMenuId(null);
-          setPrintAnchor(null);
-        }}
-      />
     </div>
   );
 }
