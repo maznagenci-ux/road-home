@@ -1,19 +1,26 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, Map as MapIcon, MapPinPlus, RefreshCw, X, FileDown } from 'lucide-react';
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { MapPlot } from '@/lib/map/types';
 import { KASNAZAN_VIEW } from '@/features/map/ErbilMapCanvas';
 import type { CompoundMeta, CompoundPointer } from '@/features/map/CompoundPlotCanvas';
+import {
+  filterPlotPointers,
+  normalizePlotDigits,
+  plotRangeLabel,
+  withPlotSeq,
+  type NumberedPointer,
+} from '@/lib/map/plot-search';
 
 const ErbilMapCanvas = dynamic(
   () => import('./ErbilMapCanvas').then((m) => m.ErbilMapCanvas),
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[min(70vh,640px)] items-center justify-center rounded-2xl border border-border bg-muted/30">
+      <div className="flex h-[min(72vh,680px)] sm:h-[min(75vh,740px)] min-[1600px]:h-[min(80vh,860px)] rh-tv-map-frame items-center justify-center rounded-2xl border border-border bg-muted/30">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     ),
@@ -25,7 +32,7 @@ const CompoundPlotCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-[min(70vh,640px)] items-center justify-center rounded-2xl border border-border bg-muted/30">
+      <div className="flex h-full min-h-[280px] w-full items-center justify-center bg-muted/30">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     ),
@@ -56,7 +63,19 @@ type CompoundArea = {
 
 type MapMode = 'city' | 'compound';
 
-export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
+export function MapView({
+  t,
+  lang,
+  guestMode = false,
+  tvMode = false,
+}: {
+  t: Dictionary;
+  lang: string;
+  /** Public land-map browsing from login — no pin/save edits */
+  guestMode?: boolean;
+  /** Fullscreen TV / web-TV layout (sidebar + map like desktop system) */
+  tvMode?: boolean;
+}) {
   const m = (t.pages as { map?: Record<string, string> }).map ?? {};
   const [mode, setMode] = useState<MapMode>('compound');
   const [data, setData] = useState<MapPayload | null>(null);
@@ -79,13 +98,14 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
   const [areaQ, setAreaQ] = useState('');
   const [compoundId, setCompoundId] = useState<string | null>('426');
   const [compoundMeta, setCompoundMeta] = useState<CompoundMeta | null>(null);
-  const [pointers, setPointers] = useState<CompoundPointer[]>([]);
+  const [pointers, setPointers] = useState<NumberedPointer[]>([]);
   const [compoundLoading, setCompoundLoading] = useState(false);
   const [compoundError, setCompoundError] = useState('');
   const [plotQ, setPlotQ] = useState('');
   const [selectedPlotNo, setSelectedPlotNo] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState('');
+  const plotListRef = useRef<HTMLDivElement>(null);
 
   const field =
     'w-full rounded-xl border border-border bg-muted px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/50';
@@ -109,8 +129,12 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
   );
 
   useEffect(() => {
+    if (guestMode) {
+      setLoading(false);
+      return;
+    }
     void load(true);
-  }, [load]);
+  }, [load, guestMode]);
 
   useEffect(() => {
     void (async () => {
@@ -129,28 +153,92 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
       setCompoundError('');
       setSelectedPlotNo(null);
       setPlotQ('');
+      if (plotListRef.current) plotListRef.current.scrollTop = 0;
       setCompoundMeta(null);
       setPointers([]);
-      const res = await fetch(`/api/map/compounds/${compoundId}?pointers=1`);
-      if (cancelled) return;
-      if (!res.ok) {
-        setCompoundError(
-          res.status === 404
-            ? (m.compoundNotReady ?? 'ئەم پڕۆژەیە نەخشەی زەوی نییە')
-            : (m.compoundLoadError ?? 'نەتوانرا نەخشەی پڕۆژە باربکرێت'),
-        );
+
+      try {
+        // Meta first (fast) — map paints even if pointers are slow/fail
+        const res = await fetch(`/api/map/compounds/${compoundId}?v=rh28`);
+        if (cancelled) return;
+        if (!res.ok) {
+          setCompoundError(
+            res.status === 404
+              ? (m.compoundNotReady ?? 'ئەم پڕۆژەیە نەخشەی زەوی نییە')
+              : (m.compoundLoadError ?? 'نەتوانرا نەخشەی پڕۆژە باربکرێت'),
+          );
+          setCompoundLoading(false);
+          return;
+        }
+        const json = (await res.json()) as CompoundMeta;
+        if (cancelled) return;
+        setCompoundMeta({
+          ...json,
+          image: json.image
+            ? {
+                ...json.image,
+                width: Math.max(1, Math.round(Number(json.image.width) || 0)),
+                height: Math.max(1, Math.round(Number(json.image.height) || 0)),
+              }
+            : null,
+        });
         setCompoundLoading(false);
-        return;
+
+        // Slim pointers — small payload; full objects OOM/timeout on big compounds
+        try {
+          const pr = await fetch(`/api/map/compounds/${compoundId}?pointers=slim&v=rh28`);
+          if (!pr.ok || cancelled) return;
+          const full = (await pr.json()) as CompoundMeta & {
+            pointerFormat?: string;
+            pointers?: CompoundPointer[] | Array<[string, number, number]>;
+          };
+          if (cancelled) return;
+          const raw = full.pointers ?? [];
+          const list: CompoundPointer[] =
+            full.pointerFormat === 'slim'
+              ? (raw as Array<[string, number, number]>).map(([no, x, y], i) => ({
+                  id: `${compoundId}-${i}`,
+                  no: String(no ?? ''),
+                  x: Number(x) || 0,
+                  y: Number(y) || 0,
+                  lat: 0,
+                  lng: 0,
+                }))
+              : (raw as CompoundPointer[]);
+          setPointers(withPlotSeq(list));
+          setCompoundMeta((prev) =>
+            prev
+              ? { ...prev, pointerCount: full.pointerCount ?? list.length }
+              : prev,
+          );
+        } catch {
+          /* map visible without plot list */
+        }
+      } catch {
+        if (!cancelled) {
+          setCompoundError(m.compoundLoadError ?? 'نەتوانرا نەخشەی پڕۆژە باربکرێت');
+          setCompoundLoading(false);
+        }
       }
-      const json = (await res.json()) as CompoundMeta & { pointers?: CompoundPointer[] };
-      setCompoundMeta(json);
-      setPointers(json.pointers ?? []);
-      setCompoundLoading(false);
     })();
     return () => {
       cancelled = true;
     };
   }, [mode, compoundId, m.compoundLoadError, m.compoundNotReady]);
+
+  useEffect(() => {
+    if (!compoundId || !areas.length) return;
+    const t = window.setTimeout(() => {
+      const safe =
+        typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+          ? CSS.escape(compoundId)
+          : compoundId.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      document
+        .querySelector(`[data-compound-id="${safe}"]`)
+        ?.scrollIntoView({ block: 'nearest' });
+    }, 120);
+    return () => window.clearTimeout(t);
+  }, [compoundId, areas.length]);
 
   const plots = (data?.plots ?? []).filter((p) => {
     const s = q.trim().toLowerCase();
@@ -178,11 +266,19 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
     return list.slice(0, 100);
   }, [areas, areaQ]);
 
-  const filteredPointers = useMemo(() => {
-    const s = plotQ.trim();
-    if (!s) return pointers.slice(0, 40);
-    return pointers.filter((p) => p.no.includes(s)).slice(0, 60);
-  }, [pointers, plotQ]);
+  const filteredPointers = useMemo(
+    () => filterPlotPointers(pointers, plotQ),
+    [pointers, plotQ],
+  );
+
+  useEffect(() => {
+    if (!plotQ.trim() || filteredPointers.length !== 1) return;
+    const only = filteredPointers[0];
+    if (!only) return;
+    setSelectedPlotNo(only.no);
+  }, [plotQ, filteredPointers]);
+
+  const rangeLabel = useMemo(() => plotRangeLabel(pointers), [pointers]);
 
   const onMapClick = (lat: number, lng: number) => {
     if (!pinMode) return;
@@ -260,14 +356,26 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
   }
 
   return (
-    <div className="space-y-5 max-w-[1400px] mx-auto">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <div
+      className={
+        tvMode
+          ? 'rh-tv-mapview'
+          : 'space-y-5 max-w-[1400px] mx-auto'
+      }
+    >
+      <div className={tvMode ? 'rh-tv-mapview-toolbar' : 'flex flex-col lg:flex-row lg:items-end justify-between gap-4'}>
         <div>
-          <h1 className="text-2xl font-semibold text-foreground inline-flex items-center gap-2">
-            <MapIcon className="h-6 w-6 text-primary" />
+          <h1
+            className={
+              tvMode
+                ? 'rh-tv-mapview-title'
+                : 'text-2xl font-semibold text-foreground inline-flex items-center gap-2'
+            }
+          >
+            <MapIcon className={tvMode ? 'rh-tv-mapview-title-icon' : 'h-6 w-6 text-primary'} />
             {m.title ?? 'نەخشە'}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+          <p className={tvMode ? 'rh-tv-mapview-sub' : 'text-sm text-muted-foreground mt-1 max-w-2xl'}>
             {mode === 'compound'
               ? (m.subtitleCompound ??
                 'نەخشەی زەویەکانی پڕۆژەکان — پڕۆژە هەڵبژێرە و ژمارەی پارچەکان ببینە')
@@ -275,7 +383,7 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
                 'سندوقە سپییەکان پارچەی زەوین — کلیک بکە و رەقەمی ئەرز تۆمار بکە.')}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className={tvMode ? 'rh-tv-mapview-actions' : 'flex flex-wrap gap-2'}>
           <div className="inline-flex rounded-xl border border-border overflow-hidden text-sm">
             <button
               type="button"
@@ -286,17 +394,19 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
             >
               {m.modeCompound ?? 'نەخشەی پڕۆژە'}
             </button>
-            <button
-              type="button"
-              onClick={() => setMode('city')}
-              className={`px-3 py-2 ${
-                mode === 'city' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-              }`}
-            >
-              {m.modeCity ?? 'نەخشەی شار'}
-            </button>
+            {!guestMode && !tvMode ? (
+              <button
+                type="button"
+                onClick={() => setMode('city')}
+                className={`px-3 py-2 ${
+                  mode === 'city' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                }`}
+              >
+                {m.modeCity ?? 'نەخشەی شار'}
+              </button>
+            ) : null}
           </div>
-          {mode === 'compound' ? (
+          {mode === 'compound' && !guestMode ? (
             <button
               type="button"
               disabled={!compoundMeta || compoundLoading || exporting}
@@ -314,7 +424,7 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
                 : (m.downloadPdf ?? 'داگرتنی PDF')}
             </button>
           ) : null}
-          {mode === 'city' ? (
+          {mode === 'city' && !guestMode ? (
             <>
               <button
                 type="button"
@@ -360,10 +470,12 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
 
       {mode === 'compound' ? (
         <>
-          <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
-            {m.compoundHelp ??
-              'وەک نەخشەی هۆمڵی: پڕۆژە هەڵبژێرە (بۆ نموونە ٣٢ پارک / سەربەستی) — ژمارەی زەویەکان لەسەر نەخشە دەردەکەون.'}
-          </div>
+          {!tvMode ? (
+            <div className="rounded-xl border border-border bg-card px-4 py-3 text-sm text-muted-foreground">
+              {m.compoundHelp ??
+                'وەک نەخشەی هۆمڵی: پڕۆژە هەڵبژێرە (بۆ نموونە ٣٢ پارک / سەربەستی) — ژمارەی زەویەکان لەسەر نەخشە دەردەکەون.'}
+            </div>
+          ) : null}
           {exportError ? (
             <p className="text-sm text-rose-600 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3">
               {exportError}
@@ -376,9 +488,21 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
             </p>
           ) : null}
 
-          <div className="grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-4">
-            <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col max-h-[min(78vh,720px)]">
-              <div className="p-3 border-b border-border space-y-2">
+          <div
+            className={
+              tvMode
+                ? 'rh-tv-mapview-grid'
+                : 'grid grid-cols-1 xl:grid-cols-[300px_1fr] gap-4'
+            }
+          >
+            <aside
+              className={
+                tvMode
+                  ? 'rh-tv-mapview-aside'
+                  : 'order-2 xl:order-1 relative z-[1100] rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col h-[min(78vh,720px)] sticky top-3 self-start'
+              }
+            >
+              <div className="p-3 border-b border-border space-y-2 shrink-0">
                 <p className="text-sm font-medium">{m.compoundList ?? 'پڕۆژە / ناوچەکان'}</p>
                 <input
                   className="w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/50"
@@ -387,12 +511,19 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
                   onChange={(e) => setAreaQ(e.target.value)}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto max-h-[220px] border-b border-border">
+              <div
+                className={
+                  tvMode
+                    ? 'flex-1 overflow-y-auto min-h-0 border-b border-border'
+                    : 'shrink-0 overflow-y-auto max-h-[160px] border-b border-border'
+                }
+              >
                 <ul className="divide-y divide-border">
                   {filteredAreas.map((a) => (
                     <li key={a.id}>
                       <button
                         type="button"
+                        data-compound-id={a.id}
                         onClick={() => setCompoundId(a.id)}
                         className={`w-full text-start px-3 py-2.5 hover:bg-muted/60 transition-colors ${
                           compoundId === a.id ? 'bg-primary/10' : ''
@@ -409,47 +540,66 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
                   ))}
                 </ul>
               </div>
-              <div className="p-3 border-b border-border space-y-2">
+              <div className="p-3 border-b border-border space-y-2 shrink-0">
                 <p className="text-sm font-medium">
                   {m.plotList ?? 'رەقەمی ئەرزەکان'}
-                  {compoundMeta?.pointerCount != null ? (
-                    <span className="text-muted-foreground font-normal tabular-nums">
-                      {' '}
-                      ({compoundMeta.pointerCount})
-                    </span>
-                  ) : null}
+                  <span className="text-muted-foreground font-normal tabular-nums">
+                    {' '}
+                    ({pointers.length}
+                    {plotQ.trim() ? ` · ${filteredPointers.length}` : ''})
+                  </span>
                 </p>
+                {pointers.length > 0 && rangeLabel ? (
+                  <p className="text-[11px] text-muted-foreground tabular-nums" dir="ltr">
+                    {rangeLabel}
+                  </p>
+                ) : null}
                 <input
-                  className="w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/50 tabular-nums"
+                  className="w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/50"
                   placeholder={m.searchPlotNo ?? 'گەڕان بە رەقەمی ئەرز'}
                   value={plotQ}
+                  inputMode="search"
+                  dir="ltr"
+                  autoComplete="off"
                   onChange={(e) => {
-                    setPlotQ(e.target.value);
+                    setPlotQ(normalizePlotDigits(e.target.value));
                     setSelectedPlotNo(null);
+                    if (plotListRef.current) plotListRef.current.scrollTop = 0;
                   }}
                 />
               </div>
-              <div className="flex-1 overflow-y-auto">
+              <div
+                className="flex-1 overflow-y-auto min-h-0 overscroll-contain"
+                ref={plotListRef}
+              >
                 {compoundLoading ? (
                   <div className="p-6 text-center text-muted-foreground text-sm flex justify-center">
                     <Loader2 className="h-5 w-5 animate-spin" />
                   </div>
+                ) : compoundError ? (
+                  <div className="p-6 text-center text-muted-foreground text-sm">{compoundError}</div>
                 ) : filteredPointers.length === 0 ? (
-                  <div className="p-6 text-center text-muted-foreground text-sm">
-                    {m.emptyCompoundPlots ?? 'رەقەمێک نەدۆزرایەوە'}
+                  <div className="p-6 text-center text-muted-foreground text-sm space-y-1">
+                    <p>
+                      {plotQ.trim()
+                        ? (m.plotNotFound ?? 'ئەم ژمارەیە نەدۆزرایەوە')
+                        : (m.emptyCompoundPlots ?? 'رەقەمێک نەدۆزرایەوە')}
+                    </p>
                   </div>
                 ) : (
                   <ul className="divide-y divide-border">
                     {filteredPointers.map((p) => (
-                      <li key={p.id}>
+                      <li key={`${p.id}-${p.no}`}>
                         <button
                           type="button"
                           onClick={() => setSelectedPlotNo(p.no)}
-                          className={`w-full text-start px-3 py-2 hover:bg-muted/60 ${
+                          className={`w-full text-start px-4 py-2.5 flex items-center hover:bg-muted/60 ${
                             selectedPlotNo === p.no ? 'bg-primary/10' : ''
                           }`}
                         >
-                          <p className="font-semibold tabular-nums text-base">{p.no}</p>
+                          <span className="font-bold tabular-nums text-base text-foreground" dir="ltr">
+                            {p.no}
+                          </span>
                         </button>
                       </li>
                     ))}
@@ -458,7 +608,13 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
               </div>
             </aside>
 
-            <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden relative h-[min(78vh,720px)]">
+            <section
+              className={
+                tvMode
+                  ? 'rh-tv-mapview-stage'
+                  : 'order-1 xl:order-2 relative z-0 isolate rounded-2xl border border-border bg-card shadow-sm overflow-hidden h-[min(78vh,720px)]'
+              }
+            >
               {compoundLoading ? (
                 <div className="flex h-full items-center justify-center">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -475,14 +631,20 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
                     </span>
                   </div>
                   <CompoundPlotCanvas
+                    key={`plot-${compoundMeta.id}-${tvMode ? 'tv' : 'web'}`}
                     meta={compoundMeta}
                     pointers={pointers}
                     selectedNo={selectedPlotNo}
                     onSelect={(p) => setSelectedPlotNo(p.no)}
                     labels={{ plotNo: m.plotNo ?? 'رەقەمی ئەرز' }}
+                    fillViewport={tvMode}
                   />
                 </>
-              ) : null}
+              ) : (
+                <div className="flex h-full items-center justify-center p-8 text-center text-sm text-muted-foreground">
+                  {m.compoundHelp ?? 'پڕۆژە هەڵبژێرە بۆ بینینی نەخشە'}
+                </div>
+              )}
             </section>
           </div>
         </>
@@ -525,7 +687,7 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
           ) : null}
 
           <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-4">
-            <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col max-h-[min(70vh,640px)]">
+            <aside className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden flex flex-col max-h-[min(72vh,680px)] sm:max-h-[min(75vh,740px)]">
               <div className="p-3 border-b border-border space-y-2">
                 <p className="text-sm font-medium">{m.plotList ?? 'رەقەمی ئەرزەکان'}</p>
                 <input
@@ -571,7 +733,7 @@ export function MapView({ t, lang }: { t: Dictionary; lang: string }) {
               </div>
             </aside>
 
-            <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden relative h-[min(70vh,640px)]">
+            <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden relative h-[min(72vh,680px)] sm:h-[min(75vh,740px)] min-[1600px]:h-[min(80vh,860px)] rh-tv-map-frame">
               {!loading || data ? (
                 <ErbilMapCanvas
                   plots={plots}
