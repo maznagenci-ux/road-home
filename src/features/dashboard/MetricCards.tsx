@@ -17,12 +17,10 @@ type CardDef = {
   key: string;
   icon: typeof TrendingUp;
   accent: string;
-  /** IQD base (ledger rollup) */
+  /** IQD base (ledger rollup) — converted to USD when no native USD */
   getIqd: (m: DashboardMetrics) => number;
   /** Original USD total when available */
   getUsdOriginal?: (m: DashboardMetrics) => number;
-  /** Original IQD total when available (non-converted) */
-  getIqdOriginal?: (m: DashboardMetrics) => number;
   label: (t: Dictionary) => string;
 };
 
@@ -33,7 +31,6 @@ const cards: CardDef[] = [
     accent: 'text-teal-700 dark:text-teal-300',
     getIqd: (m) => m.salesIncomeIqd,
     getUsdOriginal: (m) => m.monthIncomeUsd ?? 0,
-    getIqdOriginal: (m) => m.monthIncomeIqdOriginal ?? m.salesIncomeIqd,
     label: () => 'داهات',
   },
   {
@@ -42,7 +39,6 @@ const cards: CardDef[] = [
     accent: 'text-rose-700 dark:text-rose-300',
     getIqd: (m) => m.constructionSpendIqd,
     getUsdOriginal: (m) => m.monthExpenseUsd ?? 0,
-    getIqdOriginal: (m) => m.monthExpenseIqdOriginal ?? m.constructionSpendIqd,
     label: () => 'خەرجی',
   },
   {
@@ -90,48 +86,25 @@ export function MetricCards({
 
   return (
     <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
-      {cards.map(({ key, icon: Icon, accent, getIqd, getUsdOriginal, getIqdOriginal, label }) => {
+      {cards.map(({ key, icon: Icon, accent, getIqd, getUsdOriginal, label }) => {
         const iqdTotal = getIqd(metrics);
         const usdOrig = getUsdOriginal?.(metrics) ?? 0;
-        const iqdOrig = getIqdOriginal?.(metrics);
-        const usdFromIqd = iqdTotal / rate;
+        // Prefer native USD when present; otherwise convert IQD → USD
+        const usd =
+          Math.abs(usdOrig) > 0.009 ? usdOrig : iqdTotal / rate;
 
         return (
           <div
             key={key}
-            className="rounded-xl border border-border/70 bg-background/70 px-4 py-3 backdrop-blur-sm"
+            className="rounded-xl border border-border/70 bg-background/70 px-4 py-3.5 backdrop-blur-sm"
           >
-            <div className="flex items-center gap-2 mb-2">
-              <Icon className={cn('h-3.5 w-3.5', accent)} />
+            <div className="flex items-center gap-2 mb-2.5">
+              <Icon className={cn('h-3.5 w-3.5 shrink-0', accent)} />
               <p className="text-[11px] font-medium text-muted-foreground truncate">{label(t)}</p>
             </div>
-
-            {/* Original currency lines when we have USD deals this month */}
-            {usdOrig > 0.009 || (iqdOrig != null && iqdOrig > 0 && usdOrig > 0) ? (
-              <div className="space-y-0.5">
-                {usdOrig > 0.009 ? (
-                  <p className="text-sm sm:text-base font-semibold tabular-nums text-emerald-800 dark:text-emerald-200 truncate">
-                    {formatCurrency(usdOrig, locale, 'USD')}
-                    <span className="ms-1 text-[10px] font-medium text-muted-foreground">USD</span>
-                  </p>
-                ) : null}
-                {(iqdOrig ?? iqdTotal) > 0.5 ? (
-                  <p className="text-sm sm:text-base font-semibold tabular-nums text-foreground truncate">
-                    {formatCurrency(iqdOrig ?? iqdTotal, locale, 'IQD')}
-                    <span className="ms-1 text-[10px] font-medium text-muted-foreground">IQD</span>
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <div className="space-y-0.5">
-                <p className="text-sm sm:text-base font-semibold tabular-nums text-foreground truncate">
-                  {formatCurrency(iqdTotal, locale, 'IQD')}
-                </p>
-                <p className="text-[11px] tabular-nums text-muted-foreground truncate">
-                  ≈ {formatCurrency(usdFromIqd, locale, 'USD')}
-                </p>
-              </div>
-            )}
+            <p className="text-base sm:text-lg font-semibold tabular-nums text-foreground truncate tracking-tight">
+              {formatCurrency(usd, locale, 'USD')}
+            </p>
           </div>
         );
       })}
