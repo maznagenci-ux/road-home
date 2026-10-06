@@ -24,7 +24,7 @@ export async function GET(
   const locale: Locale =
     localeParam && hasLocale(localeParam) ? localeParam : localeFromUser(session.locale);
   const autoPrint = url.searchParams.get('print') === '1';
-  const autoDownload = url.searchParams.get('download') === '1' || autoPrint;
+  const autoDownload = url.searchParams.get('download') === '1';
 
   const item = await prisma.supportLetter.findUnique({ where: { id } });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });

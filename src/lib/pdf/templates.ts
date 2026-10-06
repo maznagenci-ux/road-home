@@ -1323,6 +1323,12 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       : locale === 'ar'
         ? 'تحميل PDF'
         : (s.downloadPdf ?? 'داگرتنی PDF');
+  const printLabel =
+    locale === 'en'
+      ? (s.print ?? 'Print')
+      : locale === 'ar'
+        ? (s.print ?? 'طباعة')
+        : (s.print ?? 'چاپکردن');
 
   const phonesHtml = phonesInlineHtml(phones);
   return `<!DOCTYPE html>
@@ -1519,10 +1525,13 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" crossorigin="anonymous"></script>
   <script>
+    function rhSupportPrint() {
+      window.print();
+    }
     function rhSupportDownloadPdf() {
       var sheet = document.querySelector('.sheet');
       var toolbar = document.querySelector('.toolbar');
-      var btn = document.querySelector('.toolbar button');
+      var btn = document.getElementById('rh-pdf-btn');
       if (!sheet) return;
       var label = ${JSON.stringify(downloadPdfLabel)};
       var filename = ${JSON.stringify(pdfFileTitle + '.pdf')};
@@ -1567,7 +1576,8 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 </head>
 <body>
   <div class="toolbar">
-    <button type="button" onclick="rhSupportDownloadPdf()">${esc(downloadPdfLabel)}</button>
+    <button type="button" class="secondary" onclick="rhSupportPrint()">${esc(printLabel)}</button>
+    <button type="button" id="rh-pdf-btn" onclick="rhSupportDownloadPdf()">${esc(downloadPdfLabel)}</button>
   </div>
   <div class="sheet">
     <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
@@ -1645,7 +1655,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     });
   </script>`
       : data.autoPrint
-        ? `<script>window.addEventListener("load",function(){setTimeout(function(){if(typeof rhSupportDownloadPdf==="function")rhSupportDownloadPdf()},400)});</script>`
+        ? `<script>window.addEventListener("load",function(){setTimeout(function(){if(typeof rhSupportPrint==="function")rhSupportPrint()},400)});</script>`
         : ''
   }
 </body>

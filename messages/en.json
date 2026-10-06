@@ -757,7 +757,8 @@
       "withRespect": "With respect…",
       "copyTo": "Copy to:",
       "downloadPdf": "Download PDF",
-      "downloadPdfLang": "PDF language — download"
+      "downloadPdfLang": "PDF language — download",
+      "print": "Print"
     },
     "places": {
       "title": "Locations",

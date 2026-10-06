@@ -757,7 +757,8 @@
       "withRespect": "مع فائق الاحترام…",
       "copyTo": "نسخة إلى:",
       "downloadPdf": "تحميل PDF",
-      "downloadPdfLang": "لغة PDF — تحميل"
+      "downloadPdfLang": "لغة PDF — تحميل",
+      "print": "طباعة"
     },
     "places": {
       "title": "الأماكن",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Plus, Pencil, Star, X, Trash2, Download } from 'lucide-react';
+import { Loader2, Plus, Pencil, Star, X, Trash2, Download, Printer } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { type Locale } from '@/i18n/locale-config';
 import { BRAND_NAME } from '@/lib/brand';
@@ -401,6 +401,16 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <a
+                          href={`/api/pdf/support/${row.id}?locale=${locale}&print=1`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border bg-background text-foreground hover:bg-muted shadow-sm"
+                          title={s.print ?? t.common.print}
+                        >
+                          <Printer className="h-3.5 w-3.5" />
+                          {s.print ?? t.common.print}
+                        </a>
+                        <a
                           href={`/api/pdf/support/${row.id}?locale=${locale}&download=1`}
                           target="_blank"
                           rel="noreferrer"
@@ -675,15 +685,26 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
 
               <div className="flex justify-end gap-2 pt-1">
                 {editingId ? (
-                  <a
-                    href={`/api/pdf/support/${editingId}?locale=${locale}&download=1`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-primary/40 text-primary hover:bg-primary/10"
-                  >
-                    <Download className="h-4 w-4" />
-                    {s.downloadPdf ?? 'داگرتنی PDF'}
-                  </a>
+                  <>
+                    <a
+                      href={`/api/pdf/support/${editingId}?locale=${locale}&print=1`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-border hover:bg-muted"
+                    >
+                      <Printer className="h-4 w-4" />
+                      {s.print ?? t.common.print}
+                    </a>
+                    <a
+                      href={`/api/pdf/support/${editingId}?locale=${locale}&download=1`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-primary/40 text-primary hover:bg-primary/10"
+                    >
+                      <Download className="h-4 w-4" />
+                      {s.downloadPdf ?? 'داگرتنی PDF'}
+                    </a>
+                  </>
                 ) : null}
                 <button
                   type="button"
