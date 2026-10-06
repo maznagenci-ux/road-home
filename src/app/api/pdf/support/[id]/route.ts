@@ -6,6 +6,7 @@ import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderSupportHtml } from '@/lib/pdf/templates';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(
   req: Request,
@@ -27,6 +28,7 @@ export async function GET(
   const item = await prisma.supportLetter.findUnique({ where: { id } });
   if (!item) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
+  await loadCompanyContact();
   const t = await getDictionary(locale);
   const html = renderSupportHtml(locale, t, {
     supportNo: item.supportNo,

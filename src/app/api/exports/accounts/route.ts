@@ -106,6 +106,9 @@ export async function GET(req: Request) {
     localeParam && hasLocale(localeParam) ? localeParam : localeFromUser(session.locale);
   const autoPrint = url.searchParams.get('print') === '1';
 
+  const { loadCompanyContact } = await import('@/lib/company-contact');
+  await loadCompanyContact();
+
   const t = await getDictionary(locale);
   const label = typeLabelFactory(locale, t);
   const rows = filterRowsByStream(await loadRows(type, id, label, session), type);

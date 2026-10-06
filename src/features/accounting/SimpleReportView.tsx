@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { Dictionary } from '@/i18n/dictionaries';
-import type { SimpleOwnerReport } from '@/lib/accounting/simple-report';
+import type { ReportCurrency, SimpleOwnerReport } from '@/lib/accounting/simple-report';
 
 const MONTHS = [
   'کانوونی دووەم',
@@ -21,6 +21,21 @@ const MONTHS = [
 
 function dinar(n: number) {
   return `${new Intl.NumberFormat('en-IQ', { maximumFractionDigits: 0 }).format(Math.round(n))} د.ع`;
+}
+
+function dollar(n: number) {
+  return `$${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(n)}`;
+}
+
+function money(amount: number, currency: ReportCurrency) {
+  return currency === 'USD' ? dollar(amount) : dinar(amount);
+}
+
+function dualLine(iqd: number, usd: number) {
+  const parts: string[] = [];
+  if (iqd > 0.5) parts.push(dinar(iqd));
+  if (usd > 0.005) parts.push(dollar(usd));
+  return parts.length ? parts.join(' · ') : '—';
 }
 
 export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
@@ -106,7 +121,9 @@ export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
     <div className="max-w-3xl mx-auto space-y-8" dir="rtl">
       <header className="text-center space-y-2 pt-2">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">حیساباتی خاوەن</h1>
-        <p className="text-muted-foreground text-lg">هەموو ژمارەکان بە دینارن</p>
+        <p className="text-muted-foreground text-lg">
+          دۆلار وەک دۆلار · دینار وەک دینار
+        </p>
       </header>
 
       <div className="rounded-3xl border border-border bg-card p-5 sm:p-6 space-y-4 shadow-sm">
@@ -177,20 +194,20 @@ export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
           <div className="grid grid-cols-1 gap-3">
             <div className="rounded-3xl bg-teal-50 border border-teal-100 p-6 text-center">
               <p className="text-base text-teal-900/70">داهات</p>
-              <p className="text-3xl sm:text-4xl font-bold text-teal-950 mt-2 tabular-nums">
-                {dinar(report.incomeIqd)}
+              <p className="text-2xl sm:text-3xl font-bold text-teal-950 mt-2 tabular-nums leading-snug">
+                {dualLine(report.incomeIqd, report.incomeUsd)}
               </p>
             </div>
             <div className="rounded-3xl bg-rose-50 border border-rose-100 p-6 text-center">
               <p className="text-base text-rose-900/70">خەرجی</p>
-              <p className="text-3xl sm:text-4xl font-bold text-rose-950 mt-2 tabular-nums">
-                {dinar(report.expenseIqd)}
+              <p className="text-2xl sm:text-3xl font-bold text-rose-950 mt-2 tabular-nums leading-snug">
+                {dualLine(report.expenseIqd, report.expenseUsd)}
               </p>
             </div>
             <div className="rounded-3xl bg-emerald-50 border border-emerald-200 p-6 text-center">
               <p className="text-base text-emerald-900/70">قازانج</p>
-              <p className="text-3xl sm:text-4xl font-bold text-emerald-950 mt-2 tabular-nums">
-                {dinar(report.profitIqd)}
+              <p className="text-2xl sm:text-3xl font-bold text-emerald-950 mt-2 tabular-nums leading-snug">
+                {dualLine(report.profitIqd, report.profitUsd)}
               </p>
             </div>
           </div>
@@ -209,7 +226,9 @@ export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
                     className="flex items-center justify-between gap-4 px-5 py-4 text-base"
                   >
                     <span>{r.category}</span>
-                    <span className="font-semibold tabular-nums">{dinar(r.amountIqd)}</span>
+                    <span className="font-semibold tabular-nums text-end">
+                      {dualLine(r.amountIqd, r.amountUsd)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -230,7 +249,9 @@ export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
                     className="flex items-center justify-between gap-4 px-5 py-4 text-base"
                   >
                     <span>{r.category}</span>
-                    <span className="font-semibold tabular-nums">{dinar(r.amountIqd)}</span>
+                    <span className="font-semibold tabular-nums text-end">
+                      {dualLine(r.amountIqd, r.amountUsd)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -249,11 +270,14 @@ export function SimpleReportView({ t: _t }: { t: Dictionary; lang: string }) {
                   <li key={`${r.voucherNo}-${r.date}`} className="px-5 py-4 space-y-1">
                     <div className="flex items-center justify-between gap-4 text-base">
                       <span className="font-semibold">{r.employeeName}</span>
-                      <span className="font-semibold tabular-nums">{dinar(r.amountIqd)}</span>
+                      <span className="font-semibold tabular-nums">
+                        {money(r.amount, r.currency)}
+                      </span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       بەروار: {r.date}
                       {r.periodLabel ? ` · ماوە: ${r.periodLabel}` : ''}
+                      {` · ${r.currency}`}
                     </p>
                   </li>
                 ))}

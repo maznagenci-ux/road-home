@@ -7,6 +7,7 @@ import { getMonthlyOwnerBundle } from '@/lib/accounting/reports';
 import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderMonthlyOwnerReportHtml } from '@/lib/pdf/monthly-owner-report';
 import { resolveAccountingBranchScope } from '@/lib/access/accounting-branch';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -29,6 +30,7 @@ export async function GET(req: Request) {
   const branchScope = resolveAccountingBranchScope(session, url.searchParams.get('branchId'));
 
   await seedAccountingChart(prisma);
+  await loadCompanyContact();
   const bundle = await getMonthlyOwnerBundle(month, year, branchScope);
   const html = renderMonthlyOwnerReportHtml(bundle, { assetBase: getPublicOrigin(req) });
 

@@ -1247,9 +1247,11 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   const dir = isRTL(locale) ? 'rtl' : 'ltr';
   const font = "'Noto Naskh Arabic', 'Noto Kufi Arabic', 'Traditional Arabic', Tahoma, serif";
   const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
+  const contact = companyContact();
+  const phones = contact.phones.filter(Boolean);
   const s = t.pages.support as Record<string, string>;
   const dateStr = isoDate(data.issuedAt);
-  const branch = data.branch?.trim() || 'بارەگای سەرەکی';
+  const branch = data.branch?.trim() || contact.address || 'بارەگای سەرەکی';
 
   const withRespect =
     locale === 'en'
@@ -1283,6 +1285,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         ? ['الأرشيف', 'سجل الشركة']
         : ['ئەرشیف', 'تۆماری کۆمپانیا'];
 
+  const phonesHtml = phonesInlineHtml(phones);
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}">
 <head>
@@ -1448,6 +1451,14 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     }
     .sign-block .role { font-size: 12px; font-weight: 700; margin-top: 2px; color: #0f2744; }
 
+    .contact-bar {
+      margin-top: 14px; text-align: center; font-size: 11.5px; font-weight: 700;
+      color: #0f2744; direction: ltr; unicode-bidi: isolate;
+    }
+    .contact-bar .addr { direction: rtl; unicode-bidi: isolate; margin-bottom: 4px; font-weight: 600; color: #475569; }
+    .contact-bar .phones { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: center; font-variant-numeric: tabular-nums; }
+    .contact-bar .phones .sep { color: #94a3b8; font-weight: 500; }
+
     @media print {
       html, body {
         width: 210mm; height: 297mm; margin: 0; padding: 0; background: #fff;
@@ -1543,6 +1554,10 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
           </div>
         </div>
         <hr class="rule-thick" />
+        <div class="contact-bar">
+          <div class="addr">${esc(contact.address)}</div>
+          <div class="phones">${phonesHtml || '—'}</div>
+        </div>
       </footer>
     </div>
   </div>

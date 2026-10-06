@@ -6,6 +6,7 @@ import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import { getUnifiedFinancials } from '@/lib/finance/unified-report';
 import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderUnifiedFinancialReportHtml } from '@/lib/pdf/unified-report';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -27,6 +28,7 @@ export async function GET(req: Request) {
   const from = fromRaw ? new Date(`${fromRaw}T00:00:00.000Z`) : null;
   const to = toRaw ? new Date(`${toRaw}T23:59:59.999Z`) : null;
 
+  await loadCompanyContact();
   const data = await getUnifiedFinancials({ from, to });
   const t = await getDictionary(locale);
   const html = renderUnifiedFinancialReportHtml(locale, t, {

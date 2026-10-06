@@ -9,6 +9,7 @@ import {
   type AccountStream,
 } from '@/lib/exports/account-rows';
 import { brandLogoPair } from '@/lib/pdf/assets';
+import { companyContact } from '@/lib/company-contact';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 function esc(value: string) {
@@ -44,7 +45,7 @@ export function renderAccountsReportHtml(
   const L = accountColumnLabels(locale, stream);
   const showKind = stream === 'all';
   const showProgress = stream === 'sale' || stream === 'all';
-  const phones = ['0750 207 0008', '0750 490 0302'];
+  const phones = companyContact().phones.filter(Boolean);
   const totalSeller = data.rows.reduce((s, r) => s + (r.commissionSellerIqd || 0), 0);
   const totalBuyer = data.rows.reduce((s, r) => s + (r.commissionBuyerIqd || 0), 0);
   const totalCommission = totalSeller + totalBuyer;
@@ -135,8 +136,8 @@ export function renderAccountsReportHtml(
     .names { text-align: ${rtl ? 'left' : 'right'}; }
     .n-ku { margin: 0; font-size: 15px; font-weight: 800; color: #0f2744; }
     .n-ar, .n-en { margin: 2px 0 0; font-size: 11px; color: #64748b; }
-    .phones { margin-top: 6px; font-size: 11px; color: #475569; direction: ltr; unicode-bidi: isolate; }
-    .phones .sep { margin: 0 6px; color: #94a3b8; }
+    .phones { margin-top: 6px; font-size: 11px; color: #475569; direction: ltr; unicode-bidi: isolate; display: flex; flex-wrap: wrap; gap: 4px 8px; justify-content: flex-end; }
+    .phones .sep { color: #94a3b8; }
     .doc-title { margin: 8px 0 0; font-size: 16px; font-weight: 800; color: #8b4513; }
     .sub { margin: 4px 0 0; font-size: 12px; color: #64748b; }
     .summary {
@@ -213,7 +214,16 @@ export function renderAccountsReportHtml(
         <p class="n-ku">${esc(BRAND_NAME_KU)}</p>
         ${BRAND_NAME_AR ? `<p class="n-ar">${esc(BRAND_NAME_AR)}</p>` : ''}
         <p class="n-en">${esc(BRAND_NAME_EN)}</p>
-        <div class="phones"><span>${phones[0]}</span><span class="sep">·</span><span>${phones[1]}</span></div>
+        <div class="phones">${
+          phones.length
+            ? phones
+                .map(
+                  (p, i) =>
+                    `<span dir="ltr">${esc(p)}</span>${i < phones.length - 1 ? '<span class="sep">·</span>' : ''}`,
+                )
+                .join('')
+            : '—'
+        }</div>
         <h1 class="doc-title">${esc(data.title)}</h1>
         ${data.subtitle ? `<p class="sub">${esc(data.subtitle)}</p>` : ''}
       </div>
