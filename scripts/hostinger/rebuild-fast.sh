@@ -17,14 +17,19 @@ for p in [Path('.env'), Path('.next/standalone/.env')]:
 PY
 
 npm run build
+
+echo "==> Copy static assets into standalone (same as deploy.sh)"
 rm -rf .next/standalone/public .next/standalone/.next/static
 mkdir -p .next/standalone/.next
 cp -a public .next/standalone/public
 cp -a .next/static .next/standalone/.next/static
 cp -f .env .next/standalone/.env
 
-pm2 delete road-home || true
-pm2 start ecosystem.config.cjs
+if pm2 describe road-home >/dev/null 2>&1; then
+  pm2 restart road-home --update-env
+else
+  pm2 start ecosystem.config.cjs
+fi
 pm2 save
 sleep 2
 
