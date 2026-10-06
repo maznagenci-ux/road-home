@@ -5,6 +5,7 @@ import { DashboardShell } from '@/components/layout/DashboardShell';
 import { LocaleSync } from '@/components/layout/LocaleSync';
 import {
   getEffectivePermissions,
+  isSuperAdmin,
   navPermissionForPath,
 } from '@/lib/access/permissions';
 
@@ -19,6 +20,17 @@ export default async function DashboardLayout({
   const { session, t } = await requireAuth(lang);
 
   const pathname = (await headers()).get('x-pathname') ?? `/${lang}`;
+  const base = `/${lang}`;
+  const rest =
+    pathname === base || pathname === `${base}/` ? '' : pathname.slice(base.length);
+
+  if (
+    (rest.startsWith('/branches') || rest.startsWith('/support')) &&
+    !isSuperAdmin(session.role)
+  ) {
+    redirect(`/${lang}`);
+  }
+
   const needed = navPermissionForPath(pathname, lang);
   if (needed) {
     const perms = await getEffectivePermissions(session.id, session.role);

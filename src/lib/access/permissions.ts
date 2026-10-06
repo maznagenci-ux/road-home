@@ -445,9 +445,9 @@ export function navPermissionForPath(pathname: string, lang: string): Permission
   }
   if (rest.startsWith('/rentals')) return 'VIEW_RENTALS';
   if (rest.startsWith('/anket')) return 'VIEW_ANKET';
-  if (rest.startsWith('/support')) return 'VIEW_CONTRACTS';
+  // Branches + support: Super Admin only (enforced in layout + page, not via role defaults)
+  if (rest.startsWith('/support') || rest.startsWith('/branches')) return null;
   if (rest.startsWith('/places')) return 'VIEW_PROPERTIES';
-  if (rest.startsWith('/branches')) return 'VIEW_PROPERTIES';
   if (rest.startsWith('/reports')) return 'VIEW_REPORTS';
   if (rest.startsWith('/users') || rest.startsWith('/access')) return 'VIEW_USERS';
   if (rest.startsWith('/office')) return 'VIEW_ACCOUNTING';

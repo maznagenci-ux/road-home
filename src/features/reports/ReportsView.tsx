@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { FileText, BarChart3, Download, Calculator } from 'lucide-react';
+import { FileText, BarChart3, Download } from 'lucide-react';
 import type { Dictionary } from '@/i18n/dictionaries';
 
 export function ReportsView({ t, lang }: { t: Dictionary; lang: string }) {
@@ -24,18 +24,12 @@ export function ReportsView({ t, lang }: { t: Dictionary; lang: string }) {
     return `/api/pdf/report/monthly?month=${month}&year=${year}`;
   }, [month, year]);
 
-  const simpleQs = useMemo(() => `month=${month}&year=${year}`, [month, year]);
-
   const field =
     'rounded-xl border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/50';
 
   return (
     <div className="space-y-5 max-w-4xl">
       <PageHeader title={t.pages.reports.title} />
-
-      <p className="text-sm text-muted-foreground -mt-2">
-        دۆلار وەک دۆلار · دینار وەک دینار — چوار ژمارەی کۆمپانیا لەسەر هەموو ڕاپۆرتەکان
-      </p>
 
       <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
         <div>
@@ -77,47 +71,6 @@ export function ReportsView({ t, lang }: { t: Dictionary; lang: string }) {
           >
             <Download className="h-4 w-4" />
             {r.generateMonthly ?? 'دروستکردنی ڕاپۆرتی مانگانە'}
-          </a>
-        </div>
-      </section>
-
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm space-y-4">
-        <div>
-          <h2 className="font-semibold text-foreground">حیساباتی خاوەن (ئەکسڵ / وۆرد / PDF)</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            هەمان مانگ — داهات و خەرجی بە دراوی خۆیان، دیزاینی نوێ
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3">
-          <a
-            href={`/api/accounting/simple-report?${simpleQs}&format=xlsx`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-700 text-white text-sm font-medium"
-          >
-            <Download className="h-4 w-4" />
-            ئەکسڵ
-          </a>
-          <a
-            href={`/api/accounting/simple-report?${simpleQs}&format=doc`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-800 text-white text-sm font-medium"
-          >
-            <Download className="h-4 w-4" />
-            وۆرد
-          </a>
-          <a
-            href={`/api/accounting/simple-report?${simpleQs}&format=pdf`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-800 text-white text-sm font-medium"
-          >
-            <Download className="h-4 w-4" />
-            PDF
-          </a>
-          <a
-            href={`/${lang}/accounting`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border text-sm font-medium"
-          >
-            <Calculator className="h-4 w-4" />
-            کردنەوەی پەڕە
           </a>
         </div>
       </section>

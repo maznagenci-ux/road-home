@@ -227,6 +227,7 @@ export function Sidebar({
       ...g,
       items: g.items.filter((item) => {
         if (!navReady || !ready) return true;
+        if (item.superAdminOnly && role !== 'SUPER_ADMIN') return false;
         if (item.perm == null) return true;
         return can(item.perm);
       }),
