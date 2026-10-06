@@ -25,18 +25,24 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     let cancelled = false;
-    void fetch('/api/access/me')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled || !data) return;
-        setRole(data.role ?? null);
-        setPermissions(data.permissions ?? {});
-      })
-      .finally(() => {
-        if (!cancelled) setReady(true);
-      });
+    const load = () => {
+      void fetch('/api/access/me')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (cancelled || !data) return;
+          setRole(data.role ?? null);
+          setPermissions(data.permissions ?? {});
+        })
+        .finally(() => {
+          if (!cancelled) setReady(true);
+        });
+    };
+    load();
+    // Keep lastSeenAt fresh for Super Admin online/offline panel
+    const id = window.setInterval(load, 60_000);
     return () => {
       cancelled = true;
+      window.clearInterval(id);
     };
   }, []);
 

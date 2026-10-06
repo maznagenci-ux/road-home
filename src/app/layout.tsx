@@ -21,8 +21,8 @@ const vazirmatn = Vazirmatn({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Road Home ZMKH Real Estate',
-    template: '%s · Road Home ZMKH',
+    default: 'ZMKH Road Home',
+    template: '%s · ZMKH Road Home',
   },
   description: 'Real Estate & Construction Financial Management',
   icons: {

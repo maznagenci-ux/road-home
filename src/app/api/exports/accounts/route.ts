@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import {
   filterRowsByStream,
   mapRentalAccount,
   mapSaleAccount,
-  type AccountKind,
   type AccountRow,
 } from '@/lib/exports/account-rows';
 import { buildAccountsWorkbook } from '@/lib/exports/accounts-workbook';
 import { renderAccountsReportHtml } from '@/lib/pdf/accounts-report';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { requireApiPermission } from '@/lib/api-auth';
+import { dealEmployeeBranchWhere } from '@/lib/access/branch-scope';
+import type { SessionUser } from '@/lib/auth';
 
 function typeLabelFactory(locale: Locale, t: Awaited<ReturnType<typeof getDictionary>>) {
   const map: Record<string, string> = {
@@ -29,8 +30,10 @@ async function loadRows(
   type: 'sale' | 'rental' | 'all',
   id: string | null,
   label: (key: string) => string,
+  session: SessionUser,
 ): Promise<AccountRow[]> {
   const rows: AccountRow[] = [];
+  const branchFilter = dealEmployeeBranchWhere(session);
   const saleInclude = {
     house: { select: { code: true, name: true } },
     dealEmployee: { select: { name: true } },
@@ -39,13 +42,14 @@ async function loadRows(
 
   if (type === 'sale' || type === 'all') {
     if (id && type === 'sale') {
-      const c = await prisma.contract.findUnique({
-        where: { id },
+      const c = await prisma.contract.findFirst({
+        where: { id, ...(branchFilter ?? {}) },
         include: saleInclude,
       });
       if (c) rows.push(mapSaleAccount(c, label));
     } else if (!id || type === 'all') {
       const list = await prisma.contract.findMany({
+        where: branchFilter,
         orderBy: { createdAt: 'desc' },
         take: 500,
         include: saleInclude,
@@ -58,13 +62,14 @@ async function loadRows(
   if (type === 'rental' || type === 'all') {
     const rentalInclude = { dealEmployee: { select: { name: true } } } as const;
     if (id && type === 'rental') {
-      const l = await prisma.lease.findUnique({
-        where: { id },
+      const l = await prisma.lease.findFirst({
+        where: { id, ...(branchFilter ?? {}) },
         include: rentalInclude,
       });
       if (l) rows.push(mapRentalAccount(l, label));
     } else if (!id || type === 'all') {
       const list = await prisma.lease.findMany({
+        where: branchFilter,
         orderBy: { createdAt: 'desc' },
         take: 500,
         include: rentalInclude,
@@ -78,13 +83,15 @@ async function loadRows(
 }
 
 export async function GET(req: Request) {
-  const auth = await requireApiPermission('VIEW_ACCOUNTING');
-  if ('error' in auth) {
-    const alt = await requireApiPermission('VIEW_CONTRACTS');
-    if ('error' in alt) return alt.error;
+  let session: SessionUser | null = null;
+  const exportAuth = await requireApiPermission('EXPORT_FINANCE');
+  if (!('error' in exportAuth)) {
+    session = exportAuth.session;
+  } else {
+    const accAuth = await requireApiPermission('VIEW_ACCOUNTING');
+    if ('error' in accAuth) return accAuth.error;
+    session = accAuth.session;
   }
-
-  const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const url = new URL(req.url);
@@ -101,7 +108,7 @@ export async function GET(req: Request) {
 
   const t = await getDictionary(locale);
   const label = typeLabelFactory(locale, t);
-  const rows = filterRowsByStream(await loadRows(type, id, label), type);
+  const rows = filterRowsByStream(await loadRows(type, id, label, session), type);
 
   if (format === 'json') {
     return NextResponse.json({ items: rows });
@@ -149,7 +156,7 @@ export async function GET(req: Request) {
       rows,
       stream: type,
       autoPrint: autoPrint || format === 'print',
-      assetBase: url.origin,
+      assetBase: getPublicOrigin(req),
     });
     return new NextResponse(html, {
       headers: { 'Content-Type': 'text/html; charset=utf-8' },
@@ -176,4 +183,4 @@ export async function GET(req: Request) {
   return NextResponse.json({ error: 'BAD_FORMAT' }, { status: 400 });
 }
 
-export type { AccountKind };
+export type { AccountKind } from '@/lib/exports/account-rows';

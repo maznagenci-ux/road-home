@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { formatCurrency } from '@/lib/utils';
 import type { Dictionary } from '@/i18n/dictionaries';
+import {
+  AccountingBranchFilterBar,
+  useAccountingBranchFilter,
+} from '@/features/accounting/AccountingBranchFilter';
 
 type CashAccount = {
   id: string;
@@ -28,6 +32,15 @@ export function CashAccountsView({ t, lang }: { t: Dictionary; lang: string }) {
   const [money, setMoney] = useState({ cashIqd: 0, totalIqd: 0 });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const {
+    canPick,
+    branchId,
+    setBranchId,
+    branches,
+    setBranches,
+    withBranchParam,
+    writeBranchId,
+  } = useAccountingBranchFilter();
   const [form, setForm] = useState({
     code: '',
     name: '',
@@ -43,7 +56,7 @@ export function CashAccountsView({ t, lang }: { t: Dictionary; lang: string }) {
   });
 
   const load = useCallback(async () => {
-    const res = await fetch('/api/accounting/cash');
+    const res = await fetch(withBranchParam('/api/accounting/cash'));
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || 'error');
@@ -51,16 +64,17 @@ export function CashAccountsView({ t, lang }: { t: Dictionary; lang: string }) {
     }
     setAccounts(data.accounts || []);
     setReports(data.reports || []);
+    if (Array.isArray(data.branches)) setBranches(data.branches);
     const cash = data.money?.cashIqd ?? 0;
     setMoney({ cashIqd: cash, totalIqd: cash });
     if (!move.cashAccountId && data.accounts?.[0]) {
       setMove((m) => ({ ...m, cashAccountId: data.accounts[0].id }));
     }
-  }, [move.cashAccountId]);
+  }, [move.cashAccountId, withBranchParam, setBranches]);
 
   useEffect(() => {
     void load();
-  }, [load]);
+  }, [load, branchId]);
 
   async function createAccount(e: React.FormEvent) {
     e.preventDefault();
@@ -93,12 +107,14 @@ export function CashAccountsView({ t, lang }: { t: Dictionary; lang: string }) {
             fromCashId: move.cashAccountId,
             toCashId: move.toCashId,
             description: move.description,
+            branchId: writeBranchId(),
           }
         : {
             action: move.action,
             cashAccountId: move.cashAccountId,
             amount: move.amount,
             description: move.description,
+            branchId: writeBranchId(),
           };
     const res = await fetch('/api/accounting/cash', {
       method: 'POST',
@@ -127,6 +143,13 @@ export function CashAccountsView({ t, lang }: { t: Dictionary; lang: string }) {
           {labels.cashHint ?? 'هەژمارەکانی نەقد، واریز، ڕاکێشان و گواستنەوە'}
         </p>
       </div>
+
+      <AccountingBranchFilterBar
+        canPick={canPick}
+        branchId={branchId}
+        setBranchId={setBranchId}
+        branches={branches}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {[

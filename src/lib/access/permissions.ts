@@ -69,10 +69,25 @@ export const DO_PERMISSIONS: PermissionKey[] = [
 
 export const ASSIGNABLE_ROLES: UserRole[] = [
   'SUPER_ADMIN',
+  'BRANCH_MANAGER',
+  'BRANCH_ACCOUNTANT',
+  'BRANCH_SALES',
   'ACCOUNTANT',
   'SALESPERSON',
   'VIEW_ONLY',
 ];
+
+/** Branch staff roles that must have a branchId */
+export const BRANCH_SCOPED_ROLES = [
+  'BRANCH_MANAGER',
+  'BRANCH_ACCOUNTANT',
+  'BRANCH_SALES',
+] as const;
+
+export function isBranchScopedRole(role: string): boolean {
+  const list = BRANCH_SCOPED_ROLES as readonly string[];
+  return list.includes(role) || list.includes(normalizeRole(role));
+}
 
 export const VOUCHER_LOCK_HOURS = 12;
 
@@ -121,6 +136,93 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     MANAGE_INVENTORY: true,
     ISSUE_MATERIALS: true,
     APPROVE_WASTE: true,
+  }),
+  /** بەڕێوەبەری لق — بەڕێوەبردنی گرێبەست/کرێ + بینینی حیسابات */
+  BRANCH_MANAGER: withDefaults({
+    VIEW_DASHBOARD: true,
+    VIEW_ACCOUNTING: true,
+    VIEW_PROJECTS: true,
+    VIEW_PROPERTIES: true,
+    VIEW_CONTRACTS: true,
+    VIEW_RENTALS: true,
+    VIEW_ANKET: true,
+    VIEW_REPORTS: true,
+    VIEW_USERS: false,
+    VIEW_CASH_VAULT: true,
+    VIEW_PAYABLES: true,
+    VIEW_CONSTRUCTION_COST: true,
+    VIEW_INVENTORY: true,
+    ADD_VOUCHERS: true,
+    EDIT_TRANSACTIONS: false,
+    REVERSE_VOUCHERS: false,
+    CHANGE_FX_RATE: false,
+    MANAGE_CONTRACTS: true,
+    MANAGE_RENTALS: true,
+    MANAGE_ANKET: true,
+    MANAGE_PROJECTS: true,
+    MANAGE_USERS: false,
+    EXPORT_FINANCE: true,
+    APPROVE_FINANCE: false,
+    MANAGE_PROJECT_BUDGET: false,
+    MANAGE_INVENTORY: false,
+    ISSUE_MATERIALS: true,
+    APPROVE_WASTE: false,
+  }),
+  /** محاسبی لق — وەک محاسب، سنووردار بە لق */
+  BRANCH_ACCOUNTANT: withDefaults({
+    VIEW_DASHBOARD: true,
+    VIEW_ACCOUNTING: true,
+    VIEW_PROJECTS: true,
+    VIEW_PROPERTIES: true,
+    VIEW_CONTRACTS: true,
+    VIEW_RENTALS: true,
+    VIEW_ANKET: true,
+    VIEW_REPORTS: true,
+    VIEW_USERS: false,
+    VIEW_CASH_VAULT: true,
+    VIEW_PAYABLES: true,
+    VIEW_CONSTRUCTION_COST: true,
+    VIEW_INVENTORY: true,
+    ADD_VOUCHERS: true,
+    EDIT_TRANSACTIONS: true,
+    REVERSE_VOUCHERS: false,
+    CHANGE_FX_RATE: false,
+    MANAGE_CONTRACTS: false,
+    MANAGE_RENTALS: true,
+    MANAGE_ANKET: true,
+    MANAGE_PROJECTS: false,
+    MANAGE_USERS: false,
+    EXPORT_FINANCE: true,
+    APPROVE_FINANCE: false,
+    MANAGE_PROJECT_BUDGET: true,
+    MANAGE_INVENTORY: true,
+    ISSUE_MATERIALS: true,
+    APPROVE_WASTE: true,
+  }),
+  /** کارمەندی فرۆشیاری لق */
+  BRANCH_SALES: withDefaults({
+    VIEW_DASHBOARD: true,
+    VIEW_ACCOUNTING: false,
+    VIEW_PROJECTS: true,
+    VIEW_PROPERTIES: true,
+    VIEW_CONTRACTS: true,
+    VIEW_RENTALS: true,
+    VIEW_ANKET: true,
+    VIEW_REPORTS: false,
+    VIEW_USERS: false,
+    VIEW_CASH_VAULT: false,
+    VIEW_PAYABLES: true,
+    VIEW_CONSTRUCTION_COST: false,
+    VIEW_INVENTORY: false,
+    ADD_VOUCHERS: false,
+    EDIT_TRANSACTIONS: false,
+    REVERSE_VOUCHERS: false,
+    CHANGE_FX_RATE: false,
+    MANAGE_CONTRACTS: true,
+    MANAGE_RENTALS: true,
+    MANAGE_ANKET: true,
+    MANAGE_PROJECTS: false,
+    MANAGE_USERS: false,
   }),
   SALESPERSON: withDefaults({
     VIEW_DASHBOARD: true,
@@ -207,6 +309,12 @@ export function normalizeRole(role: string): UserRole {
       return 'SUPER_ADMIN';
     case 'ACCOUNTANT':
       return 'ACCOUNTANT';
+    case 'BRANCH_MANAGER':
+      return 'BRANCH_MANAGER';
+    case 'BRANCH_ACCOUNTANT':
+      return 'BRANCH_ACCOUNTANT';
+    case 'BRANCH_SALES':
+      return 'BRANCH_SALES';
     case 'SALESPERSON':
     case 'SITE_SUPERVISOR':
     case 'MANAGER':
@@ -218,11 +326,29 @@ export function normalizeRole(role: string): UserRole {
   }
 }
 
-/** Role written to DB from Super Admin UI (legacy SITE_SUPERVISOR → SALESPERSON). */
+/** Role written to DB from Super Admin UI. */
 export function toStoredRole(role: string): UserRole {
-  const n = normalizeRole(role);
-  if (n === 'SALESPERSON') return 'SALESPERSON';
-  return n;
+  switch (role) {
+    case 'SUPER_ADMIN':
+    case 'ADMIN':
+      return 'SUPER_ADMIN';
+    case 'ACCOUNTANT':
+      return 'ACCOUNTANT';
+    case 'BRANCH_MANAGER':
+      return 'BRANCH_MANAGER';
+    case 'BRANCH_ACCOUNTANT':
+      return 'BRANCH_ACCOUNTANT';
+    case 'BRANCH_SALES':
+      return 'BRANCH_SALES';
+    case 'SALESPERSON':
+    case 'SITE_SUPERVISOR':
+    case 'MANAGER':
+      return 'SALESPERSON';
+    case 'VIEW_ONLY':
+    case 'USER':
+    default:
+      return 'VIEW_ONLY';
+  }
 }
 
 export function isSuperAdmin(role: string) {
@@ -321,6 +447,7 @@ export function navPermissionForPath(pathname: string, lang: string): Permission
   if (rest.startsWith('/anket')) return 'VIEW_ANKET';
   if (rest.startsWith('/support')) return 'VIEW_CONTRACTS';
   if (rest.startsWith('/places')) return 'VIEW_PROPERTIES';
+  if (rest.startsWith('/branches')) return 'VIEW_PROPERTIES';
   if (rest.startsWith('/reports')) return 'VIEW_REPORTS';
   if (rest.startsWith('/users') || rest.startsWith('/access')) return 'VIEW_USERS';
   if (rest.startsWith('/office')) return 'VIEW_ACCOUNTING';

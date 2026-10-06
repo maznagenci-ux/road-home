@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Loader2, Plus, Printer, Pencil, Star, X, Trash2 } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
-import { locales, localeLabels, type Locale } from '@/i18n/locale-config';
+import { type Locale } from '@/i18n/locale-config';
+import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
 import { BRAND_NAME } from '@/lib/brand';
 import type { Dictionary } from '@/i18n/dictionaries';
 import {
@@ -12,8 +13,6 @@ import {
   buildSupportLetterBody,
   purposeLabel,
   recipientKindLabel,
-  supportDefaultToName,
-  supportPurposeSubject,
   type SupportPurpose,
   type SupportRecipientKind,
 } from '@/lib/support/templates';
@@ -58,21 +57,21 @@ type FormState = {
   issuedAt: string;
 };
 
-const emptyForm = (locale: Locale): FormState => ({
+const emptyForm = (): FormState => ({
   recipientKind: 'GOVERNMENT',
-  purpose: 'OWNERSHIP',
+  purpose: 'OTHER',
   applicant: BRAND_NAME,
   beneficiaryName: '',
   beneficiaryIdNo: '',
   beneficiaryPhone: '',
   fromName: BRAND_NAME,
-  toName: supportDefaultToName('GOVERNMENT', locale),
+  /** User types recipient — no auto template */
+  toName: '',
   recipientAddress: '',
-  subject: supportPurposeSubject('OWNERSHIP', locale),
-  content: buildSupportLetterBody('OWNERSHIP', locale, {
-    toName: supportDefaultToName('GOVERNMENT', locale),
-    company: BRAND_NAME,
-  }),
+  /** User types subject — no auto template */
+  subject: '',
+  /** User writes the letter body */
+  content: '',
   propertyRef: '',
   managerName: '',
   managerTitle: '',
@@ -94,12 +93,13 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<FormState>(() => emptyForm(locale));
+  const [form, setForm] = useState<FormState>(() => emptyForm());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [branchOptions, setBranchOptions] = useState<{ id: string; name: string }[]>([]);
   const [ok, setOk] = useState('');
   const [printMenuId, setPrintMenuId] = useState<string | null>(null);
-  const printMenuRef = useRef<HTMLDivElement | null>(null);
+  const [printAnchor, setPrintAnchor] = useState<HTMLElement | null>(null);
   const contentTouched = useRef(false);
 
   const field =
@@ -131,53 +131,24 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
   }, [load]);
 
   useEffect(() => {
-    if (!printMenuId) return;
-    const onDoc = (e: MouseEvent) => {
-      if (printMenuRef.current && !printMenuRef.current.contains(e.target as Node)) {
-        setPrintMenuId(null);
-      }
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [printMenuId]);
+    void fetch('/api/branches?active=1')
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = (data.items ?? []) as { id: string; name: string }[];
+        setBranchOptions(list);
+      })
+      .catch(() => undefined);
+  }, []);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const applyTemplate = (
-    next: Partial<FormState> & { recipientKind?: SupportRecipientKind; purpose?: SupportPurpose },
-    forceBody = false,
-  ) => {
-    setForm((prev) => {
-      const recipientKind = next.recipientKind ?? prev.recipientKind;
-      const purpose = next.purpose ?? prev.purpose;
-      const toName =
-        next.toName !== undefined
-          ? next.toName
-          : next.recipientKind
-            ? supportDefaultToName(recipientKind, locale)
-            : prev.toName;
-      const subject = next.purpose ? supportPurposeSubject(purpose, locale) : (next.subject ?? prev.subject);
-      const merged = { ...prev, ...next, recipientKind, purpose, toName, subject };
-      if (forceBody || !contentTouched.current) {
-        merged.content = buildSupportLetterBody(purpose, locale, {
-          beneficiary: merged.beneficiaryName,
-          idNo: merged.beneficiaryIdNo,
-          phone: merged.beneficiaryPhone,
-          propertyRef: merged.propertyRef,
-          toName: merged.toName,
-          company: merged.fromName || BRAND_NAME,
-        });
-      }
-      return merged;
-    });
-  };
-
   const openCreate = () => {
     setEditingId(null);
     contentTouched.current = false;
-    setForm(emptyForm(locale));
+    setForm(emptyForm());
     setError('');
     setModalOpen(true);
   };
@@ -269,12 +240,23 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
 
   const printItem = (id: string, pdfLocale: Locale) => {
     setPrintMenuId(null);
+    setPrintAnchor(null);
     window.open(`/api/pdf/support/${id}?locale=${pdfLocale}&print=1`, '_blank', 'noopener,noreferrer');
   };
 
   const regenerateBody = () => {
     contentTouched.current = false;
-    applyTemplate({}, true);
+    setForm((prev) => ({
+      ...prev,
+      content: buildSupportLetterBody(prev.purpose, locale, {
+        beneficiary: prev.beneficiaryName,
+        idNo: prev.beneficiaryIdNo,
+        phone: prev.beneficiaryPhone,
+        propertyRef: prev.propertyRef,
+        toName: prev.toName,
+        company: prev.fromName || BRAND_NAME,
+      }),
+    }));
   };
 
   return (
@@ -426,37 +408,24 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
-                        <div
-                          className="relative"
-                          ref={printMenuId === row.id ? printMenuRef : undefined}
-                        >
+                        <div className="relative">
                           <button
                             type="button"
-                            onClick={() =>
-                              setPrintMenuId((cur) => (cur === row.id ? null : row.id))
-                            }
+                            onClick={(e) => {
+                              if (printMenuId === row.id) {
+                                setPrintMenuId(null);
+                                setPrintAnchor(null);
+                              } else {
+                                setPrintMenuId(row.id);
+                                setPrintAnchor(e.currentTarget);
+                              }
+                            }}
                             className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                             title={s.printPdfLang ?? t.common.print}
+                            aria-expanded={printMenuId === row.id}
                           >
                             <Printer className="h-4 w-4" />
                           </button>
-                          {printMenuId === row.id ? (
-                            <div className="absolute end-0 z-20 mt-1 min-w-[9.5rem] rounded-xl border border-border bg-card p-1 shadow-lg">
-                              {locales.map((loc) => (
-                                <button
-                                  key={loc}
-                                  type="button"
-                                  onClick={() => printItem(row.id, loc)}
-                                  className={cn(
-                                    'w-full text-start rounded-lg px-2 py-1.5 text-xs hover:bg-muted',
-                                    loc === lang && 'font-semibold text-primary',
-                                  )}
-                                >
-                                  {localeLabels[loc]}
-                                </button>
-                              ))}
-                            </div>
-                          ) : null}
                         </div>
                         <button
                           type="button"
@@ -510,9 +479,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <select
                       className={field}
                       value={form.recipientKind}
-                      onChange={(e) =>
-                        applyTemplate({ recipientKind: e.target.value as SupportRecipientKind })
-                      }
+                      onChange={(e) => set('recipientKind', e.target.value as SupportRecipientKind)}
                     >
                       {SUPPORT_RECIPIENT_KINDS.map((k) => (
                         <option key={k} value={k}>
@@ -528,9 +495,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <select
                       className={field}
                       value={form.purpose}
-                      onChange={(e) =>
-                        applyTemplate({ purpose: e.target.value as SupportPurpose })
-                      }
+                      onChange={(e) => set('purpose', e.target.value as SupportPurpose)}
                     >
                       {SUPPORT_PURPOSES.map((p) => (
                         <option key={p} value={p}>
@@ -546,7 +511,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     className={field}
                     value={form.toName}
                     onChange={(e) => set('toName', e.target.value)}
-                    placeholder={s.toPlaceholder ?? 'ناوی دائیرە یان کونسوڵخانە'}
+                    placeholder={s.toWriteYourself ?? 'خۆت بنووسە — بۆ کێ پشتگیری دەکەیت؟'}
                   />
                 </div>
                 <div>
@@ -571,12 +536,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <input
                       className={field}
                       value={form.beneficiaryName}
-                      onChange={(e) => {
-                        set('beneficiaryName', e.target.value);
-                        if (!contentTouched.current) {
-                          applyTemplate({ beneficiaryName: e.target.value });
-                        }
-                      }}
+                      onChange={(e) => set('beneficiaryName', e.target.value)}
                     />
                   </div>
                   <div>
@@ -586,12 +546,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <input
                       className={field}
                       value={form.beneficiaryIdNo}
-                      onChange={(e) => {
-                        set('beneficiaryIdNo', e.target.value);
-                        if (!contentTouched.current) {
-                          applyTemplate({ beneficiaryIdNo: e.target.value });
-                        }
-                      }}
+                      onChange={(e) => set('beneficiaryIdNo', e.target.value)}
                     />
                   </div>
                   <div>
@@ -601,12 +556,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <input
                       className={field}
                       value={form.beneficiaryPhone}
-                      onChange={(e) => {
-                        set('beneficiaryPhone', e.target.value);
-                        if (!contentTouched.current) {
-                          applyTemplate({ beneficiaryPhone: e.target.value });
-                        }
-                      }}
+                      onChange={(e) => set('beneficiaryPhone', e.target.value)}
                     />
                   </div>
                   <div className="sm:col-span-2">
@@ -616,12 +566,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     <input
                       className={field}
                       value={form.propertyRef}
-                      onChange={(e) => {
-                        set('propertyRef', e.target.value);
-                        if (!contentTouched.current) {
-                          applyTemplate({ propertyRef: e.target.value });
-                        }
-                      }}
+                      onChange={(e) => set('propertyRef', e.target.value)}
                       placeholder={s.propertyRefHint ?? 'نموونە: CT-2026-0001 · گوڵان دوو · هەولێر'}
                     />
                   </div>
@@ -650,11 +595,28 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                   </div>
                   <div>
                     <label className="block text-xs text-muted-foreground mb-1">{s.branch ?? 'لق'}</label>
-                    <input
-                      className={field}
-                      value={form.branch}
-                      onChange={(e) => set('branch', e.target.value)}
-                    />
+                    {branchOptions.length > 0 ? (
+                      <select
+                        className={field}
+                        value={form.branch}
+                        onChange={(e) => set('branch', e.target.value)}
+                      >
+                        {!branchOptions.some((x) => x.name === form.branch) && form.branch ? (
+                          <option value={form.branch}>{form.branch}</option>
+                        ) : null}
+                        {branchOptions.map((br) => (
+                          <option key={br.id} value={br.name}>
+                            {br.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        className={field}
+                        value={form.branch}
+                        onChange={(e) => set('branch', e.target.value)}
+                      />
+                    )}
                   </div>
                 </div>
                 <div>
@@ -663,6 +625,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                     className={field}
                     value={form.subject}
                     onChange={(e) => set('subject', e.target.value)}
+                    placeholder={s.subjectWriteYourself ?? 'خۆت بنووسە — بابەتی پشتگیری چییە؟'}
                   />
                 </div>
                 <div>
@@ -674,6 +637,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                       contentTouched.current = true;
                       set('content', e.target.value);
                     }}
+                    placeholder={s.contentWriteYourself ?? 'ناوەڕۆکی پشتگیری خۆت بنووسە…'}
                   />
                 </div>
               </section>
@@ -735,6 +699,20 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
           </div>
         </div>
       ) : null}
+
+      <PdfPrintLangMenu
+        open={Boolean(printMenuId)}
+        anchorEl={printAnchor}
+        title={s.printPdfLang ?? 'زمانی PDF'}
+        currentLocale={lang}
+        onSelect={(loc) => {
+          if (printMenuId) printItem(printMenuId, loc);
+        }}
+        onClose={() => {
+          setPrintMenuId(null);
+          setPrintAnchor(null);
+        }}
+      />
     </div>
   );
 }

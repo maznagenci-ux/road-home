@@ -6,6 +6,7 @@ import { requireApiPermission } from '@/lib/api-auth';
 import { fixedRentalClausesPlainText } from '@/lib/contracts/rental-clauses';
 import { computeRentDue } from '@/lib/rentals/due';
 import { resolveDealEmployee } from '@/lib/deals/employee';
+import { assertLeaseInBranch } from '@/lib/access/branch-scope';
 
 function parseDateOnly(value: string) {
   return new Date(`${value.slice(0, 10)}T12:00:00.000Z`);
@@ -66,6 +67,9 @@ export async function GET(
   if ('error' in auth) return auth.error;
 
   const { id } = await params;
+  const ok = await assertLeaseInBranch(auth.session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
   const lease = await prisma.lease.findUnique({
     where: { id },
     include: { rentPayments: { select: { periodLabel: true, paidAt: true, amountIqd: true } } },
@@ -84,6 +88,9 @@ export async function PATCH(
   const { session } = auth;
 
   const { id } = await params;
+  const branchOk = await assertLeaseInBranch(session, id);
+  if (!branchOk) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
   const existing = await prisma.lease.findUnique({ where: { id } });
   if (!existing) return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
 
@@ -133,17 +140,17 @@ export async function PATCH(
     const organizerName =
       data.organizerName !== undefined
         ? data.organizerName
-        : existing.organizerName ?? 'Road Home ZMKH Real Estate';
+        : existing.organizerName ?? 'ZMKH Road Home';
 
+    // Keep original maker; if legacy null, stamp current user once
     let dealEmployeeId = existing.dealEmployeeId;
     let dealEmployeeName = existing.dealEmployeeName;
-    if (data.dealEmployeeId !== undefined) {
-      const dealEmp = await resolveDealEmployee(data.dealEmployeeId);
-      if ('error' in dealEmp) {
-        return NextResponse.json({ error: 'DEAL_EMPLOYEE_NOT_FOUND' }, { status: 400 });
+    if (!dealEmployeeId) {
+      const dealEmp = await resolveDealEmployee(null, session);
+      if (!('error' in dealEmp)) {
+        dealEmployeeId = dealEmp.dealEmployeeId;
+        dealEmployeeName = dealEmp.dealEmployeeName;
       }
-      dealEmployeeId = dealEmp.dealEmployeeId;
-      dealEmployeeName = dealEmp.dealEmployeeName;
     }
 
     const legalSnapshot = fixedRentalClausesPlainText({
@@ -164,7 +171,7 @@ export async function PATCH(
       startDate: startDate.toISOString().slice(0, 10),
       endDate: endDate.toISOString().slice(0, 10),
       signingDate: (signingDate ?? startDate).toISOString().slice(0, 10),
-      organizerName: organizerName ?? 'Road Home ZMKH Real Estate',
+      organizerName: organizerName ?? 'ZMKH Road Home',
     });
 
     const userNotes =

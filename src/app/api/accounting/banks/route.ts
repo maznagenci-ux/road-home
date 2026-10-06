@@ -5,6 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { seedAccountingChart } from '@/lib/accounting/seed-chart';
 import { getBankReport, getTotalAvailableMoney } from '@/lib/accounting/reports';
 import { postTransaction } from '@/lib/accounting/post';
+import {
+  resolveAccountingBranchScope,
+  resolveWriteBranchId,
+} from '@/lib/access/accounting-branch';
 
 export async function GET(req: Request) {
   const auth = await requireApiPermission('VIEW_ACCOUNTING');
@@ -15,6 +19,7 @@ export async function GET(req: Request) {
   const from = url.searchParams.get('from');
   const to = url.searchParams.get('to');
   const accountId = url.searchParams.get('accountId') ?? undefined;
+  const branchScope = resolveAccountingBranchScope(auth.session, url.searchParams.get('branchId'));
   const range = {
     from: from ? new Date(from) : new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     to: to ? new Date(to) : new Date(),
@@ -22,11 +27,11 @@ export async function GET(req: Request) {
 
   const [accounts, money, reports] = await Promise.all([
     prisma.bankAccount.findMany({ orderBy: { code: 'asc' } }),
-    getTotalAvailableMoney(),
-    getBankReport(range, accountId),
+    getTotalAvailableMoney(new Date(), branchScope),
+    getBankReport(range, accountId, branchScope),
   ]);
 
-  return NextResponse.json({ accounts, money, reports, range });
+  return NextResponse.json({ accounts, money, reports, range, branchId: branchScope });
 }
 
 const createSchema = z.object({

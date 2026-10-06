@@ -67,13 +67,17 @@ export function resolveSimpleRange(opts: {
 }
 
 /** One plain report: profit, spend, income sources, employee salaries. */
-export async function getSimpleOwnerReport(range: SimpleReportRange): Promise<SimpleOwnerReport> {
-  const summary = await getIncomeExpenseSummary(range);
+export async function getSimpleOwnerReport(
+  range: SimpleReportRange,
+  branchId?: string | null,
+): Promise<SimpleOwnerReport> {
+  const summary = await getIncomeExpenseSummary(range, branchId);
 
   const txns = await prisma.ledgerTransaction.findMany({
     where: {
       deletedAt: null,
       date: { gte: range.from, lte: range.to },
+      ...(branchId ? { branchId } : {}),
     },
     orderBy: { date: 'asc' },
     include: {
@@ -138,6 +142,7 @@ export async function getSimpleOwnerReport(range: SimpleReportRange): Promise<Si
       status: 'POSTED',
       accountType: 'EMPLOYEE_SALARY',
       createdAt: { gte: range.from, lte: range.to },
+      ...(branchId ? { branchId } : {}),
     },
     include: { employeeUser: { select: { name: true } } },
     orderBy: { createdAt: 'asc' },

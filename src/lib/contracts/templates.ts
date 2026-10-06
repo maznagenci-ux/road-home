@@ -132,12 +132,56 @@ export function toUsd(amount: number, currency: ContractCurrency, exchangeRate: 
   return currency === 'USD' ? amount : amount / rate;
 }
 
-export async function nextContractNo(prisma: { contract: { count: () => Promise<number> } }) {
-  const count = await prisma.contract.count();
-  return `CT-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+export async function nextContractNo(db: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  contract: any;
+}) {
+  const year = new Date().getFullYear();
+  const prefix = `CT-${year}-`;
+  const latest = await db.contract.findFirst({
+    where: { contractNo: { startsWith: prefix } },
+    orderBy: { contractNo: 'desc' },
+    select: { contractNo: true },
+  });
+  let seq = 1;
+  if (latest?.contractNo) {
+    const n = Number.parseInt(String(latest.contractNo).slice(prefix.length), 10);
+    if (Number.isFinite(n) && n >= seq) seq = n + 1;
+  }
+  for (let i = 0; i < 30; i++) {
+    const candidate = `${prefix}${String(seq + i).padStart(4, '0')}`;
+    const exists = await db.contract.findUnique({
+      where: { contractNo: candidate },
+      select: { id: true },
+    });
+    if (!exists) return candidate;
+  }
+  return `${prefix}${String(Date.now()).slice(-6)}`;
 }
 
-export async function nextLeaseNo(prisma: { lease: { count: () => Promise<number> } }) {
-  const count = await prisma.lease.count();
-  return `LS-${new Date().getFullYear()}-${String(count + 1).padStart(4, '0')}`;
+export async function nextLeaseNo(db: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  lease: any;
+}) {
+  const year = new Date().getFullYear();
+  const prefix = `LS-${year}-`;
+  const latest = await db.lease.findFirst({
+    where: { leaseNo: { startsWith: prefix } },
+    orderBy: { leaseNo: 'desc' },
+    select: { leaseNo: true },
+  });
+  let seq = 1;
+  if (latest?.leaseNo) {
+    const n = Number.parseInt(String(latest.leaseNo).slice(prefix.length), 10);
+    if (Number.isFinite(n) && n >= seq) seq = n + 1;
+  }
+  for (let i = 0; i < 30; i++) {
+    const candidate = `${prefix}${String(seq + i).padStart(4, '0')}`;
+    const exists = await db.lease.findUnique({
+      where: { leaseNo: candidate },
+      select: { id: true },
+    });
+    if (!exists) return candidate;
+  }
+  return `${prefix}${String(Date.now()).slice(-6)}`;
 }

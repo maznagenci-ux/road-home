@@ -12,10 +12,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'upload.wikimedia.org',
       },
-      {
-        protocol: 'https',
-        hostname: 'pergezxclyptokncaybo.supabase.co',
-      },
     ],
   },
 };

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderOfficeVoucherHtml } from '@/lib/pdf/office-voucher';
 
 const CATEGORY_KEYS: Record<string, string> = {
@@ -97,7 +98,7 @@ export async function GET(
     yearToDateIqd,
     yearLabel,
     autoPrint,
-    assetBase: url.origin,
+    assetBase: getPublicOrigin(req),
   });
 
   return new NextResponse(html, {

@@ -7,6 +7,7 @@ import { requireApiPermission } from '@/lib/api-auth';
 import { fixedRentalClausesPlainText } from '@/lib/contracts/rental-clauses';
 import { computeRentDue } from '@/lib/rentals/due';
 import { resolveDealEmployee } from '@/lib/deals/employee';
+import { dealEmployeeBranchWhere } from '@/lib/access/branch-scope';
 
 export async function GET(req: Request) {
   const auth = await requireApiPermission('VIEW_RENTALS');
@@ -18,9 +19,12 @@ export async function GET(req: Request) {
   const deposit = searchParams.get('deposit');
   const dueOnly = searchParams.get('due') === '1';
 
+  const branchFilter = dealEmployeeBranchWhere(auth.session);
+
   const items = await prisma.lease.findMany({
     where: {
       AND: [
+        branchFilter ?? {},
         tenant ? { tenantName: { contains: tenant } } : {},
         code ? { propertyCode: { contains: code.toUpperCase() } } : {},
         deposit
@@ -113,9 +117,9 @@ export async function POST(req: Request) {
     });
 
     const leaseNo = await nextLeaseNo(prisma);
-    const dealEmp = await resolveDealEmployee(data.dealEmployeeId);
+    const dealEmp = await resolveDealEmployee(data.dealEmployeeId, session);
     if ('error' in dealEmp) {
-      return NextResponse.json({ error: 'DEAL_EMPLOYEE_NOT_FOUND' }, { status: 400 });
+      return NextResponse.json({ error: dealEmp.error }, { status: 400 });
     }
 
     const legalSnapshot = fixedRentalClausesPlainText({
@@ -136,7 +140,7 @@ export async function POST(req: Request) {
       startDate: data.startDate,
       endDate: data.endDate,
       signingDate: data.signingDate ?? data.startDate,
-      organizerName: data.organizerName ?? 'Road Home ZMKH Real Estate',
+      organizerName: data.organizerName ?? 'ZMKH Road Home',
     });
 
     const lease = await prisma.lease.create({
@@ -178,7 +182,7 @@ export async function POST(req: Request) {
         propertyStatusNote: data.propertyStatusNote ?? null,
         notes: [data.notes, '---', legalSnapshot].filter(Boolean).join('\n') || null,
         staffNote: data.staffNote ?? null,
-        organizerName: data.organizerName ?? 'Road Home ZMKH Real Estate',
+        organizerName: data.organizerName ?? 'ZMKH Road Home',
         showOrganizer: data.showOrganizer ?? true,
         dealEmployeeId: dealEmp.dealEmployeeId,
         dealEmployeeName: dealEmp.dealEmployeeName,

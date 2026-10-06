@@ -5,6 +5,10 @@ import { prisma } from '@/lib/prisma';
 import { seedAccountingChart } from '@/lib/accounting/seed-chart';
 import { getTotalAvailableMoney, getCashReport } from '@/lib/accounting/reports';
 import { postTransaction, transfer } from '@/lib/accounting/post';
+import {
+  resolveAccountingBranchScope,
+  resolveWriteBranchId,
+} from '@/lib/access/accounting-branch';
 
 export async function GET(req: Request) {
   const auth = await requireApiPermission('VIEW_ACCOUNTING');
@@ -15,18 +19,24 @@ export async function GET(req: Request) {
   const from = url.searchParams.get('from');
   const to = url.searchParams.get('to');
   const accountId = url.searchParams.get('accountId') ?? undefined;
+  const branchScope = resolveAccountingBranchScope(auth.session, url.searchParams.get('branchId'));
   const range = {
     from: from ? new Date(from) : new Date(new Date().getFullYear(), new Date().getMonth(), 1),
     to: to ? new Date(to) : new Date(),
   };
 
-  const [accounts, money, reports] = await Promise.all([
+  const [accounts, money, reports, branches] = await Promise.all([
     prisma.cashAccount.findMany({ orderBy: { code: 'asc' } }),
-    getTotalAvailableMoney(),
-    getCashReport(range, accountId),
+    getTotalAvailableMoney(new Date(), branchScope),
+    getCashReport(range, accountId, branchScope),
+    prisma.branch.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, code: true },
+    }),
   ]);
 
-  return NextResponse.json({ accounts, money, reports, range });
+  return NextResponse.json({ accounts, money, reports, range, branches, branchId: branchScope });
 }
 
 const createSchema = z.object({
@@ -44,6 +54,12 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
+    const writeBranchId = await resolveWriteBranchId({
+      session: auth.session,
+      explicit: body.branchId ?? undefined,
+      createdById: auth.session.id,
+    });
+
     if (body.action === 'transfer') {
       const schema = z.object({
         amount: z.number().positive(),
@@ -60,6 +76,7 @@ export async function POST(req: Request) {
         toCashId: data.toCashId,
         description: data.description,
         createdById: auth.session.id,
+        branchId: writeBranchId,
       });
       return NextResponse.json({ txn }, { status: 201 });
     }
@@ -81,6 +98,7 @@ export async function POST(req: Request) {
         paymentMethod: 'CASH',
         description: data.description,
         createdById: auth.session.id,
+        branchId: writeBranchId,
         allowOverdraft: false,
       });
       return NextResponse.json({ txn }, { status: 201 });

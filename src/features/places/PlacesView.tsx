@@ -1,9 +1,23 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { Loader2, MapPin, MoreVertical, Pencil, Plus, Trash2, X } from 'lucide-react';
+import {
+  Download,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  MoreVertical,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Dictionary } from '@/i18n/dictionaries';
+import {
+  openStaffGroupForHouseReserve,
+  STAFF_WHATSAPP_GROUP_URL,
+} from '@/lib/whatsapp';
 
 type PlaceRow = {
   id: string;
@@ -15,29 +29,28 @@ type PlaceRow = {
   plotNo?: string;
   lat?: number | null;
   lng?: number | null;
+  price?: number | null;
+  finalPrice?: number | null;
+  area?: number | null;
+  facadeM?: number | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  guestRooms?: number | null;
+  address?: string | null;
+  imageUrl?: string | null;
+  imageUrls?: string[] | null;
+  videoUrl?: string | null;
   createdAt: string;
 };
 
 type FormState = {
   code: string;
-  neighborhood: string;
   name: string;
-  province: string;
-  city: string;
-  plotNo: string;
-  lat: string;
-  lng: string;
 };
 
 const emptyForm = (): FormState => ({
   code: '',
-  neighborhood: '',
   name: '',
-  province: 'هەولێر',
-  city: 'هەولێر',
-  plotNo: '',
-  lat: '',
-  lng: '',
 });
 
 export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
@@ -49,8 +62,10 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
   const [error, setError] = useState('');
   const [menuId, setMenuId] = useState<string | null>(null);
+  const [reserveHint, setReserveHint] = useState('');
 
   const field =
     'w-full rounded-xl border border-border bg-muted px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary/50';
@@ -70,9 +85,17 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
     void load();
   }, [load]);
 
-  const openCreate = () => {
+  const fetchNextCode = async () => {
+    const res = await fetch('/api/places/import-compounds');
+    if (!res.ok) return '100';
+    const data = (await res.json()) as { nextCode?: string };
+    return data.nextCode || '100';
+  };
+
+  const openCreate = async () => {
     setEditingId(null);
-    setForm(emptyForm());
+    const next = await fetchNextCode();
+    setForm({ code: next, name: '' });
     setError('');
     setModalOpen(true);
   };
@@ -81,13 +104,7 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
     setEditingId(row.id);
     setForm({
       code: row.code,
-      neighborhood: row.neighborhood,
       name: row.name,
-      province: row.province,
-      city: row.city,
-      plotNo: row.plotNo ?? '',
-      lat: row.lat != null ? String(row.lat) : '',
-      lng: row.lng != null ? String(row.lng) : '',
     });
     setError('');
     setMenuId(null);
@@ -96,30 +113,19 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
 
   const save = async () => {
     setError('');
-    if (!form.code.trim() || !form.neighborhood.trim() || !form.name.trim()) {
+    if (!form.code.trim() || !form.name.trim()) {
       setError(t.pages.projects.required);
       return;
     }
     setSaving(true);
-    const latNum = form.lat.trim() ? Number(form.lat) : null;
-    const lngNum = form.lng.trim() ? Number(form.lng) : null;
-    if (
-      (form.lat.trim() && !Number.isFinite(latNum)) ||
-      (form.lng.trim() && !Number.isFinite(lngNum))
-    ) {
-      setError(t.pages.projects.error);
-      setSaving(false);
-      return;
-    }
+    const name = form.name.trim();
     const payload = {
-      code: form.code.trim().toUpperCase(),
-      neighborhood: form.neighborhood.trim(),
-      name: form.name.trim(),
-      province: form.province.trim() || 'هەولێر',
-      city: form.city.trim() || 'هەولێر',
-      plotNo: form.plotNo.trim(),
-      lat: latNum,
-      lng: lngNum,
+      code: form.code.trim(),
+      name,
+      neighborhood: name,
+      province: 'هەولێر',
+      city: 'هەولێر',
+      plotNo: '',
     };
     const res = await fetch(editingId ? `/api/places/${editingId}` : '/api/places', {
       method: editingId ? 'PATCH' : 'POST',
@@ -145,30 +151,124 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
     await load();
   };
 
+  const importFromMaps = async () => {
+    setImporting(true);
+    setError('');
+    const res = await fetch('/api/places/import-compounds', { method: 'POST' });
+    setImporting(false);
+    if (!res.ok) {
+      setError(p.importError ?? 'نەتوانرا لە نەخشە هاوردە بکرێت');
+      return;
+    }
+    const data = (await res.json()) as { created?: number; skipped?: number };
+    await load();
+    if ((data.created ?? 0) === 0 && (data.skipped ?? 0) > 0) {
+      setError(p.importDone ?? `هەموو پڕۆژەکان پێشتر هەن (${data.skipped})`);
+      window.setTimeout(() => setError(''), 3500);
+    }
+  };
+
+  const reserveInGroup = async (row: PlaceRow) => {
+    setMenuId(null);
+    const address =
+      row.address?.trim() ||
+      [row.neighborhood, row.city, row.province, row.plotNo ? `پارچە ${row.plotNo}` : '']
+        .filter(Boolean)
+        .join(' — ');
+    const { copied, opened } = await openStaffGroupForHouseReserve({
+      code: row.code,
+      name: row.name,
+      price: row.price,
+      finalPrice: row.finalPrice,
+      area: row.area,
+      facadeM: row.facadeM,
+      bedrooms: row.bedrooms,
+      bathrooms: row.bathrooms,
+      guestRooms: row.guestRooms,
+      address,
+      neighborhood: row.neighborhood,
+      city: row.city,
+      province: row.province,
+      plotNo: row.plotNo,
+      imageUrl: row.imageUrl,
+      imageUrls: row.imageUrls,
+      videoUrl: row.videoUrl,
+      lat: row.lat,
+      lng: row.lng,
+    });
+    setReserveHint(
+      opened
+        ? (p.reserveOpened ??
+          'واتساپ کرایەوە — گرووپی کارمەندان هەڵبژێرە و ناردن دابگرە' +
+            (copied ? ' (دەقیش کۆپی کرا)' : ''))
+        : copied
+          ? (p.reserveCopied ?? 'دەقی حەرز کۆپی کرا — لە واتساپ پەیست بکە')
+          : (p.reserveFailed ?? 'نەتوانرا واتساپ بکرێتەوە — دەق کۆپی بکە بە دەست'),
+    );
+    window.setTimeout(() => setReserveHint(''), 4500);
+  };
+
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-foreground">{p.title ?? 'شوێنەکان'}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {p.subtitle ?? 'کۆدی خانوو، گەرەک و شوێن تۆمار بکە بۆ هەڵبژاردن لە گرێبەست'}
+            {p.subtitleSimple ?? 'ناوی شوێن و کۆدی شوێن — کۆدەکان لە ١٠٠ەوە'}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          {p.add ?? 'زیادکردنی شوێن'}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={STAFF_WHATSAPP_GROUP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-emerald-500/30 bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-500/15"
+          >
+            <MessageCircle className="h-4 w-4" />
+            {p.whatsappGroup ?? 'گرووپی واتساپ (حەرز)'}
+          </a>
+          <button
+            type="button"
+            disabled={importing}
+            onClick={() => void importFromMaps()}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-border hover:bg-muted disabled:opacity-60"
+          >
+            {importing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            {p.importMaps ?? 'هاوردە لە نەخشەی پڕۆژەکان'}
+          </button>
+          <button
+            type="button"
+            onClick={() => void openCreate()}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            {p.add ?? 'زیادکردنی شوێن'}
+          </button>
+        </div>
       </div>
+
+      {reserveHint ? (
+        <p className="text-sm text-emerald-800 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-2">
+          {reserveHint}
+        </p>
+      ) : null}
+
+      {error && !modalOpen ? (
+        <p className="text-sm text-amber-700 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2">
+          {error}
+        </p>
+      ) : null}
 
       <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="p-4 border-b border-border flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
           <p className="text-sm font-medium text-foreground inline-flex items-center gap-2">
             <MapPin className="h-4 w-4 text-primary" />
             {p.title ?? 'شوێنەکان'}
+            <span className="text-muted-foreground font-normal tabular-nums">({items.length})</span>
           </p>
           <input
             className={cn(field, 'sm:max-w-xs')}
@@ -179,53 +279,57 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm text-start">
+          <table className="w-full min-w-[520px] text-sm text-start">
             <thead>
               <tr className="border-b border-border bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
                 <th className="px-4 py-3 font-medium">{p.serial ?? 'زنجیرە'}</th>
-                <th className="px-4 py-3 font-medium">{p.code ?? 'کۆدی خانوو'}</th>
-                <th className="px-4 py-3 font-medium">{p.plotNo ?? 'رەقەمی ئەرز'}</th>
-                <th className="px-4 py-3 font-medium">{p.neighborhood ?? 'ناوی گەرەک'}</th>
+                <th className="px-4 py-3 font-medium">{p.placeCode ?? p.code ?? 'کۆدی شوێن'}</th>
                 <th className="px-4 py-3 font-medium">{p.name ?? 'ناوی شوێن'}</th>
-                <th className="px-4 py-3 font-medium">{p.province ?? 'پارێزگا'}</th>
-                <th className="px-4 py-3 font-medium">{p.city ?? 'شار'}</th>
                 <th className="px-4 py-3 font-medium w-14" />
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-muted-foreground">
+                  <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">
                     {t.common.loading}
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-14 text-center text-muted-foreground">
-                    {p.empty ?? 'هیچ شوێنێک تۆمار نەکراوە — زیادکردنی شوێن دابگرە'}
+                  <td colSpan={4} className="px-4 py-14 text-center text-muted-foreground">
+                    {p.emptyImportHint ??
+                      'هیچ شوێنێک نییە — «هاوردە لە نەخشەی پڕۆژەکان» دابگرە یان زیاد بکە'}
                   </td>
                 </tr>
               ) : (
                 items.map((row, i) => (
                   <tr key={row.id} className="border-b border-border hover:bg-muted/40">
                     <td className="px-4 py-3 tabular-nums text-muted-foreground">{i + 1}</td>
-                    <td className="px-4 py-3 font-mono text-primary">{row.code}</td>
-                    <td className="px-4 py-3 font-semibold tabular-nums">{row.plotNo || '—'}</td>
-                    <td className="px-4 py-3 font-medium text-foreground">{row.neighborhood}</td>
-                    <td className="px-4 py-3">{row.name}</td>
-                    <td className="px-4 py-3">{row.province}</td>
-                    <td className="px-4 py-3">{row.city}</td>
+                    <td className="px-4 py-3 font-mono text-primary tabular-nums">{row.code}</td>
+                    <td className="px-4 py-3 font-medium text-foreground">{row.name}</td>
                     <td className="px-4 py-3 relative">
-                      <button
-                        type="button"
-                        onClick={() => setMenuId((cur) => (cur === row.id ? null : row.id))}
-                        className="p-2 rounded-lg bg-muted/80 text-muted-foreground hover:text-foreground"
-                        aria-label="menu"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => void reserveInGroup(row)}
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-emerald-500"
+                          title={p.reserveWhatsApp ?? 'حەرز لە گرووپ'}
+                        >
+                          <MessageCircle className="h-3.5 w-3.5" />
+                          {p.reserveWhatsApp ?? 'حەرز'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMenuId((cur) => (cur === row.id ? null : row.id))}
+                          className="p-2 rounded-lg bg-muted/80 text-muted-foreground hover:text-foreground"
+                          aria-label="menu"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </button>
+                      </div>
                       {menuId === row.id ? (
-                        <div className="absolute end-4 z-20 mt-1 min-w-[8.5rem] rounded-xl border border-border bg-card p-1 shadow-lg">
+                        <div className="absolute end-4 z-20 mt-1 min-w-[10rem] rounded-xl border border-border bg-card p-1 shadow-lg">
                           <button
                             type="button"
                             onClick={() => openEdit(row)}
@@ -255,8 +359,8 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
 
       {modalOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-          <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border sticky top-0 bg-card">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card shadow-xl">
+            <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
               <h2 className="text-lg font-semibold">
                 {editingId ? (p.edit ?? 'دەستکاری شوێن') : (p.add ?? 'زیادکردنی شوێن')}
               </h2>
@@ -271,89 +375,33 @@ export function PlacesView({ t, lang }: { t: Dictionary; lang: string }) {
             <div className="p-5 space-y-4">
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">
-                  {p.code ?? 'کۆدی خانوو'}
-                </label>
-                <input
-                  className={cn(field, 'font-mono uppercase')}
-                  value={form.code}
-                  onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
-                  placeholder={lang === 'en' ? 'e.g. H-101' : 'بۆ نموونە: H-101'}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
-                  {p.plotNo ?? 'رەقەمی ئەرز'}
-                </label>
-                <input
-                  className={cn(field, 'tabular-nums')}
-                  value={form.plotNo}
-                  onChange={(e) => setForm((f) => ({ ...f, plotNo: e.target.value }))}
-                  placeholder={lang === 'en' ? 'e.g. 1248' : 'بۆ نموونە: ١٢٤٨'}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
-                  {p.neighborhood ?? 'ناوی گەرەک'}
-                </label>
-                <input
-                  className={field}
-                  value={form.neighborhood}
-                  onChange={(e) => setForm((f) => ({ ...f, neighborhood: e.target.value }))}
-                  placeholder={lang === 'en' ? 'e.g. 7 Nisan / Ankawa' : 'بۆ نموونە: ٧ نیسان / عينكاوا'}
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
                   {p.name ?? 'ناوی شوێن'}
                 </label>
                 <input
                   className={field}
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder={lang === 'en' ? 'e.g. Villa 12' : 'بۆ نموونە: ڤیلا ١٢'}
+                  placeholder={lang === 'en' ? 'e.g. 32 Park' : 'بۆ نموونە: ٣٢ پارک'}
+                  autoFocus
                 />
               </div>
               <div>
                 <label className="block text-xs text-muted-foreground mb-1">
-                  {p.province ?? 'پارێزگا'}
+                  {p.placeCode ?? p.code ?? 'کۆدی شوێن'}
                 </label>
                 <input
-                  className={field}
-                  value={form.province}
-                  onChange={(e) => setForm((f) => ({ ...f, province: e.target.value }))}
+                  className={cn(field, 'font-mono tabular-nums')}
+                  value={form.code}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, code: e.target.value.replace(/[^\d]/g, '') }))
+                  }
+                  placeholder="100"
+                  inputMode="numeric"
                 />
+                <p className="text-[11px] text-muted-foreground mt-1.5">
+                  {p.codeHint ?? 'کۆدەکان لە ١٠٠ەوە دەست پێدەکەن'}
+                </p>
               </div>
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
-                  {p.city ?? 'شار'}
-                </label>
-                <input
-                  className={field}
-                  value={form.city}
-                  onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{p.lat ?? 'lat'}</label>
-                  <input
-                    className={cn(field, 'tabular-nums')}
-                    value={form.lat}
-                    onChange={(e) => setForm((f) => ({ ...f, lat: e.target.value }))}
-                    placeholder="36.19"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{p.lng ?? 'lng'}</label>
-                  <input
-                    className={cn(field, 'tabular-nums')}
-                    value={form.lng}
-                    onChange={(e) => setForm((f) => ({ ...f, lng: e.target.value }))}
-                    placeholder="44.01"
-                  />
-                </div>
-              </div>
-              <p className="text-[11px] text-muted-foreground">{p.coordsHint}</p>
               {error ? <p className="text-sm text-rose-600">{error}</p> : null}
               <div className="flex justify-end gap-2 pt-1">
                 <button

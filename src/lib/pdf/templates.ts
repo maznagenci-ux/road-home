@@ -1,10 +1,53 @@
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
 import { isRTL } from '@/i18n/locale-config';
-import { BRAND_NAME, BRAND_NAME_AR, BRAND_NAME_EN } from '@/lib/brand';
+import {
+  BRAND_COMPANY_KU,
+  BRAND_EMAIL,
+  BRAND_NAME,
+  BRAND_NAME_AR,
+  BRAND_NAME_EN,
+  BRAND_NAME_KU,
+  BRAND_SLOGAN_EN,
+  BRAND_SLOGAN_KU,
+} from '@/lib/brand';
+import { companyContact } from '@/lib/company-contact';
 import { rentalClausePrefix } from '@/lib/contracts/rental-clauses';
 import { saleClausePrefix } from '@/lib/contracts/sale-clauses';
+import { brandLogoPair } from '@/lib/pdf/assets';
 import { formatCurrency, formatDate } from '@/lib/utils';
+
+/** Wait for logos + webfonts then print — Kurdish/Arabic glyphs need fonts.ready. */
+function printBootScript(autoPrint: boolean | undefined): string {
+  return `<script>
+(function(){
+  function whenFonts(cb){
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){ setTimeout(cb, 80); }).catch(function(){ setTimeout(cb, 320); });
+    } else {
+      setTimeout(cb, 450);
+    }
+  }
+  function ready(cb){
+    var imgs=[].slice.call(document.images||[]);
+    var left=imgs.length;
+    var next=function(){ whenFonts(cb); };
+    if(!left){ next(); return; }
+    imgs.forEach(function(img){
+      if(img.complete){ if(--left===0) next(); return; }
+      img.addEventListener('load', function(){ if(--left===0) next(); });
+      img.addEventListener('error', function(){ if(--left===0) next(); });
+    });
+  }
+  window.rhPrint=function(){ document.title=' '; window.print(); };
+  ${
+    autoPrint
+      ? `window.addEventListener('load', function(){ ready(function(){ window.rhPrint(); }); });`
+      : ''
+  }
+})();
+</script>`;
+}
 
 function esc(value: string) {
   return value
@@ -12,6 +55,12 @@ function esc(value: string) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;');
+}
+
+function phonesInlineHtml(phones: string[]): string {
+  const list = phones.filter((p) => p.trim());
+  if (!list.length) return '';
+  return list.map((p) => `<span>${esc(p)}</span>`).join('<span class="sep">·</span>');
 }
 
 interface ReceiptData {
@@ -38,6 +87,265 @@ function isoDate(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+/** Erbil / Iraq local zone (UTC+3, no DST). */
+const ERBIL_TZ = 'Asia/Baghdad';
+
+function erbilDateParts(d: Date) {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: ERBIL_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((p) => p.type === type)?.value ?? '';
+  return {
+    year: get('year'),
+    month: get('month'),
+    day: get('day'),
+    hour: Number(get('hour') || '0'),
+    minute: Number(get('minute') || '0'),
+  };
+}
+
+function isoDateErbil(d: Date) {
+  const p = erbilDateParts(d);
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+/** Time + date in Asia/Baghdad. Date-only midnights use current Erbil clock. */
+function formatSigningStamp(d: Date) {
+  try {
+    const p = erbilDateParts(d);
+    const dateStr = `${p.year}-${p.month}-${p.day}`;
+    const clockSrc = p.hour === 0 && p.minute === 0 ? new Date() : d;
+    const timeStr = clockSrc.toLocaleTimeString('en-US', {
+      timeZone: ERBIL_TZ,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
+    return `${timeStr} ${dateStr}`;
+  } catch {
+    return isoDate(d);
+  }
+}
+
+/** Shared GREBASTI-style letterhead CSS (sale + rent). */
+function grebastiStyles(dir: string, font: string): string {
+  return `
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: A4 portrait; margin: 0; }
+    body { font-family: ${font}; color: #0b1f3a; background: #e8eef5; direction: ${dir}; }
+    .toolbar { max-width: 210mm; margin: 12px auto; display: flex; justify-content: flex-end; padding: 0 8px; }
+    .toolbar button { font-family: inherit; border: 0; background: #0b2a55; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
+    .sheet {
+      width: 210mm; min-height: 297mm; height: 297mm; margin: 0 auto 16px; background: #fff;
+      padding: 8mm 12mm 9mm; position: relative; overflow: hidden;
+      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
+      display: flex; flex-direction: column;
+      border: 1px solid #c5cdd8;
+    }
+    .wm {
+      position: absolute; inset: 28% 18% 22%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 6px;
+      opacity: 0.06; pointer-events: none; z-index: 0;
+    }
+    .wm img { width: 48%; max-width: 220px; height: auto; }
+    .wm-name { font-size: 22px; font-weight: 800; letter-spacing: 0.08em; color: #64748b; }
+    .sheet.page2 .wm {
+      inset: 42% 14% 18%; opacity: 0.07;
+    }
+    .content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .gh {
+      display: grid; grid-template-columns: 70px 1fr auto; gap: 12px 14px;
+      align-items: center; margin-bottom: 8px;
+    }
+    .gh-logo {
+      width: 68px; height: 68px; object-fit: contain; display: block;
+    }
+    .gh-brand { line-height: 1.3; min-width: 0; }
+    .gh-company { font-size: 16px; font-weight: 800; color: #0b2a55; }
+    .gh-slogan {
+      margin-top: 3px; font-size: 12.5px; font-weight: 700; color: #c48912;
+      letter-spacing: 0.01em;
+    }
+    .gh-contact {
+      text-align: end; font-size: 11.5px; font-weight: 700; color: #0b2a55;
+      line-height: 1.55; white-space: nowrap;
+    }
+    .gh-contact .phones {
+      direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+    .gh-contact .addr { color: #475569; font-weight: 600; }
+    .gh-contact .stamp {
+      margin-top: 4px; font-size: 12px; font-weight: 800; color: #0b2a55;
+      direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums;
+    }
+    .gh-rules {
+      border: 0; border-top: 2.5px solid #0b2a55;
+      height: 0; margin: 2px 0 10px;
+    }
+    .gh-title {
+      display: block; text-align: center; background: #0b2a55; color: #fff;
+      font-size: 16px; font-weight: 800; padding: 8px 14px; border-radius: 3px;
+      margin: 0 0 12px; letter-spacing: 0.01em;
+    }
+    .ext-stamp {
+      display: inline-block; margin: -4px auto 10px; padding: 3px 12px;
+      border: 2px solid #b45309; color: #92400e; background: #fff7ed;
+      font-size: 12px; font-weight: 800; border-radius: 6px;
+    }
+    .ext-banner {
+      position: absolute; top: 48%; left: 50%;
+      transform: translate(-50%, -50%) rotate(-28deg);
+      font-size: 46px; font-weight: 900; color: rgba(180, 83, 9, 0.1);
+      white-space: nowrap; pointer-events: none; z-index: 0; letter-spacing: 0.04em;
+    }
+    .meta-row {
+      display: grid; grid-template-columns: 0.95fr 1.15fr; gap: 14px;
+      margin-bottom: 12px; align-items: start;
+    }
+    .meta-box {
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px;
+      padding: 9px 11px; font-size: 12.5px;
+    }
+    .meta-box .mrow {
+      display: flex; justify-content: space-between; gap: 8px; align-items: baseline;
+      padding: 4px 0; border-bottom: 1px dotted #cbd5e1;
+    }
+    .meta-box .mrow:last-child { border-bottom: 0; }
+    .meta-box .mlab { color: #334155; font-weight: 600; white-space: nowrap; }
+    .meta-box .mval { font-weight: 800; color: #0b1f3a; font-variant-numeric: tabular-nums; text-align: end; }
+    .party-fields { font-size: 13px; line-height: 1.6; }
+    .party-fields .frow {
+      display: flex; gap: 6px; align-items: baseline; padding: 3px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .party-fields .flab { color: #0b2a55; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+    .party-fields .fval { font-weight: 700; color: #0f172a; min-width: 0; word-break: break-word; }
+    .party-fields .fval[dir="ltr"] { unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+    .intro {
+      text-align: justify; font-size: 13.5px; line-height: 1.75; color: #0f172a;
+      font-weight: 700; margin: 0 0 10px;
+    }
+    .clauses { flex: 0 1 auto; min-height: 0; }
+    .sheet.page2 .clauses { margin-bottom: 8px; }
+    .clause {
+      font-size: 13px; line-height: 1.82; margin-bottom: 7px;
+      text-align: justify; color: #1e293b;
+    }
+    .clause strong { color: #0b1f3a; font-weight: 800; }
+    .notes {
+      margin-top: 18px; margin-bottom: 28px; font-size: 13.5px; font-weight: 700; color: #0b1f3a;
+      border-bottom: 1.5px solid #334155; padding-bottom: 16px; min-height: 28px;
+    }
+    .sigs-block {
+      margin-top: auto; padding-top: 6px; flex: 0 0 auto;
+    }
+    .sheet:not(.page2) .sigs-block { margin-top: 0; }
+    .sigs-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px;
+      margin: 8px 0 10px;
+    }
+    .sig-cell { min-height: 56px; }
+    .sig-cell .sig-row {
+      display: flex; align-items: flex-end; gap: 8px; width: 100%;
+    }
+    .sig-cell .role {
+      flex: 0 0 auto; font-size: 13px; font-weight: 800; color: #0b1f3a;
+      white-space: nowrap; padding-bottom: 2px;
+    }
+    .sig-cell .sig-line {
+      flex: 1 1 auto; min-width: 48px; height: 0;
+      border-bottom: 1.5px solid #1e293b; margin-bottom: 3px;
+    }
+    .sig-cell .sig-dash {
+      display: block; text-align: center; margin-top: 6px;
+      font-size: 14px; font-weight: 700; color: #334155; line-height: 1;
+    }
+    .org-block {
+      text-align: center; margin-top: 28px; font-size: 13.5px;
+    }
+    .org-block .org-lab { font-weight: 800; color: #0b1f3a; margin-bottom: 14px; }
+    .org-block .org-line {
+      display: inline-block; width: min(52%, 240px); border-bottom: 1.5px solid #1e293b;
+      padding-bottom: 4px; font-weight: 800; color: #0b1f3a; font-size: 13.5px;
+    }
+    .gh-foot {
+      margin-top: auto; padding-top: 8px; border-top: 1.5px solid #0b1f3a;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 12px;
+      font-size: 12px; color: #0b1f3a; font-weight: 700;
+      flex: 0 0 auto;
+    }
+    .sheet.page2 .gh-foot { margin-top: 14px; }
+    .gh-foot .foot-end { text-align: end; line-height: 1.55; }
+    .gh-foot .phones { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+    @media print {
+      body { background: #fff; }
+      .toolbar { display: none !important; }
+      .sheet {
+        width: 210mm; min-height: 297mm; height: 297mm; margin: 0; padding: 8mm 12mm 9mm;
+        box-shadow: none; page-break-after: always; break-after: page;
+        border-color: #94a3b8;
+      }
+      .sheet:last-of-type { page-break-after: auto; break-after: auto; }
+    }
+  `;
+}
+
+function grebastiHeader(opts: {
+  logo: string;
+  mark: string;
+  title: string;
+  stamp?: string;
+  isExternal?: boolean;
+  externalLabel?: string;
+}): string {
+  const ext =
+    opts.isExternal && opts.externalLabel
+      ? `<div style="text-align:center"><span class="ext-stamp">${esc(opts.externalLabel)}</span></div>`
+      : '';
+  const phones = companyContact().phones.join(' · ');
+  const stamp = opts.stamp?.trim()
+    ? `<div class="stamp">${esc(opts.stamp)}</div>`
+    : '';
+  return `
+    <header class="gh">
+      <img class="gh-logo" src="${esc(opts.logo)}" alt="" onerror="this.src='${esc(opts.mark)}'" />
+      <div class="gh-brand">
+        <div class="gh-company">${esc(BRAND_COMPANY_KU)}</div>
+        <div class="gh-slogan">${esc(BRAND_SLOGAN_KU)}</div>
+      </div>
+      <div class="gh-contact">
+        <div class="addr">${esc(companyContact().address)}</div>
+        <div class="phones">${esc(phones)}</div>
+        ${stamp}
+      </div>
+    </header>
+    <div class="gh-rules" aria-hidden="true"></div>
+    <div class="gh-title">${esc(opts.title)}</div>
+    ${ext}`;
+}
+
+function grebastiFooter(): string {
+  const contact = companyContact();
+  const phones = contact.phones.join('-');
+  const email = BRAND_EMAIL.trim();
+  return `
+    <footer class="gh-foot">
+      <div>${email ? esc(email) : esc(BRAND_NAME)}</div>
+      <div class="foot-end">
+        <div>${esc(contact.address)}</div>
+        <div class="phones">${esc(phones)}</div>
+      </div>
+    </footer>`;
+}
+
 export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptData): string {
   const rtl = isRTL(locale);
   const dir = rtl ? 'rtl' : 'ltr';
@@ -61,13 +369,13 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
   const cur = data.currency === 'USD' ? 'USD' : 'IQD';
   const amountStr = formatCurrency(data.amount, locale, cur);
   const remainingStr =
-    data.remainingAmount != null ? formatCurrency(data.remainingAmount, locale, cur) : '—';
+    data.remainingAmount != null ? formatCurrency(data.remainingAmount, locale, cur) : null;
   const totalStr = data.totalAmount != null ? formatCurrency(data.totalAmount, locale, cur) : null;
   const dateStr = isoDate(data.issuedAt);
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
-  const phones = ['0750 207 0008', '0750 490 0302'];
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
+  const phones = companyContact().phones;
+  const showRemaining =
+    data.remainingAmount != null && Number.isFinite(data.remainingAmount) && data.remainingAmount > 0;
 
   const copyLabel = (copy: 'original' | 'duplicate') =>
     copy === 'original' ? t.pdf.receiptCopyOriginal : t.pdf.receiptCopyDuplicate;
@@ -78,37 +386,41 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
     <header class="head">
       <div class="brand-col">
         <div class="logo-row">
-          <img class="logo" src="${logoFull}" alt="Road Home" />
+          <img class="logo" src="${logoFull}" alt="ZMKH Road Home" />
           <div>
+            <p class="n-brand">${BRAND_NAME}</p>
             <div class="copy-pill">${copyLabel(copy)}</div>
           </div>
         </div>
+        <div class="phones">${phonesInlineHtml(phones)}</div>
+      </div>
+      <div class="names-col">
+        <h1 class="doc-title">${titleKu} — ${titleAr}</h1>
+        ${kindBadge ? `<p class="kind-badge">${kindBadge}</p>` : ''}
         <table class="meta-box">
           <tr><th>ژمارە / رقم</th><td>${safeNo}</td></tr>
           <tr><th>ڕێکەوت / التاريخ</th><td>${dateStr}</td></tr>
           ${isDeposit ? `<tr><th>جۆر / النوع</th><td>پارەی تأمینات</td></tr>` : ''}
         </table>
       </div>
-      <div class="names-col">
-        <p class="n-brand">${BRAND_NAME}</p>
-        <div class="phones">
-          <span>${phones[0]}</span>
-          <span class="sep">·</span>
-          <span>${phones[1]}</span>
-        </div>
-        <h1 class="doc-title">${titleKu} — ${titleAr}</h1>
-        ${kindBadge ? `<p class="kind-badge">${kindBadge}</p>` : ''}
-      </div>
     </header>
     <div class="lines">
       <p class="line"><span class="lab">${isDeposit ? 'لایەن / الطرف' : t.pdf.receivedFrom}</span><span class="val">${party}</span></p>
-      <p class="line"><span class="lab">${isDeposit ? 'بڕی پارەی تأمینات / مبلغ التأمين' : t.pdf.amountLine}</span><span class="val">${amountStr}${totalStr ? ` · ${t.pdf.totalAmount}: ${totalStr}` : ''}</span></p>
-      <p class="line line-remaining"><span class="lab">${t.pdf.remainingLine}</span><span class="val">${remainingStr}</span></p>
+      <p class="line"><span class="lab">${isDeposit ? 'بڕی پارەی تأمینات / مبلغ التأمين' : t.pdf.amountLine}</span><span class="val">${amountStr}${
+        totalStr && data.totalAmount != null && data.totalAmount !== data.amount
+          ? ` · ${t.pdf.totalAmount}: ${totalStr}`
+          : ''
+      }</span></p>
+      ${
+        showRemaining && remainingStr
+          ? `<p class="line line-remaining"><span class="lab">${t.pdf.remainingLine}</span><span class="val">${remainingStr}</span></p>`
+          : ''
+      }
       <p class="line"><span class="lab">${t.pdf.forLine}</span><span class="val">${safeDesc}</span></p>
     </div>
     <footer class="signs">
-      <div class="sign"><div class="sign-label">${t.pdf.payerLine}</div><div class="sign-name">${party}</div></div>
-      <div class="sign"><div class="sign-label">${t.pdf.receiverLine}</div><div class="sign-name">${BRAND_NAME}</div></div>
+      <div class="sign"><div class="sign-label">${t.pdf.payerLine}</div><div class="sign-name">${BRAND_NAME}</div></div>
+      <div class="sign"><div class="sign-label">${t.pdf.receiverLine}</div><div class="sign-name">${party}</div></div>
     </footer>
   </article>`;
 
@@ -117,90 +429,99 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
 <head>
   <meta charset="UTF-8"/>
   <title>${titleKu} — ${safeNo}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=block" rel="stylesheet"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 portrait; margin: 8mm; }
+    @page { size: A4 portrait; margin: 0; }
+    html, body { margin: 0; padding: 0; }
     body { font-family: ${font}; color: #0f2744; background: #e8eef5; direction: ${dir}; }
     .toolbar { max-width: 210mm; margin: 12px auto; display: flex; justify-content: flex-end; padding: 0 8px; }
     .toolbar button { font-family: inherit; border: 0; background: #0f2744; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
-    .page { width: 210mm; min-height: 297mm; margin: 0 auto 16px; background: #fff; padding: 8mm 10mm; display: flex; flex-direction: column; box-shadow: 0 8px 28px rgb(15 39 68 / 0.12); }
-    .voucher { position: relative; flex: 1 1 0; min-height: 0; padding: 4mm 2mm 3mm; overflow: hidden; display: flex; flex-direction: column; }
-    .wm { position: absolute; inset: 16% 18% 20%; display: flex; align-items: center; justify-content: center; opacity: 0.09; pointer-events: none; z-index: 0; }
-    .wm img { width: 48%; max-width: 200px; height: auto; }
-    .head, .lines, .signs { position: relative; z-index: 1; }
-    .head { display: grid; grid-template-columns: 1.05fr 1.2fr; gap: 10px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #0f2744; }
-    .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .logo {
-      width: 78px;
-      height: 78px;
-      object-fit: contain;
-      background: #fff;
-      border: 1px solid #dbe3ef;
-      border-radius: 10px;
-      padding: 4px;
+    /* یەک A4 · دوو وەسڵ (ڕەسەن سەرەوە + کۆپی خوارەوە) */
+    .page {
+      width: 210mm; height: 297mm; margin: 0 auto 16px; background: #fff;
+      padding: 8mm 10mm; display: flex; flex-direction: column; gap: 0;
+      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
     }
-    .brand-en { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; font-weight: 700; color: #0f2744; letter-spacing: 0.02em; }
-    .copy-pill { display: inline-block; margin-top: 4px; font-size: 9px; font-weight: 600; color: #8b4513; border: 1px solid #c4a484; padding: 1px 6px; }
-    .meta-box { width: 100%; max-width: 210px; border-collapse: collapse; font-size: 11px; border: 1px solid #0f2744; }
-    .meta-box th, .meta-box td { border: 1px solid #0f2744; padding: 4px 7px; text-align: start; }
+    .voucher {
+      position: relative; flex: 1 1 0; min-height: 0;
+      padding: 3mm 2mm 2mm; overflow: hidden; display: flex; flex-direction: column;
+    }
+    .cut {
+      flex: 0 0 auto; margin: 3mm 0; border: 0;
+      border-top: 1.5px dashed #94a3b8; height: 0;
+      position: relative;
+    }
+    .cut::after {
+      content: '✂'; position: absolute; inset-inline-start: 50%; top: -0.55em;
+      transform: translateX(-50%); font-size: 11px; color: #94a3b8; background: #fff; padding: 0 6px;
+    }
+    .wm { position: absolute; inset: 12% 14% 16%; display: flex; align-items: center; justify-content: center; opacity: 0.06; pointer-events: none; z-index: 0; }
+    .wm img { width: 44%; max-width: 160px; height: auto; }
+    .head, .lines, .signs { position: relative; z-index: 1; }
+    .head { display: grid; grid-template-columns: 1.15fr 1fr; gap: 8px; align-items: start; margin-bottom: 6px; padding-bottom: 6px; border-bottom: 2px solid #0f2744; }
+    .logo-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .logo {
+      width: 52px; height: 52px; object-fit: contain; background: #fff;
+      border: 1px solid #dbe3ef; border-radius: 8px; padding: 2px; flex-shrink: 0;
+    }
+    .copy-pill { display: inline-block; margin-top: 3px; font-size: 10px; font-weight: 700; color: #8b4513; border: 1px solid #c4a484; padding: 2px 8px; }
+    .meta-box { width: 100%; max-width: 210px; margin-top: 6px; margin-inline-start: auto; border-collapse: collapse; font-size: 11px; border: 1px solid #0f2744; }
+    .meta-box th, .meta-box td { border: 1px solid #0f2744; padding: 3px 6px; text-align: start; }
     .meta-box th { background: #f3f6fa; font-weight: 600; width: 42%; white-space: nowrap; }
     .meta-box td { font-weight: 700; font-variant-numeric: tabular-nums; }
     .names-col { text-align: end; }
-    .n-brand { font-size: 15px; font-weight: 700; color: #000000; }
+    .n-brand { font-size: 14px; font-weight: 700; color: #000; line-height: 1.25; }
     .phones {
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #0f2744;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.02em;
-      direction: ltr;
-      unicode-bidi: isolate;
+      margin-top: 4px; display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; color: #0f2744;
+      font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate;
     }
     .phones .sep { color: #94a3b8; font-weight: 500; }
-    .doc-title { margin-top: 8px; font-size: 15px; font-weight: 700; color: #8b4513; }
+    .doc-title { font-size: 14px; font-weight: 700; color: #8b4513; line-height: 1.35; }
     .kind-badge {
-      margin-top: 6px; display: inline-block; font-size: 12px; font-weight: 700;
-      color: #0f2744; background: #e8eef5; border: 1px solid #0f2744;
-      padding: 3px 10px; letter-spacing: 0.01em;
+      margin-top: 4px; display: inline-block; font-size: 11px; font-weight: 700;
+      color: #0f2744; background: #e8eef5; border: 1px solid #0f2744; padding: 2px 8px;
     }
-    .lines { flex: 1; padding-top: 6px; }
-    .line { display: flex; gap: 8px; align-items: baseline; padding: 7px 0 6px; border-bottom: 1px dotted #94a3b8; font-size: 13px; line-height: 1.55; }
+    .lines { flex: 1 1 auto; padding-top: 6px; }
+    .line { display: flex; gap: 8px; align-items: baseline; padding: 7px 0 6px; border-bottom: 1px dotted #94a3b8; font-size: 13px; line-height: 1.5; }
     .lab { flex: 0 0 auto; color: #334155; font-weight: 600; white-space: nowrap; }
-    .val { flex: 1; font-weight: 700; color: #0f172a; min-width: 0; }
-    .line-remaining .lab,
-    .line-remaining .val { color: #dc2626; }
-    .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 14px; }
+    .val { flex: 1; font-weight: 700; color: #0f172a; min-width: 0; word-break: break-word; }
+    .line-remaining .lab, .line-remaining .val { color: #dc2626; }
+    .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: auto; padding-top: 10px; flex: 0 0 auto; }
     .sign { text-align: center; }
     .sign-label { font-size: 11px; color: #475569; margin-bottom: 28px; }
     .sign-name { border-top: 1px solid #0f2744; padding-top: 6px; font-size: 12px; font-weight: 600; }
-    .cut {
-      flex: 0 0 auto;
-      margin: 3mm 0;
-      border: 0;
-      border-top: 1px dashed #94a3b8;
-      height: 0;
-    }
     @media print {
-      body { background: #fff; }
+      html, body {
+        width: 210mm; height: 297mm; margin: 0; padding: 0; background: #fff;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
       .toolbar { display: none !important; }
-      .page { width: auto; min-height: auto; height: 100vh; margin: 0; padding: 6mm 8mm; box-shadow: none; }
-      .voucher { page-break-inside: avoid; }
+      .page {
+        width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+        margin: 0 !important; padding: 8mm 10mm; box-shadow: none; overflow: hidden;
+        page-break-after: avoid !important; break-after: avoid-page !important;
+        page-break-inside: avoid !important; break-inside: avoid !important;
+      }
+      .voucher {
+        overflow: hidden;
+        page-break-inside: avoid !important; break-inside: avoid !important;
+        page-break-after: avoid !important; break-after: avoid !important;
+      }
+      .cut { page-break-inside: avoid; break-inside: avoid; }
+      .wm { opacity: 0.05; }
     }
   </style>
 </head>
 <body>
-  <div class="toolbar"><button type="button" onclick="window.print()">${t.common.print}</button></div>
+  <div class="toolbar"><button type="button" onclick="rhPrint()">${t.common.print}</button></div>
   <div class="page">
     ${receiptBlock('original')}
     <hr class="cut" />
     ${receiptBlock('duplicate')}
   </div>
-  ${data.autoPrint ? '<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},300)});</script>' : ''}
+  ${printBootScript(data.autoPrint)}
 </body>
 </html>`;
 }
@@ -221,7 +542,7 @@ export function renderFinancialReportHtml(
 <head>
   <meta charset="UTF-8"/>
   <title>${t.pdf.financialReport}</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&display=block" rel="stylesheet"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: ${font}; padding: 40px; color: #1e293b; direction: ${dir}; }
@@ -257,6 +578,8 @@ export interface SaleContractPdfData {
   propertyType?: string | null;
   propertyCode?: string | null;
   location?: string | null;
+  areaSqm?: string | number | null;
+  branchName?: string | null;
   sellerName?: string | null;
   sellerPhone?: string | null;
   buyerName?: string | null;
@@ -269,6 +592,9 @@ export interface SaleContractPdfData {
   guarantorPhone?: string | null;
   lawyerName?: string | null;
   lawyerPhone?: string | null;
+  organizerName?: string | null;
+  showOrganizer?: boolean;
+  notes?: string | null;
   signingDate?: Date | null;
   isExternal?: boolean;
   clauses: string[];
@@ -276,25 +602,43 @@ export interface SaleContractPdfData {
   assetBase?: string;
 }
 
-/** Sale/purchase contract PDF — same visual system as lease PDF. */
+/** Sale/purchase contract PDF — GREBASTI sample layout with ZMKH branding. */
 export function renderContractHtml(locale: Locale, t: Dictionary, data: SaleContractPdfData): string {
   const dir = isRTL(locale) ? 'rtl' : 'ltr';
   const font = "'Noto Kufi Arabic', 'Segoe UI', Tahoma, sans-serif";
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
   const g = t.pages.contractGen as Record<string, string>;
   const r = t.pages.rentals as Record<string, string>;
   const title =
     data.title?.trim() ||
     (data.kind === 'PURCHASE'
-      ? g.titlePurchase ?? 'گرێبەستی کڕین'
-      : g.contractTitle ?? g.title ?? 'گرێبەستی فرۆشتن');
-  const phones = ['0750 207 0008', '0750 490 0302'];
+      ? g.titlePurchase ?? 'گرێبەستی کڕین و فرۆشتن'
+      : g.contractTitleSaleRent ?? g.contractTitle ?? 'گرێبەستی کڕین و فرۆشتن');
   const sellerLabel = g.seller ?? 'فرۆشیار';
   const buyerLabel = g.buyer ?? 'کڕیار';
   const witness1Label = g.witness1 ?? r.witness1 ?? 'شایەدی یەکەم';
   const witness2Label = g.witness2 ?? r.witness2 ?? 'شایەدی دووەم';
+  const party1Lab = g.party1Seller ?? `لایەنی یەکەم (${sellerLabel})`;
+  const party2Lab = g.party2Buyer ?? `لایەنی دووەم (${buyerLabel})`;
+  const mobileLab = g.mobileNo ?? r.phone ?? 'ژمارەی مۆبایل';
+  const propTypeLab = g.propertyType ?? 'جۆری موڵک';
+  const addressLab = g.address ?? 'ناونیشان';
+  const propNoLab = g.propertyNo ?? 'ژمارەی موڵک';
+  const areaLab = g.areaShort ?? 'ڕووبەر';
+  const contractNoLab = g.contractNo ?? 'ژمارەی گرێبەست';
+  const dateLab = g.contractDate ?? g.signingDate ?? 'ڕێکەوتی گرێبەست';
+  const branchLab = g.companyBranch ?? 'لقی کۆمپانیا';
+  const notesLab = g.notesLabel ?? 'تێبینی';
+  const organizerLab = g.organizer ?? 'ڕێکخەری گرێبەست';
+  const externalLabel = g.scopeExternalStamp ?? g.scopeExternal ?? 'گرێبەستی دەرەکی';
+  const isExternal = Boolean(data.isExternal);
+  const typeMap: Record<string, string> = {
+    HOUSE: g.typeHouse ?? 'خانوو',
+    APARTMENT: g.typeApartment ?? 'شوقە',
+    LAND: g.typeLand ?? 'زەوی',
+    SHOP: g.typeShop ?? 'دوکان',
+    BUILDING: g.typeBuilding ?? 'بینا',
+  };
 
   const display = (s?: string | null, fallback = '—') => {
     const t0 = s?.trim();
@@ -311,266 +655,128 @@ export function renderContractHtml(locale: Locale, t: Dictionary, data: SaleCont
   const w2 = display(data.witness2Name);
   const sellerPhone = phoneLine(data.sellerPhone);
   const buyerPhone = phoneLine(data.buyerPhone);
-  const w1Phone = phoneLine(data.witness1Phone);
-  const w2Phone = phoneLine(data.witness2Phone);
-  const hasGuarantor = Boolean(data.guarantorName?.trim());
-  const hasLawyer = Boolean(data.lawyerName?.trim());
-  const guarantor = hasGuarantor ? display(data.guarantorName) : '';
-  const lawyer = hasLawyer ? display(data.lawyerName) : '';
-  const guarantorPhone = hasGuarantor ? phoneLine(data.guarantorPhone) : '';
-  const lawyerPhone = hasLawyer ? phoneLine(data.lawyerPhone) : '';
-  const guarantorLabel = g.guarantor ?? 'کەفیل';
-  const lawyerLabel = g.lawyer ?? 'پارێزەر';
-  const phoneLabel = r.phone ?? 'ژمارە';
-  const page1Label = g.pdfPage1 ?? r.pdfPage1 ?? 'پەڕەی ١ / ٢';
-  const page2Label = g.pdfPage2 ?? r.pdfPage2 ?? 'پەڕەی ٢ / ٢';
-  const externalLabel = g.scopeExternalStamp ?? g.scopeExternal ?? 'گرێبەستی دەرەکی';
-  const isExternal = Boolean(data.isExternal);
+  const signing = data.signingDate ?? new Date();
+  const propType = display(
+    typeMap[data.propertyType ?? ''] ?? data.propertyType,
+  );
+  const location = display(data.location);
+  const propCode = display(data.propertyCode);
+  const area =
+    data.areaSqm != null && String(data.areaSqm).trim() !== ''
+      ? `${esc(String(data.areaSqm))} م٢`
+      : '—';
+  const branch = display(data.branchName || data.location || companyContact().address);
+  const showOrganizer = data.showOrganizer !== false;
+  const organizer = display(data.organizerName || BRAND_NAME);
   const clauseStrip = saleClausePrefix(locale);
 
   const clauseItems = data.clauses.map((c, i) => ({
     n: i + 1,
     text: esc(c.replace(clauseStrip, '')),
   }));
-  const splitAt = Math.min(9, Math.max(1, clauseItems.length - 6));
+  const splitAt = Math.min(8, Math.max(1, clauseItems.length - 4));
   const page1Clauses = clauseItems.slice(0, splitAt);
   const page2Clauses = clauseItems.slice(splitAt);
 
-  const partyCard = (role: string, name: string, phone: string) => `
-    <div class="party-card">
-      <div class="party-role">${role}</div>
-      <div class="party-name">${name}</div>
-      <div class="party-phone"><span>${esc(phoneLabel)}</span> <b dir="ltr">${phone}</b></div>
-    </div>`;
+  const renderClauses = (items: { n: number; text: string }[]) =>
+    items
+      .map((c) => `<p class="clause"><strong>بەندی ${c.n} :</strong> ${c.text}</p>`)
+      .join('');
 
-  const partiesBlock = `
-    <section class="parties">
-      ${partyCard(esc(sellerLabel), seller, sellerPhone)}
-      ${partyCard(esc(buyerLabel), buyer, buyerPhone)}
-      ${partyCard(esc(witness1Label), w1, w1Phone)}
-      ${partyCard(esc(witness2Label), w2, w2Phone)}
-      ${hasGuarantor ? partyCard(esc(guarantorLabel), guarantor, guarantorPhone) : ''}
-      ${hasLawyer ? partyCard(esc(lawyerLabel), lawyer, lawyerPhone) : ''}
+  const field = (lab: string, val: string, ltr = false) =>
+    `<div class="frow"><span class="flab">${esc(lab)} :</span><span class="fval"${ltr ? ' dir="ltr"' : ''}>${val}</span></div>`;
+
+  const stamp = formatSigningStamp(signing);
+
+  const metaAndParties = `
+    <section class="meta-row">
+      <div class="meta-box">
+        <div class="mrow"><span class="mlab">${esc(contractNoLab)}</span><span class="mval" dir="ltr">${esc(data.contractNo)}</span></div>
+        <div class="mrow"><span class="mlab">${esc(dateLab)}</span><span class="mval" dir="ltr">${esc(isoDateErbil(signing))}</span></div>
+        <div class="mrow"><span class="mlab">${esc(branchLab)}</span><span class="mval">${branch}</span></div>
+      </div>
+      <div class="party-fields">
+        ${field(party1Lab, seller)}
+        ${field(mobileLab, sellerPhone, true)}
+        ${field(party2Lab, buyer)}
+        ${field(mobileLab, buyerPhone, true)}
+        ${field(propTypeLab, propType)}
+        ${field(addressLab, location)}
+        ${field(propNoLab, propCode, true)}
+        ${field(areaLab, area)}
+      </div>
     </section>`;
 
+  const sigCell = (role: string) =>
+    `<div class="sig-cell"><div class="sig-row"><span class="role">${esc(role)} :</span><span class="sig-line"></span></div><span class="sig-dash">-</span></div>`;
+
   const sigsBlock = `
-    <div class="sigs">
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(sellerLabel)}</div>
-        <div class="sig-name">${seller}</div>
-      </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(buyerLabel)}</div>
-        <div class="sig-name">${buyer}</div>
-      </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(witness1Label)}</div>
-        <div class="sig-name">${w1}</div>
-      </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(witness2Label)}</div>
-        <div class="sig-name">${w2}</div>
+    <div class="sigs-block">
+      <div class="sigs-grid">
+        ${sigCell(party1Lab)}
+        ${sigCell(party2Lab)}
+        ${sigCell(witness1Label)}
+        ${sigCell(witness2Label)}
       </div>
       ${
-        hasGuarantor
-          ? `<div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(guarantorLabel)}</div>
-        <div class="sig-name">${guarantor}</div>
-      </div>`
-          : ''
-      }
-      ${
-        hasLawyer
-          ? `<div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(lawyerLabel)}</div>
-        <div class="sig-name">${lawyer}</div>
-      </div>`
+        showOrganizer
+          ? `<div class="org-block"><div class="org-lab">${esc(organizerLab)} :</div><div class="org-line">${organizer}</div></div>`
           : ''
       }
     </div>`;
 
-  const letterhead = (pageLabel: string) => `
-    <header class="head">
-      <div>
-        <div class="logo-row">
-          <img class="logo" src="${esc(logoFull)}" alt="Road Home" onerror="this.src='${esc(logoMark)}'" />
-          <div>
-            <div class="brand-mark">${esc(BRAND_NAME)}</div>
-            <div class="page-tag">${esc(pageLabel)}</div>
-          </div>
-        </div>
-        <table class="meta-box">
-          <tr><th>${esc(g.contractNo ?? 'ژمارە')}</th><td>${esc(data.contractNo)}</td></tr>
-          <tr><th>${esc(g.signingDate ?? r.signingDate ?? 'ڕێکەوت')}</th><td>${isoDate(data.signingDate ?? new Date())}</td></tr>
-        </table>
-      </div>
-      <div class="names">
-        <p class="n-ku">${esc(BRAND_NAME)}</p>
-        <p class="n-ar">${esc(BRAND_NAME_AR)}</p>
-        <p class="n-en">${esc(BRAND_NAME_EN)}</p>
-        <div class="phones">
-          <span>${phones[0]}</span><span class="sep">·</span><span>${phones[1]}</span>
-        </div>
-        <h1 class="doc-title">${esc(title)}</h1>
-        ${isExternal ? `<div class="ext-stamp">${esc(externalLabel)}</div>` : ''}
-      </div>
-    </header>
-    ${partiesBlock}`;
-
-  const renderClauses = (items: { n: number; text: string }[]) =>
-    items.map((c) => `<p class="clause"><strong>${c.n}.</strong> ${c.text}</p>`).join('');
-
   const intro1 =
-    (g.pdfIntro ??
-      'ئەم گرێبەستە لە نێوان لایەنی یەکەم ({seller} — {sellerRole}) و لایەنی دووەم ({buyer} — {buyerRole}) ڕێککەوتووە، بە شایەدی ({w1}) و ({w2}). بەندەکانی خوارەوە بەشێکن لەم گرێبەستە و هەردوو لا پابەندن پێیانەوە.')
-      .replaceAll('{seller}', seller)
-      .replaceAll('{buyer}', buyer)
-      .replaceAll('{w1}', w1)
-      .replaceAll('{w2}', w2)
-      .replaceAll('{sellerRole}', esc(sellerLabel))
-      .replaceAll('{buyerRole}', esc(buyerLabel));
+    g.pdfIntroShort ??
+    'هەردوو لایەن ڕێکەوتن لەسەر ئەم خاڵانەی خوارەوە:';
 
-  const intro2 =
-    (g.pdfIntroContinued ??
-      'بەردەوامی گرێبەستی فرۆشتن ژمارە <strong>{contractNo}</strong> لە نێوان {seller} و {buyer}، بە شایەدی {w1} و {w2}.')
-      .replaceAll('{contractNo}', esc(data.contractNo))
-      .replaceAll('{seller}', seller)
-      .replaceAll('{buyer}', buyer)
-      .replaceAll('{w1}', w1)
-      .replaceAll('{w2}', w2);
+  const notesVal = data.notes?.trim() || '';
+
+  const head = grebastiHeader({
+    logo: logoFull,
+    mark: logoMark,
+    title,
+    stamp,
+    isExternal,
+    externalLabel,
+  });
+  const foot = grebastiFooter();
 
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}">
 <head>
   <meta charset="UTF-8"/>
   <title> </title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet"/>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 portrait; margin: 0; }
-    body { font-family: ${font}; color: #0f2744; background: #e8eef5; direction: ${dir}; }
-    .toolbar { max-width: 210mm; margin: 12px auto; display: flex; justify-content: flex-end; padding: 0 8px; }
-    .toolbar button { font-family: inherit; border: 0; background: #0f2744; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
-    .sheet {
-      width: 210mm; min-height: 297mm; margin: 0 auto 16px; background: #fff;
-      padding: 9mm 11mm 10mm; position: relative; overflow: hidden;
-      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
-      display: flex; flex-direction: column;
-    }
-    .wm {
-      position: absolute; inset: 24% 16% 20%; display: flex; align-items: center; justify-content: center;
-      opacity: 0.05; pointer-events: none; z-index: 0;
-    }
-    .wm img { width: 40%; max-width: 190px; height: auto; }
-    .content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; }
-    .head {
-      display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 12px; align-items: start;
-      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2.5px solid #0f2744;
-    }
-    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .logo {
-      width: 64px; height: 64px; object-fit: contain; background: #fff;
-      border: 1px solid #dbe3ef; border-radius: 10px; padding: 3px;
-    }
-    .brand-mark { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13px; font-weight: 700; color: #0f2744; }
-    .page-tag { margin-top: 2px; font-size: 10px; font-weight: 600; color: #8b4513; }
-    .meta-box { width: 100%; max-width: 210px; border-collapse: collapse; font-size: 10.5px; border: 1px solid #0f2744; }
-    .meta-box th, .meta-box td { border: 1px solid #0f2744; padding: 4px 7px; text-align: start; }
-    .meta-box th { background: #f3f6fa; font-weight: 600; width: 44%; white-space: nowrap; }
-    .meta-box td { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .names { text-align: end; }
-    .n-ku { font-size: 14px; font-weight: 700; color: #0f2744; }
-    .n-ar { font-size: 11px; color: #334155; margin-top: 2px; }
-    .n-en { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .phones {
-      margin-top: 6px; display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px; font-weight: 700; color: #0f2744; font-variant-numeric: tabular-nums;
-      direction: ltr; unicode-bidi: isolate;
-    }
-    .phones .sep { color: #94a3b8; font-weight: 500; }
-    .doc-title { margin-top: 8px; font-size: 15px; font-weight: 700; color: #8b4513; }
-    .ext-stamp {
-      display: inline-block; margin-top: 8px; padding: 4px 12px;
-      border: 2px solid #b45309; color: #92400e; background: #fff7ed;
-      font-size: 12px; font-weight: 800; border-radius: 8px;
-    }
-    .ext-banner {
-      position: absolute; top: 46%; left: 50%;
-      transform: translate(-50%, -50%) rotate(-28deg);
-      font-size: 48px; font-weight: 900; color: rgba(180, 83, 9, 0.11);
-      white-space: nowrap; pointer-events: none; z-index: 0; letter-spacing: 0.04em;
-    }
-    .parties {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px dotted #94a3b8;
-    }
-    .party-card {
-      border: 1px solid #cfd8e6; border-radius: 8px; padding: 7px 8px; background: #f8fafc;
-      min-height: 64px;
-    }
-    .party-role { font-size: 9.5px; font-weight: 700; color: #8b4513; margin-bottom: 3px; }
-    .party-name { font-size: 11.5px; font-weight: 700; color: #0f2744; line-height: 1.35; word-break: break-word; }
-    .party-phone { margin-top: 4px; font-size: 10px; color: #475569; font-variant-numeric: tabular-nums; }
-    .party-phone span { color: #64748b; }
-    .party-phone b { font-weight: 700; color: #0f2744; unicode-bidi: isolate; }
-    .intro { text-align: justify; font-size: 12px; line-height: 1.7; color: #334155; margin: 0 0 10px; }
-    .clauses { flex: 1; }
-    .clause { font-size: 11.5px; line-height: 1.78; margin-bottom: 6px; text-align: justify; color: #1e293b; }
-    .sigs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: auto;
-      padding-top: 14px;
-    }
-    .sig { text-align: center; }
-    .sig-space { height: 40px; }
-    .sig-role { border-top: 1px solid #0f2744; padding-top: 5px; font-size: 10px; color: #475569; }
-    .sig-name { margin-top: 3px; font-size: 11px; font-weight: 700; color: #0f2744; word-break: break-word; }
-    @media print {
-      body { background: #fff; }
-      .toolbar { display: none !important; }
-      .sheet {
-        width: auto; min-height: 100vh; height: 100vh; margin: 0; padding: 9mm 11mm;
-        box-shadow: none; page-break-after: always; break-after: page;
-      }
-      .sheet:last-of-type { page-break-after: auto; break-after: auto; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800&display=block" rel="stylesheet"/>
+  <style>${grebastiStyles(dir, font)}</style>
 </head>
 <body>
-  <div class="toolbar"><button type="button" onclick="document.title=' ';window.print()">${t.common.print}</button></div>
+  <div class="toolbar"><button type="button" onclick="rhPrint()">${t.common.print}</button></div>
 
   <div class="sheet">
-    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
+    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /><div class="wm-name">${esc(BRAND_NAME)}</div></div>
     ${isExternal ? `<div class="ext-banner" aria-hidden="true">${esc(externalLabel)}</div>` : ''}
     <div class="content">
-      ${letterhead(page1Label)}
-      <p class="intro">${intro1}</p>
+      ${head}
+      ${metaAndParties}
+      <p class="intro">${esc(intro1)}</p>
       <div class="clauses">${renderClauses(page1Clauses)}</div>
-      ${sigsBlock}
+      ${foot}
     </div>
   </div>
 
-  <div class="sheet">
-    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
+  <div class="sheet page2">
+    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /><div class="wm-name">${esc(BRAND_NAME)}</div></div>
     ${isExternal ? `<div class="ext-banner" aria-hidden="true">${esc(externalLabel)}</div>` : ''}
     <div class="content">
-      ${letterhead(page2Label)}
-      <p class="intro">${intro2}</p>
+      ${head}
       <div class="clauses">${renderClauses(page2Clauses)}</div>
+      <div class="notes">${esc(notesLab)} : ${notesVal ? esc(notesVal) : ''}</div>
       ${sigsBlock}
+      ${foot}
     </div>
   </div>
 
-  ${
-    data.autoPrint
-      ? `<script>window.addEventListener("load",function(){document.title=" ";setTimeout(function(){window.print()},300)});</script>`
-      : ''
-  }
+  ${printBootScript(data.autoPrint)}
 </body>
 </html>`;
 }
@@ -610,9 +816,7 @@ export interface AnketPdfData {
 export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfData): string {
   const dir = isRTL(locale) ? 'rtl' : 'ltr';
   const font = "'Noto Kufi Arabic', 'Segoe UI', Tahoma, sans-serif";
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logo = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo, mark: logoMark } = brandLogoPair(data.assetBase);
   const dateStr = data.issuedAt.toISOString().slice(0, 10);
   const kindLabel = data.kind === 'SALE' ? t.pages.anket.kindSale : t.pages.anket.kindRent;
   const dealBanner = data.kind === 'SALE' ? t.pages.anket.dealSale : t.pages.anket.dealRent;
@@ -644,14 +848,14 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
   const docs =
     (data.documents ?? []).map((d) => `<span class="doc">${esc(d)}</span>`).join('') ||
     '<span class="doc">—</span>';
-  const phones = ['0750 207 0008', '0750 490 0302'];
+  const phones = companyContact().phones;
 
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}">
 <head>
   <meta charset="UTF-8"/>
   <title></title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=block" rel="stylesheet"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     /* Zero margins hide browser URL / date / page-number headers & footers when printing */
@@ -722,12 +926,6 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
       }
     }
   </style>
-  <script>
-    function rhPrint() {
-      document.title = ' ';
-      window.print();
-    }
-  </script>
 </head>
 <body>
   <div class="toolbar"><button type="button" onclick="rhPrint()">${t.common.print}</button></div>
@@ -737,7 +935,7 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
       <header class="head">
         <div>
           <div class="logo-row">
-            <img class="logo" src="${logo}" alt="Road Home" />
+            <img class="logo" src="${logo}" alt="ZMKH Road Home" />
             <div>
               <div class="brand-en">${BRAND_NAME}</div>
             </div>
@@ -749,10 +947,10 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
           </table>
         </div>
         <div class="names-col">
-          <p class="n-ku">${BRAND_NAME}</p>
-          <p class="n-ar">${BRAND_NAME_AR}</p>
-          <p class="n-en">${BRAND_NAME_EN}</p>
-          <div class="phones"><span>${phones[0]}</span><span class="sep">·</span><span>${phones[1]}</span></div>
+          <p class="n-ku">${esc(BRAND_NAME_KU)}</p>
+          ${BRAND_NAME_AR ? `<p class="n-ar">${esc(BRAND_NAME_AR)}</p>` : ''}
+          <p class="n-en">${esc(BRAND_NAME_EN)}</p>
+          <div class="phones">${phonesInlineHtml(phones)}</div>
           <h1 class="doc-title">${esc(t.pages.anket.title)}</h1>
         </div>
       </header>
@@ -822,11 +1020,7 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
       </footer>
     </div>
   </div>
-  ${
-    data.autoPrint
-      ? `<script>window.addEventListener("load",function(){document.title=" ";setTimeout(function(){window.print()},300)});</script>`
-      : ''
-  }
+  ${printBootScript(data.autoPrint)}
 </body>
 </html>`;
 }
@@ -867,17 +1061,37 @@ export interface LeasePdfData {
   assetBase?: string;
 }
 
+/** Lease/rent contract PDF — same GREBASTI layout as sale, with ZMKH branding. */
 export function renderLeaseHtml(locale: Locale, t: Dictionary, data: LeasePdfData): string {
   const dir = isRTL(locale) ? 'rtl' : 'ltr';
   const font = "'Noto Kufi Arabic', 'Segoe UI', Tahoma, sans-serif";
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
   const r = t.pages.rentals as Record<string, string>;
+  const g = t.pages.contractGen as Record<string, string>;
   const title = r.contractTitle ?? 'گرێبەستی کرێ';
-  const phones = ['0750 207 0008', '0750 490 0302'];
+  const landlordLabel = r.landlord ?? 'بەکرێدەر';
+  const tenantLabel = r.tenant ?? 'کرێچی';
   const witness1Label = r.witness1 ?? 'شایەدی یەکەم';
   const witness2Label = r.witness2 ?? 'شایەدی دووەم';
+  const party1Lab = r.party1Landlord ?? `لایەنی یەکەم (${landlordLabel})`;
+  const party2Lab = r.party2Tenant ?? `لایەنی دووەم (${tenantLabel})`;
+  const mobileLab = g.mobileNo ?? r.phone ?? 'ژمارەی مۆبایل';
+  const propTypeLab = g.propertyType ?? 'جۆری موڵک';
+  const addressLab = g.address ?? 'ناونیشان';
+  const propNoLab = g.propertyNo ?? 'ژمارەی موڵک';
+  const areaLab = g.areaShort ?? 'ڕووبەر';
+  const leaseNoLab = r.leaseNo ?? 'ژمارەی گرێبەست';
+  const dateLab = r.contractDate ?? r.signingDate ?? 'ڕێکەوتی گرێبەست';
+  const branchLab = g.companyBranch ?? 'لقی کۆمپانیا';
+  const notesLab = g.notesLabel ?? 'تێبینی';
+  const organizerLab = r.organizer ?? 'ڕێکخەری گرێبەست';
+  const typeMap: Record<string, string> = {
+    HOUSE: g.typeHouse ?? 'خانوو',
+    APARTMENT: g.typeApartment ?? 'شوقە',
+    LAND: g.typeLand ?? 'زەوی',
+    SHOP: g.typeShop ?? 'دوکان',
+    BUILDING: g.typeBuilding ?? 'بینا',
+  };
 
   const display = (s?: string | null, fallback = '—') => {
     const t0 = s?.trim();
@@ -887,235 +1101,121 @@ export function renderLeaseHtml(locale: Locale, t: Dictionary, data: LeasePdfDat
     const t0 = s?.trim();
     return t0 && t0.length ? esc(t0) : '—';
   };
+
   const landlord = display(data.landlordName);
   const tenant = display(data.tenantName);
   const w1 = display(data.witness1Name);
   const w2 = display(data.witness2Name);
   const landlordPhone = phoneLine(data.landlordPhone);
   const tenantPhone = phoneLine(data.tenantPhone);
-  const w1Phone = phoneLine(data.witness1Phone);
-  const w2Phone = phoneLine(data.witness2Phone);
-  const phoneLabel = r.phone ?? 'ژمارە';
-  const page1Label = r.pdfPage1 ?? 'پەڕەی ١ / ٢';
-  const page2Label = r.pdfPage2 ?? 'پەڕەی ٢ / ٢';
+  const signing = data.signingDate ?? data.startDate;
+  const propType = display(typeMap[data.propertyType ?? ''] ?? data.propertyType);
+  const location = display(data.propertyName || data.propertyCode);
+  const propCode = display(data.propertyCode);
+  const area =
+    data.areaSqm != null && String(data.areaSqm).trim() !== ''
+      ? `${esc(String(data.areaSqm))} م٢`
+      : '—';
+  const showOrganizer = data.showOrganizer !== false;
+  const organizer = display(data.organizerName || BRAND_NAME);
   const clauseStrip = rentalClausePrefix(locale);
 
   const clauseItems = data.clauses.map((c, i) => ({
     n: i + 1,
     text: esc(c.replace(clauseStrip, '')),
   }));
-  // Room for parties + signatures on both pages
-  const splitAt = Math.min(9, Math.max(1, clauseItems.length - 6));
+  const splitAt = Math.min(8, Math.max(1, clauseItems.length - 4));
   const page1Clauses = clauseItems.slice(0, splitAt);
   const page2Clauses = clauseItems.slice(splitAt);
 
-  const partyCard = (role: string, name: string, phone: string) => `
-    <div class="party-card">
-      <div class="party-role">${role}</div>
-      <div class="party-name">${name}</div>
-      <div class="party-phone"><span>${esc(phoneLabel)}</span> <b dir="ltr">${phone}</b></div>
-    </div>`;
+  const renderClauses = (items: { n: number; text: string }[]) =>
+    items
+      .map((c) => `<p class="clause"><strong>بەندی ${c.n} :</strong> ${c.text}</p>`)
+      .join('');
 
-  const partiesBlock = `
-    <section class="parties">
-      ${partyCard(esc(r.landlord ?? 'خاوەن موڵک'), landlord, landlordPhone)}
-      ${partyCard(esc(r.tenant ?? 'کرێچی'), tenant, tenantPhone)}
-      ${partyCard(esc(witness1Label), w1, w1Phone)}
-      ${partyCard(esc(witness2Label), w2, w2Phone)}
+  const field = (lab: string, val: string, ltr = false) =>
+    `<div class="frow"><span class="flab">${esc(lab)} :</span><span class="fval"${ltr ? ' dir="ltr"' : ''}>${val}</span></div>`;
+
+  const stamp = formatSigningStamp(signing);
+
+  const metaAndParties = `
+    <section class="meta-row">
+      <div class="meta-box">
+        <div class="mrow"><span class="mlab">${esc(leaseNoLab)}</span><span class="mval" dir="ltr">${esc(data.leaseNo)}</span></div>
+        <div class="mrow"><span class="mlab">${esc(dateLab)}</span><span class="mval" dir="ltr">${esc(isoDateErbil(signing))}</span></div>
+        <div class="mrow"><span class="mlab">${esc(branchLab)}</span><span class="mval">${esc(companyContact().address)}</span></div>
+      </div>
+      <div class="party-fields">
+        ${field(party1Lab, landlord)}
+        ${field(mobileLab, landlordPhone, true)}
+        ${field(party2Lab, tenant)}
+        ${field(mobileLab, tenantPhone, true)}
+        ${field(propTypeLab, propType)}
+        ${field(addressLab, location)}
+        ${field(propNoLab, propCode, true)}
+        ${field(areaLab, area)}
+      </div>
     </section>`;
 
+  const sigCell = (role: string) =>
+    `<div class="sig-cell"><div class="sig-row"><span class="role">${esc(role)} :</span><span class="sig-line"></span></div><span class="sig-dash">-</span></div>`;
+
   const sigsBlock = `
-    <div class="sigs">
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(r.landlord ?? 'خاوەن موڵک')}</div>
-        <div class="sig-name">${landlord}</div>
+    <div class="sigs-block">
+      <div class="sigs-grid">
+        ${sigCell(party1Lab)}
+        ${sigCell(party2Lab)}
+        ${sigCell(witness1Label)}
+        ${sigCell(witness2Label)}
       </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(r.tenant ?? 'کرێچی')}</div>
-        <div class="sig-name">${tenant}</div>
-      </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(witness1Label)}</div>
-        <div class="sig-name">${w1}</div>
-      </div>
-      <div class="sig">
-        <div class="sig-space"></div>
-        <div class="sig-role">${esc(witness2Label)}</div>
-        <div class="sig-name">${w2}</div>
-      </div>
+      ${
+        showOrganizer
+          ? `<div class="org-block"><div class="org-lab">${esc(organizerLab)} :</div><div class="org-line">${organizer}</div></div>`
+          : ''
+      }
     </div>`;
 
-  const letterhead = (pageLabel: string) => `
-    <header class="head">
-      <div>
-        <div class="logo-row">
-          <img class="logo" src="${esc(logoFull)}" alt="Road Home" onerror="this.src='${esc(logoMark)}'" />
-          <div>
-            <div class="brand-mark">${esc(BRAND_NAME)}</div>
-            <div class="page-tag">${esc(pageLabel)}</div>
-          </div>
-        </div>
-        <table class="meta-box">
-          <tr><th>${esc(r.leaseNo ?? 'ژمارە')}</th><td>${esc(data.leaseNo)}</td></tr>
-          <tr><th>${esc(r.signingDate ?? 'ڕێکەوت')}</th><td>${isoDate(data.signingDate ?? data.startDate)}</td></tr>
-        </table>
-      </div>
-      <div class="names">
-        <p class="n-ku">${esc(BRAND_NAME)}</p>
-        <p class="n-ar">${esc(BRAND_NAME_AR)}</p>
-        <p class="n-en">${esc(BRAND_NAME_EN)}</p>
-        <div class="phones">
-          <span>${phones[0]}</span><span class="sep">·</span><span>${phones[1]}</span>
-        </div>
-        <h1 class="doc-title">${esc(title)}</h1>
-      </div>
-    </header>
-    ${partiesBlock}`;
-
-  const renderClauses = (items: { n: number; text: string }[]) =>
-    items.map((c) => `<p class="clause"><strong>${c.n}.</strong> ${c.text}</p>`).join('');
-
   const intro1 =
-    (r.pdfIntro ??
-      'ئەم گرێبەستە لە نێوان لایەنی یەکەم ({landlord} — {landlordRole}) و لایەنی دووەم ({tenant} — {tenantRole}) ڕێککەوتووە، بە شایەدی ({w1}) و ({w2}). بەندەکانی خوارەوە بەشێکن لەم گرێبەستە و هەردوو لا پابەندن پێیانەوە.')
-      .replaceAll('{landlord}', landlord)
-      .replaceAll('{tenant}', tenant)
-      .replaceAll('{w1}', w1)
-      .replaceAll('{w2}', w2)
-      .replaceAll('{landlordRole}', esc(r.landlord ?? 'خاوەن موڵک'))
-      .replaceAll('{tenantRole}', esc(r.tenant ?? 'کرێچی'));
+    r.pdfIntroShort ??
+    'هەردوو لایەن ڕێکەوتن لەسەر ئەم خاڵانەی خوارەوە:';
 
-  const intro2 =
-    (r.pdfIntroContinued ??
-      'بەردەوامی گرێبەستی کرێ ژمارە {leaseNo} لە نێوان {landlord} و {tenant}، بە شایەدی {w1} و {w2}.')
-      .replaceAll('{leaseNo}', esc(data.leaseNo))
-      .replaceAll('{landlord}', landlord)
-      .replaceAll('{tenant}', tenant)
-      .replaceAll('{w1}', w1)
-      .replaceAll('{w2}', w2);
+  const head = grebastiHeader({ logo: logoFull, mark: logoMark, title, stamp });
+  const foot = grebastiFooter();
 
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}">
 <head>
   <meta charset="UTF-8"/>
   <title> </title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700&family=Cormorant+Garamond:wght@700&display=swap" rel="stylesheet"/>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4 portrait; margin: 0; }
-    body { font-family: ${font}; color: #0f2744; background: #e8eef5; direction: ${dir}; }
-    .toolbar { max-width: 210mm; margin: 12px auto; display: flex; justify-content: flex-end; padding: 0 8px; }
-    .toolbar button { font-family: inherit; border: 0; background: #0f2744; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
-    .sheet {
-      width: 210mm; min-height: 297mm; margin: 0 auto 16px; background: #fff;
-      padding: 9mm 11mm 10mm; position: relative; overflow: hidden;
-      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
-      display: flex; flex-direction: column;
-    }
-    .wm {
-      position: absolute; inset: 24% 16% 20%; display: flex; align-items: center; justify-content: center;
-      opacity: 0.05; pointer-events: none; z-index: 0;
-    }
-    .wm img { width: 40%; max-width: 190px; height: auto; }
-    .content { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; }
-    .head {
-      display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 12px; align-items: start;
-      padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2.5px solid #0f2744;
-    }
-    .logo-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .logo {
-      width: 64px; height: 64px; object-fit: contain; background: #fff;
-      border: 1px solid #dbe3ef; border-radius: 10px; padding: 3px;
-    }
-    .brand-mark { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; font-weight: 700; color: #0f2744; }
-    .page-tag { margin-top: 2px; font-size: 10px; font-weight: 600; color: #8b4513; }
-    .meta-box { width: 100%; max-width: 210px; border-collapse: collapse; font-size: 10.5px; border: 1px solid #0f2744; }
-    .meta-box th, .meta-box td { border: 1px solid #0f2744; padding: 4px 7px; text-align: start; }
-    .meta-box th { background: #f3f6fa; font-weight: 600; width: 44%; white-space: nowrap; }
-    .meta-box td { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .names { text-align: end; }
-    .n-ku { font-size: 15px; font-weight: 700; color: #0f2744; }
-    .n-ar { font-size: 11px; color: #334155; margin-top: 2px; }
-    .n-en { font-size: 10px; color: #64748b; margin-top: 2px; }
-    .phones {
-      margin-top: 6px; display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px; font-weight: 700; color: #0f2744; font-variant-numeric: tabular-nums;
-      direction: ltr; unicode-bidi: isolate;
-    }
-    .phones .sep { color: #94a3b8; font-weight: 500; }
-    .doc-title { margin-top: 8px; font-size: 15px; font-weight: 700; color: #8b4513; }
-    .parties {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-      margin: 0 0 10px; padding-bottom: 8px; border-bottom: 1px dotted #94a3b8;
-    }
-    .party-card {
-      border: 1px solid #cfd8e6; border-radius: 8px; padding: 7px 8px; background: #f8fafc;
-      min-height: 64px;
-    }
-    .party-role { font-size: 9.5px; font-weight: 700; color: #8b4513; margin-bottom: 3px; }
-    .party-name { font-size: 11.5px; font-weight: 700; color: #0f2744; line-height: 1.35; word-break: break-word; }
-    .party-phone {
-      margin-top: 4px; font-size: 10px; color: #475569; font-variant-numeric: tabular-nums;
-    }
-    .party-phone span { color: #64748b; }
-    .party-phone b { font-weight: 700; color: #0f2744; unicode-bidi: isolate; }
-    .intro {
-      text-align: justify; font-size: 12px; line-height: 1.7; color: #334155; margin: 0 0 10px;
-    }
-    .clauses { flex: 1; }
-    .clause {
-      font-size: 11.5px; line-height: 1.78; margin-bottom: 6px; text-align: justify; color: #1e293b;
-    }
-    .sigs {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: auto;
-      padding-top: 14px;
-    }
-    .sig { text-align: center; }
-    .sig-space { height: 40px; }
-    .sig-role { border-top: 1px solid #0f2744; padding-top: 5px; font-size: 10px; color: #475569; }
-    .sig-name { margin-top: 3px; font-size: 11px; font-weight: 700; color: #0f2744; word-break: break-word; }
-    @media print {
-      body { background: #fff; }
-      .toolbar { display: none !important; }
-      .sheet {
-        width: auto; min-height: 100vh; height: 100vh; margin: 0; padding: 9mm 11mm;
-        box-shadow: none; page-break-after: always; break-after: page;
-      }
-      .sheet:last-of-type { page-break-after: auto; break-after: auto; }
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800&display=block" rel="stylesheet"/>
+  <style>${grebastiStyles(dir, font)}</style>
 </head>
 <body>
-  <div class="toolbar"><button type="button" onclick="document.title=' ';window.print()">${t.common.print}</button></div>
+  <div class="toolbar"><button type="button" onclick="rhPrint()">${t.common.print}</button></div>
 
   <div class="sheet">
-    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
+    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /><div class="wm-name">${esc(BRAND_NAME)}</div></div>
     <div class="content">
-      ${letterhead(page1Label)}
-      <p class="intro">${intro1}</p>
+      ${head}
+      ${metaAndParties}
+      <p class="intro">${esc(intro1)}</p>
       <div class="clauses">${renderClauses(page1Clauses)}</div>
-      ${sigsBlock}
+      ${foot}
     </div>
   </div>
 
-  <div class="sheet">
-    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
+  <div class="sheet page2">
+    <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /><div class="wm-name">${esc(BRAND_NAME)}</div></div>
     <div class="content">
-      ${letterhead(page2Label)}
-      <p class="intro">${intro2}</p>
+      ${head}
       <div class="clauses">${renderClauses(page2Clauses)}</div>
+      <div class="notes">${esc(notesLab)} :</div>
       ${sigsBlock}
+      ${foot}
     </div>
   </div>
 
-  ${
-    data.autoPrint
-      ? `<script>window.addEventListener("load",function(){document.title=" ";setTimeout(function(){window.print()},300)});</script>`
-      : ''
-  }
+  ${printBootScript(data.autoPrint)}
 </body>
 </html>`;
 }
@@ -1146,9 +1246,7 @@ export interface SupportPdfData {
 export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPdfData): string {
   const dir = isRTL(locale) ? 'rtl' : 'ltr';
   const font = "'Noto Naskh Arabic', 'Noto Kufi Arabic', 'Traditional Arabic', Tahoma, serif";
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
   const s = t.pages.support as Record<string, string>;
   const dateStr = isoDate(data.issuedAt);
   const branch = data.branch?.trim() || 'بارەگای سەرەکی';
@@ -1168,8 +1266,8 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         : (s.copyTo ?? 'وێنەیەک بۆ:');
 
   // Formal letterhead: Arabic (left) | emblem | Kurdish (right) — like gov letters
-  const headKu = ['کۆمپانیای ڕۆد هۆم', 'عەقارات و بیناسازی', branch];
-  const headAr = ['شركة رود هوم', 'للعقارات والمقاولات', branch];
+  const headKu = ['کۆمپانیای ZMKH ڕۆد هۆم', 'عەقارات و بیناسازی', branch];
+  const headAr = ['شركة ZMKH رود هوم', 'للعقارات والمقاولات', branch];
 
   const bodyHtml = esc(data.content || '')
     .split(/\n{2,}/)
@@ -1190,7 +1288,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 <head>
   <meta charset="UTF-8"/>
   <title> </title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Noto+Kufi+Arabic:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Noto+Kufi+Arabic:wght@600;700&display=block" rel="stylesheet"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     @page { size: A4 portrait; margin: 0; }

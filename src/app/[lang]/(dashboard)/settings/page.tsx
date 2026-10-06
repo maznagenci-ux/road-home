@@ -1,11 +1,16 @@
 import { PageHeader } from '@/components/ui/PageHeader';
 import { requireAuth } from '@/lib/page-context';
+import { isSuperAdmin } from '@/lib/access/permissions';
 import { SettingsLanguagePanel } from '@/components/settings/SettingsLanguagePanel';
 import { SettingsThemePanel } from '@/components/settings/SettingsThemePanel';
+import { SettingsStaffPresencePanel } from '@/components/settings/SettingsStaffPresencePanel';
+import { SettingsStaffMessagePanel } from '@/components/settings/SettingsStaffMessagePanel';
+import { SettingsCompanyContactPanel } from '@/components/settings/SettingsCompanyContactPanel';
 
 export default async function SettingsPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: paramLang } = await params;
   const { t, session, lang } = await requireAuth(paramLang);
+  const showPresence = isSuperAdmin(session.role);
 
   return (
     <div>
@@ -13,6 +18,9 @@ export default async function SettingsPage({ params }: { params: Promise<{ lang:
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SettingsLanguagePanel lang={lang} t={t} />
         <SettingsThemePanel t={t} />
+        {showPresence ? <SettingsCompanyContactPanel t={t} /> : null}
+        {showPresence ? <SettingsStaffPresencePanel t={t} /> : null}
+        {showPresence ? <SettingsStaffMessagePanel t={t} /> : null}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-sm lg:col-span-2">
           <h2 className="text-lg font-semibold text-foreground mb-1">{t.pages.settings.profile}</h2>
           <p className="text-sm text-muted-foreground mb-5">{t.pages.settings.profileDesc}</p>

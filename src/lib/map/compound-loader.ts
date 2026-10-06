@@ -41,8 +41,36 @@ export async function readJsonFile<T>(file: string): Promise<T | null> {
 }
 
 function extractInertiaPage(html: string) {
+  // New Homele: <script data-page="app" type="application/json">{...}</script>
+  const scriptMatch = html.match(
+    /<script[^>]*data-page=["']app["'][^>]*type=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/i,
+  ) || html.match(
+    /<script[^>]*type=["']application\/json["'][^>]*data-page=["']app["'][^>]*>([\s\S]*?)<\/script>/i,
+  );
+  if (scriptMatch?.[1]) {
+    return JSON.parse(scriptMatch[1].trim()) as {
+      props: {
+        plot_base_url?: string;
+        plot: Record<string, unknown> & {
+          pointers?: Array<Record<string, unknown>>;
+          area?: { title?: string; search_keywords?: string };
+          georef?: string | Record<string, unknown>;
+          center?: string;
+          min_zoom?: number;
+          max_zoom?: number;
+          version?: string;
+          area_id?: number;
+        };
+      };
+    };
+  }
+
+  // Legacy: data-page="{&quot;component&quot;:..."
   const start = html.indexOf('data-page="');
   if (start < 0) throw new Error('no data-page');
+  // Skip data-page="app" short attribute
+  const after = html.slice(start + 'data-page="'.length);
+  if (after.startsWith('app"')) throw new Error('no inertia json payload');
   let i = start + 'data-page="'.length;
   let out = '';
   while (i < html.length && html[i] !== '"') out += html[i++];
@@ -120,6 +148,11 @@ function parseCompound(id: string, html: string): { meta: CompoundMeta; pointers
     lng: Number(p.lng),
   }));
 
+  const imgW = georef?.img_w ? Math.max(1, Math.round(Number(georef.img_w))) : 0;
+  const imgH = georef?.img_h
+    ? Math.max(1, Math.round(Number(georef.img_h)))
+    : imgW;
+
   const meta: CompoundMeta = {
     id,
     title: plot.area?.title || id,
@@ -129,11 +162,11 @@ function parseCompound(id: string, html: string): { meta: CompoundMeta; pointers
     minZoom: plot.min_zoom ?? 0,
     maxZoom: plot.max_zoom ?? 6,
     center: { x: cx || 0, y: cy || 0 },
-    image: georef?.img_w
+    image: imgW
       ? {
-          width: Number(georef.img_w),
-          height: Number(georef.img_h ?? georef.img_w),
-          corners: georef.corners,
+          width: imgW,
+          height: imgH || imgW,
+          corners: georef?.corners,
         }
       : null,
     pointerCount: pointers.length,
@@ -159,7 +192,8 @@ export async function loadCompound(
 
   const res = await fetch(`https://new.homele.com/plots/${id}`, {
     headers: { 'User-Agent': 'Mozilla/5.0', Accept: 'text/html,*/*' },
-    next: { revalidate: 86400 },
+    next: { revalidate: 0 },
+    cache: 'no-store',
   });
   if (!res.ok) return null;
   const html = await res.text();
@@ -177,4 +211,19 @@ export async function loadCompound(
   return wantPointers
     ? { meta: parsed.meta, pointers: parsed.pointers }
     : { meta: parsed.meta };
+}
+
+/** Force re-download from homele (ignores local cache). */
+export async function refreshCompound(id: string) {
+  const dir = compoundsDir();
+  const metaPath = path.join(dir, `${id}.json`);
+  const ptrPath = path.join(dir, `${id}-pointers.json`);
+  try {
+    const { unlink } = await import('fs/promises');
+    await unlink(metaPath).catch(() => undefined);
+    await unlink(ptrPath).catch(() => undefined);
+  } catch {
+    /* ignore */
+  }
+  return loadCompound(id, true);
 }

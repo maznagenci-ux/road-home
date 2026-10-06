@@ -413,3 +413,113 @@ body {
     display: none !important;
   }
 }
+
+/* ─── Login map markers ─── */
+.rh-login-map-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.rh-login-pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.75rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: rgb(15 39 68 / 0.88);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.35);
+  white-space: nowrap;
+  line-height: 1.2;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+.rh-login-pin.is-active {
+  background: #249b8a;
+  border-color: #fff;
+  transform: scale(1.08);
+}
+
+/* ─── Mobile comfort + TV readability ─── */
+.safe-pb {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+.rh-touch-field {
+  min-height: 2.75rem;
+  font-size: 16px; /* avoids iOS zoom-on-focus */
+}
+
+/* Phone: larger tap targets in shell */
+@media (max-width: 1023px) {
+  .rh-nav-link {
+    min-height: 2.75rem;
+  }
+  .rh-header-tap {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+
+  /* Login + map: comfortable phone fields */
+  input[type='tel'],
+  input[type='password'],
+  input[type='text'],
+  button[type='submit'] {
+    min-height: 2.75rem;
+  }
+}
+
+/*
+  TV / large display (≈ Full HD and up, sitting distance).
+  Scales UI globally so text and controls stay readable from afar.
+*/
+@media (min-width: 1600px) and (min-height: 900px) {
+  html {
+    font-size: 112.5%; /* 18px base */
+  }
+
+  .rh-nav-link {
+    min-height: 2.85rem;
+    font-size: 0.95rem;
+  }
+
+  header.h-16 {
+    height: 4.25rem;
+  }
+
+  /* Login form fields / CTA */
+  input,
+  select,
+  textarea,
+  button {
+    font-size: 1.05rem;
+  }
+
+  button,
+  a.inline-flex {
+    min-height: 2.75rem;
+  }
+}
+
+@media (min-width: 1920px) and (min-height: 1000px) {
+  html {
+    font-size: 125%; /* 20px base — living-room TV */
+  }
+
+  main.rh-scroll {
+    padding: 1.75rem 2.5rem;
+  }
+
+  /* Map canvas taller on TV */
+  .rh-tv-map-frame {
+    height: min(82vh, 920px) !important;
+  }
+}
+
+@media (min-width: 2560px) {
+  html {
+    font-size: 137.5%; /* 4K TV / wall display */
+  }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AlertTriangle, Banknote, MessageCircle, Pencil, Plus, Printer } from 'lucide-react';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -11,7 +11,8 @@ import {
   tenantRentDueMessage,
   toWhatsAppDigits,
 } from '@/lib/whatsapp';
-import { locales, localeLabels, type Locale } from '@/i18n/locale-config';
+import { type Locale } from '@/i18n/locale-config';
+import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
 import { RentalContractForm, type LeaseEditData } from './RentalContractForm';
 import type { Dictionary } from '@/i18n/dictionaries';
 
@@ -89,7 +90,7 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
   const [editing, setEditing] = useState<LeaseEditData | null>(null);
   const [remindedIds, setRemindedIds] = useState<string[]>([]);
   const [printMenuId, setPrintMenuId] = useState<string | null>(null);
-  const printMenuRef = useRef<HTMLDivElement | null>(null);
+  const [printAnchor, setPrintAnchor] = useState<HTMLElement | null>(null);
 
   const r = t.pages.rentals as Record<string, string>;
   const field =
@@ -120,17 +121,6 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
   useEffect(() => {
     void load();
   }, [load]);
-
-  useEffect(() => {
-    if (!printMenuId) return;
-    const onDoc = (e: MouseEvent) => {
-      if (printMenuRef.current && !printMenuRef.current.contains(e.target as Node)) {
-        setPrintMenuId(null);
-      }
-    };
-    document.addEventListener('mousedown', onDoc);
-    return () => document.removeEventListener('mousedown', onDoc);
-  }, [printMenuId]);
 
   const dueItems = useMemo(() => items.filter((row) => row.rentDue), [items]);
 
@@ -225,6 +215,7 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
 
   const printLease = (id: string, pdfLocale: Locale) => {
     setPrintMenuId(null);
+    setPrintAnchor(null);
     window.open(
       `/api/pdf/rental/${id}?locale=${pdfLocale}&print=1`,
       '_blank',
@@ -244,10 +235,10 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
 
   const depositLabel = (s: string) => {
     const map: Record<string, string> = {
-      HELD: r.moneyAtRoadHome ?? 'پارە لای ڕۆد هۆم',
+      HELD: r.moneyAtRoadHome ?? 'پارە لای ZMKH ڕۆد هۆم',
       PARTIAL_RETURNED: r.moneyAtLandlord ?? 'پارە لای خاوەن خانوو',
       RETURNED: r.moneyAtTenant ?? 'پارە گەڕاوەتەوە بۆ کرێچی',
-      FORFEITED: r.moneyAtRoadHome ?? 'پارە لای ڕۆد هۆم',
+      FORFEITED: r.moneyAtRoadHome ?? 'پارە لای ZMKH ڕۆد هۆم',
     };
     return map[s] ?? s;
   };
@@ -385,12 +376,12 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
           <div className="flex items-center gap-2 text-sky-900">
             <Banknote className="h-4 w-4 shrink-0" />
             <h2 className="text-sm font-semibold">
-              {r.depositHeldTitle ?? 'تأمینات — پارە لای ڕۆد هۆم'} ({heldDeposits.length})
+              {r.depositHeldTitle ?? 'تأمینات — پارە لای ZMKH ڕۆد هۆم'} ({heldDeposits.length})
             </h2>
           </div>
           <p className="text-xs text-sky-900/80">
             {r.depositHeldHint ??
-              'شوێنی پارە دەستنیشان بکە: ڕۆد هۆم، خاوەن خانوو، یان گەڕاندنەوە بۆ کرێچی — هەر یەک وەسڵی خۆی هەیە.'}
+              'شوێنی پارە دەستنیشان بکە: ZMKH ڕۆد هۆم، خاوەن خانوو، یان گەڕاندنەوە بۆ کرێچی — هەر یەک وەسڵی خۆی هەیە.'}
           </p>
         </section>
       ) : null}
@@ -411,8 +402,8 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
         {tab === 'deposit' ? (
           <select className={field} value={deposit} onChange={(e) => setDeposit(e.target.value)}>
             <option value="">{r.moneyLocationAll ?? 'هەموو شوێنەکانی پارە'}</option>
-            <option value="HELD">{r.moneyAtRoadHome ?? 'پارە لای ڕۆد هۆم'}</option>
-            <option value="FORFEITED">{r.moneyAtRoadHome ?? 'پارە لای ڕۆد هۆم'}</option>
+            <option value="HELD">{r.moneyAtRoadHome ?? 'پارە لای ZMKH ڕۆد هۆم'}</option>
+            <option value="FORFEITED">{r.moneyAtRoadHome ?? 'پارە لای ZMKH ڕۆد هۆم'}</option>
             <option value="PARTIAL_RETURNED">{r.moneyAtLandlord ?? 'پارە لای خاوەن خانوو'}</option>
             <option value="RETURNED">{r.moneyAtTenant ?? 'پارە گەڕاوەتەوە بۆ کرێچی'}</option>
           </select>
@@ -505,11 +496,6 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
                         </td>
                         <td className="px-4 py-3 tabular-nums">
                           <div>{formatCurrency(rentDisplay, lang, cur)}</div>
-                          {cur === 'USD' ? (
-                            <div className="text-[11px] text-muted-foreground">
-                              {formatCurrency(row.monthlyRentIqd, lang, 'IQD')}
-                            </div>
-                          ) : null}
                         </td>
                         <td className="px-4 py-3">
                           {row.nextDueDate ? (
@@ -569,15 +555,18 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
                             >
                               <Pencil className="h-4 w-4" />
                             </button>
-                            <div
-                              className="relative"
-                              ref={printMenuId === row.id ? printMenuRef : undefined}
-                            >
+                            <div className="relative">
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setPrintMenuId((cur) => (cur === row.id ? null : row.id))
-                                }
+                                onClick={(e) => {
+                                  if (printMenuId === row.id) {
+                                    setPrintMenuId(null);
+                                    setPrintAnchor(null);
+                                  } else {
+                                    setPrintMenuId(row.id);
+                                    setPrintAnchor(e.currentTarget);
+                                  }
+                                }}
                                 className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                                 title={r.printPdfLang ?? t.common.print}
                                 aria-label={r.printPdfLang ?? t.common.print}
@@ -585,26 +574,6 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
                               >
                                 <Printer className="h-4 w-4" />
                               </button>
-                              {printMenuId === row.id ? (
-                                <div className="absolute end-0 z-20 mt-1 min-w-[9.5rem] rounded-xl border border-border bg-card p-1 shadow-lg">
-                                  <p className="px-2 py-1 text-[10px] text-muted-foreground">
-                                    {r.printPdfLang ?? 'زمانی PDF'}
-                                  </p>
-                                  {locales.map((loc) => (
-                                    <button
-                                      key={loc}
-                                      type="button"
-                                      onClick={() => printLease(row.id, loc)}
-                                      className={cn(
-                                        'w-full text-start rounded-lg px-2 py-1.5 text-xs hover:bg-muted',
-                                        loc === lang && 'font-semibold text-primary',
-                                      )}
-                                    >
-                                      {localeLabels[loc]}
-                                    </button>
-                                  ))}
-                                </div>
-                              ) : null}
                             </div>
                             {row.rentDue ? (
                               <button
@@ -745,7 +714,7 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
                                   : 'bg-rose-500/15 text-rose-800 hover:bg-rose-500/25',
                               )}
                             >
-                              {r.depositToRoadHome ?? 'ڕۆد هۆم'}
+                              {r.depositToRoadHome ?? 'ZMKH ڕۆد هۆم'}
                             </button>
                             <button
                               type="button"
@@ -795,6 +764,20 @@ export function RentalsTable({ t, lang }: { t: Dictionary; lang: string }) {
           setEditing(null);
         }}
         onSaved={() => void load()}
+      />
+
+      <PdfPrintLangMenu
+        open={Boolean(printMenuId)}
+        anchorEl={printAnchor}
+        title={r.printPdfLang ?? 'زمانی PDF'}
+        currentLocale={lang}
+        onSelect={(loc) => {
+          if (printMenuId) printLease(printMenuId, loc);
+        }}
+        onClose={() => {
+          setPrintMenuId(null);
+          setPrintAnchor(null);
+        }}
       />
     </div>
   );

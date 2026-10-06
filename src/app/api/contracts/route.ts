@@ -6,6 +6,7 @@ import { logActivity } from '@/lib/access/permissions';
 import { requireApiPermission } from '@/lib/api-auth';
 import { BRAND_NAME } from '@/lib/brand';
 import { resolveDealEmployee } from '@/lib/deals/employee';
+import { dealEmployeeBranchWhere } from '@/lib/access/branch-scope';
 
 export async function GET(req: Request) {
   const auth = await requireApiPermission('VIEW_CONTRACTS');
@@ -19,6 +20,9 @@ export async function GET(req: Request) {
   const to = url.searchParams.get('to')?.trim() || '';
 
   const where: Record<string, unknown> = {};
+  const and: Record<string, unknown>[] = [];
+  const branchFilter = dealEmployeeBranchWhere(auth.session);
+  if (branchFilter) and.push(branchFilter);
   if (scope === 'external') where.isExternal = true;
   if (scope === 'internal') where.isExternal = false;
   if (status && ['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED'].includes(status)) {
@@ -31,26 +35,43 @@ export async function GET(req: Request) {
     };
   }
   if (q) {
-    where.OR = [
-      { contractNo: { contains: q } },
-      { title: { contains: q } },
-      { buyerName: { contains: q } },
-      { sellerName: { contains: q } },
-      { house: { code: { contains: q } } },
-      { house: { name: { contains: q } } },
-      { customer: { name: { contains: q } } },
-    ];
+    and.push({
+      OR: [
+        { contractNo: { contains: q } },
+        { title: { contains: q } },
+        { buyerName: { contains: q } },
+        { sellerName: { contains: q } },
+        { house: { code: { contains: q } } },
+        { house: { name: { contains: q } } },
+        { customer: { name: { contains: q } } },
+      ],
+    });
   }
+  if (and.length) where.AND = and;
 
   const rows = await prisma.contract.findMany({
     where,
     orderBy: { createdAt: 'desc' },
-    include: {
+    select: {
+      id: true,
+      contractNo: true,
+      title: true,
+      propertyType: true,
+      buyerName: true,
+      sellerName: true,
+      customerId: true,
+      currency: true,
+      exchangeRate: true,
+      totalAmount: true,
+      totalAmountUsd: true,
+      status: true,
+      isExternal: true,
+      createdAt: true,
       house: { select: { code: true, name: true } },
       customer: { select: { id: true, name: true } },
       installments: { select: { amount: true, status: true } },
     },
-    take: 300,
+    take: 100,
   });
 
   const items = rows.map((r) => {
@@ -58,6 +79,8 @@ export async function GET(req: Request) {
     const pending = r.installments.filter(
       (i) => i.status !== 'PAID' && i.status !== 'CANCELLED',
     );
+    const rate = Math.max(1, r.exchangeRate || 150_000);
+    const pendingIqd = pending.reduce((s, i) => s + i.amount, 0);
     return {
       id: r.id,
       contractNo: r.contractNo,
@@ -68,6 +91,7 @@ export async function GET(req: Request) {
       customerId: r.customerId,
       customer: r.customer,
       currency: r.currency,
+      exchangeRate: rate,
       totalAmount: r.totalAmount,
       totalAmountUsd: r.totalAmountUsd,
       status: r.status,
@@ -77,7 +101,9 @@ export async function GET(req: Request) {
       installmentCount: r.installments.length,
       paidCount: paid.length,
       pendingCount: pending.length,
-      pendingAmount: pending.reduce((s, i) => s + i.amount, 0),
+      pendingAmount: pendingIqd,
+      pendingAmountDisplay:
+        r.currency === 'USD' ? Math.round((pendingIqd / rate) * 100) / 100 : pendingIqd,
       paidAmount: paid.reduce((s, i) => s + i.amount, 0),
     };
   });
@@ -142,6 +168,14 @@ const createSchema = z.object({
       }),
     )
     .default([]),
+}).superRefine((data, ctx) => {
+  if (data.downPayment > data.totalAmount) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'DOWN_GT_TOTAL',
+      path: ['downPayment'],
+    });
+  }
 });
 
 export async function POST(req: Request) {
@@ -166,9 +200,9 @@ export async function POST(req: Request) {
     const downUsd = toUsd(data.downPayment, data.currency, rate);
     const signing = optDate(data.signingDate);
 
-    const dealEmp = await resolveDealEmployee(data.dealEmployeeId);
+    const dealEmp = await resolveDealEmployee(data.dealEmployeeId, session);
     if ('error' in dealEmp) {
-      return NextResponse.json({ error: 'DEAL_EMPLOYEE_NOT_FOUND' }, { status: 400 });
+      return NextResponse.json({ error: dealEmp.error }, { status: 400 });
     }
 
     const contractNo = await nextContractNo(prisma);

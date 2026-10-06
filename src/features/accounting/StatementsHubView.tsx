@@ -1,16 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import type { Dictionary } from '@/i18n/dictionaries';
 
 type Party = { id: string; name: string };
 
 export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) {
   const labels = (t.pages as { engine?: Record<string, string> }).engine ?? {};
-  const [tab, setTab] = useState<'customer' | 'supplier' | 'property' | 'owner' | 'installments'>(
-    'customer',
-  );
+  const [tab, setTab] = useState<'customer' | 'supplier' | 'property' | 'owner'>('customer');
   const [customers, setCustomers] = useState<Party[]>([]);
   const [suppliers, setSuppliers] = useState<Party[]>([]);
   const [properties, setProperties] = useState<Party[]>([]);
@@ -43,16 +41,6 @@ export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) 
     setData(null);
     if (tab === 'owner') {
       const res = await fetch('/api/accounting/statements?kind=owner-capital');
-      const json = await res.json();
-      if (!res.ok) {
-        setError(json.error || 'error');
-        return;
-      }
-      setData(json);
-      return;
-    }
-    if (tab === 'installments') {
-      const res = await fetch('/api/accounting/statements?kind=overdue-installments');
       const json = await res.json();
       if (!res.ok) {
         setError(json.error || 'error');
@@ -103,7 +91,7 @@ export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) 
       <div>
         <h1 className="text-2xl font-semibold">{labels.statementsTitle ?? 'بەیاننامە داراییەکان'}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          {labels.statementsHint ?? 'کڕیار، دابینکەر، خانووبەرە، سەرمایەی خاوەن، قسطە دواکەوتووەکان'}
+          {labels.statementsHint ?? 'کڕیار، دابینکەر، خانووبەرە، سەرمایەی خاوەن'}
         </p>
       </div>
 
@@ -114,7 +102,6 @@ export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) 
             ['supplier', labels.supplier ?? 'دابینکەر'],
             ['property', labels.property ?? 'خانووبەرە'],
             ['owner', labels.ownerCapital ?? 'سەرمایەی خاوەن'],
-            ['installments', labels.overdue ?? 'قستی دواکەوتوو'],
           ] as const
         ).map(([k, label]) => (
           <button
@@ -137,7 +124,7 @@ export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
       <div className="flex flex-wrap gap-3 items-end">
-        {tab !== 'owner' && tab !== 'installments' ? (
+        {tab !== 'owner' ? (
           <select
             className={field}
             value={selectedId}
@@ -199,38 +186,6 @@ export function StatementsHubView({ t, lang }: { t: Dictionary; lang: string }) 
         <pre className="rounded-2xl border border-border bg-muted/40 p-4 text-xs overflow-auto max-h-[480px] whitespace-pre-wrap">
           {JSON.stringify(data, null, 2)}
         </pre>
-      ) : null}
-
-      {data && tab === 'installments' && Array.isArray((data as { items?: unknown }).items) ? (
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/60 text-muted-foreground">
-              <tr>
-                <th className="text-start p-3">{labels.contract ?? 'گرێبەست'}</th>
-                <th className="text-start p-3">{labels.party ?? 'کڕیار'}</th>
-                <th className="text-start p-3">{labels.amount ?? 'بڕ'}</th>
-                <th className="text-start p-3">{labels.date ?? 'بەروار'}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {((data as { items: Array<Record<string, unknown>> }).items || []).map((row) => (
-                <tr key={String(row.id)} className="border-t border-border">
-                  <td className="p-3">{String(row.contractNo)}</td>
-                  <td className="p-3">
-                    {String(row.buyerName ?? '—')}
-                    {row.buyerPhone ? (
-                      <span className="text-xs text-muted-foreground block">
-                        {String(row.buyerPhone)}
-                      </span>
-                    ) : null}
-                  </td>
-                  <td className="p-3">{formatCurrency(Number(row.amount), lang, 'IQD')}</td>
-                  <td className="p-3">{formatDate(String(row.dueDate), lang)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       ) : null}
     </div>
   );

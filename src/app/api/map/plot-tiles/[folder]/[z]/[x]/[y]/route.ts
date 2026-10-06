@@ -1,22 +1,14 @@
 import { NextResponse } from 'next/server';
-import { requireApiPermission } from '@/lib/api-auth';
 
 const ALLOWED = /^[a-zA-Z0-9_-]+$/;
 
 type Ctx = { params: Promise<{ folder: string; z: string; x: string; y: string }> };
 
 /**
- * Proxy plot tiles. Homele logos are baked into source imagery (often large
- * semi-transparent watermarks); pixel scrubbing destroys map detail, so we
- * brand via the UI badge instead of mutating tiles.
+ * Proxy plot tiles. Public GET for login /map land browser.
+ * Images are not modified — proxied as-is from upstream.
  */
 export async function GET(_req: Request, ctx: Ctx) {
-  const auth = await requireApiPermission('VIEW_PROPERTIES');
-  if ('error' in auth) {
-    const alt = await requireApiPermission('VIEW_CONTRACTS');
-    if ('error' in alt) return alt.error;
-  }
-
   const { folder, z, x, y } = await ctx.params;
   if (![folder, z, x, y].every((v) => ALLOWED.test(v))) {
     return NextResponse.json({ error: 'bad path' }, { status: 400 });

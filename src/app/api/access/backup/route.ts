@@ -10,8 +10,9 @@ function isPostgres() {
 }
 
 /**
- * SQLite file backup is only for local `file:` databases.
- * On Supabase / Netlify use the Supabase dashboard backups instead.
+ * Super-admin DB backup.
+ * - Local Postgres on Hostinger: streams `pg_dump`
+ * - Legacy SQLite file: copies prisma/dev.db
  */
 export async function GET() {
   const auth = await requireApiPermission('VIEW_USERS');
@@ -21,17 +22,41 @@ export async function GET() {
   }
 
   if (isPostgres()) {
-    return NextResponse.json(
-      {
-        error: 'USE_SUPABASE_BACKUP',
-        message:
-          'Database is on Supabase. Download backups from the Supabase dashboard (Database → Backups).',
-      },
-      { status: 501 },
-    );
+    try {
+      const { spawn } = await import('child_process');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const destName = `road-home-${stamp}.sql`;
+      const child = spawn(
+        'pg_dump',
+        ['--no-owner', '--no-acl', process.env.DATABASE_URL as string],
+        { env: process.env },
+      );
+      const chunks: Buffer[] = [];
+      let errText = '';
+      await new Promise<void>((resolve, reject) => {
+        child.stdout.on('data', (c: Buffer) => chunks.push(c));
+        child.stderr.on('data', (c: Buffer) => {
+          errText += c.toString();
+        });
+        child.on('error', reject);
+        child.on('close', (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(errText || `pg_dump_exit_${code}`));
+        });
+      });
+      const buf = Buffer.concat(chunks);
+      return new NextResponse(new Uint8Array(buf), {
+        headers: {
+          'Content-Type': 'application/sql',
+          'Content-Disposition': `attachment; filename="${destName}"`,
+        },
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'backup_failed';
+      return NextResponse.json({ error: msg }, { status: 500 });
+    }
   }
 
-  // Local SQLite only — dynamic fs kept out of serverless/Netlify bundles
   try {
     const { copyFile, mkdir, access, readFile } = await import('fs/promises');
     const path = await import('path');
@@ -65,7 +90,7 @@ export async function POST() {
   }
 
   if (isPostgres()) {
-    return NextResponse.json({ items: [], provider: 'supabase' });
+    return NextResponse.json({ items: [], provider: 'hostinger-postgres' });
   }
 
   try {

@@ -11,20 +11,16 @@ import {
   type InstallmentDraft,
 } from '@/lib/contracts/templates';
 import { useFxStore } from '@/stores/fx-store';
-import { placeLocationLabel, placeSelectLabel, type PlaceOption } from '@/lib/places';
+import { placeLocationLabel, type PlaceOption } from '@/lib/places';
+import { PlaceSearchSelect } from '@/components/places/PlaceSearchSelect';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { locales, localeLabels, type Locale } from '@/i18n/locale-config';
 import { BRAND_NAME } from '@/lib/brand';
-import { DealEmployeeSelect } from '@/features/deals/DealEmployeeSelect';
 
 const PROPERTY_TYPES = ['HOUSE', 'APARTMENT', 'LAND', 'SHOP', 'BUILDING'] as const;
 
 function MoneyHint({
   amount,
-  currency,
-  rate,
-  lang,
-  t,
 }: {
   amount: number;
   currency: 'IQD' | 'USD';
@@ -33,12 +29,7 @@ function MoneyHint({
   t: Dictionary;
 }) {
   if (!amount) return null;
-  const m = formatContractMoney(amount, currency, rate, lang);
-  return (
-    <p className="mt-1 text-[11px] text-muted-foreground tabular-nums">
-      {currency === 'IQD' ? `${t.pages.contractGen.equivUsd}: ${m.usd}` : `${t.pages.contractGen.equivIqd}: ${m.iqd}`}
-    </p>
-  );
+  return null;
 }
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -497,12 +488,12 @@ export function ContractGenerator({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <FieldLabel>{placesT.code ?? t.pages.projects.code}</FieldLabel>
-                <select
-                  className={field}
+                <PlaceSearchSelect
+                  options={placeOptions}
                   value={form.houseCode}
-                  onChange={(e) => {
-                    const code = e.target.value;
-                    const place = placeOptions.find((p) => p.code === code);
+                  placeholder={placesT.selectPlace ?? 'شوێن هەڵبژێرە'}
+                  searchPlaceholder={placesT.search ?? 'گەڕان بە کۆد یان ناو…'}
+                  onChange={(code, place) => {
                     setForm((prev) => ({
                       ...prev,
                       houseCode: code,
@@ -510,17 +501,7 @@ export function ContractGenerator({
                       title: prev.title || (place ? place.name : prev.title),
                     }));
                   }}
-                >
-                  <option value="">{placesT.selectPlace ?? 'شوێن هەڵبژێرە'}</option>
-                  {form.houseCode && !placeOptions.some((p) => p.code === form.houseCode) ? (
-                    <option value={form.houseCode}>{form.houseCode}</option>
-                  ) : null}
-                  {placeOptions.map((p) => (
-                    <option key={p.id} value={p.code}>
-                      {placeSelectLabel(p)}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
               <div>
                 <FieldLabel>{g.propertyType}</FieldLabel>
@@ -739,56 +720,6 @@ export function ContractGenerator({
               </p>
             </div>
           </section>
-
-          <section className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between gap-3 mb-3">
-              <h3 className="text-base font-semibold">{g.installments}</h3>
-              <button
-                type="button"
-                onClick={addInstallment}
-                className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-border hover:bg-muted"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {t.common.add}
-              </button>
-            </div>
-            <div className="space-y-2">
-              {form.installments.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-2">{g.installmentsEmpty ?? 'هیچ قیستێک زیاد نەکراوە'}</p>
-              ) : (
-                form.installments.map((row) => (
-                  <div key={row.id} className="grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center">
-                    <input
-                      type="date"
-                      className={field}
-                      value={row.dueDate}
-                      onChange={(e) => updateInstallment(row.id, { dueDate: e.target.value })}
-                    />
-                    <input
-                      type="number"
-                      className={cn(field, 'tabular-nums')}
-                      placeholder={g.totalPrice}
-                      value={row.amount || ''}
-                      onChange={(e) => updateInstallment(row.id, { amount: Number(e.target.value) || 0 })}
-                    />
-                    <input
-                      className={field}
-                      placeholder={t.form.notes}
-                      value={row.label}
-                      onChange={(e) => updateInstallment(row.id, { label: e.target.value })}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeInstallment(row.id)}
-                      className="p-2 rounded-lg text-rose-600 hover:bg-rose-500/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
         </div>
 
         <aside className="space-y-5">
@@ -810,14 +741,6 @@ export function ContractGenerator({
               <input type="checkbox" checked={form.showOrganizer} onChange={(e) => set('showOrganizer', e.target.checked)} />
               {r.showOrganizer ?? g.showOrganizer ?? 'ناوی ڕێکخەر لە گرێبەستدا پیشان بدرێت'}
             </label>
-            <DealEmployeeSelect
-              className={field}
-              value={form.dealEmployeeId}
-              onChange={(id) => set('dealEmployeeId', id)}
-              label={g.dealEmployee ?? 'کارمەندی کرین و فرۆشتن'}
-              hint={g.dealEmployeeHint ?? 'بۆ هەژماری کارمەند — لەسەر پەڕەی گرێبەست دەرناکەوێت'}
-              placeholder={g.dealEmployeeNone ?? 'کارمەند هەڵبژێرە'}
-            />
             <div className="rounded-xl border border-border p-3 space-y-2">
               <p className="text-xs font-semibold text-foreground">
                 {g.scopeLabel ?? 'جۆری گرێبەست (ناوخۆیی / دەرەکی)'}

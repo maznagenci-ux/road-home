@@ -5,7 +5,7 @@ import { getDashboardData } from '@/lib/finance/dashboard-data';
 export default async function DashboardPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang: paramLang } = await params;
   const { t, lang } = await requireAuth(paramLang);
-  const { metrics, activity, installments, costCenters, audit } = await getDashboardData();
+  const { metrics, activity, costCenters, audit } = await getDashboardData();
 
   return (
     <DashboardView
@@ -13,7 +13,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ lang
       locale={lang}
       metrics={metrics}
       activity={activity}
-      installments={installments}
       costCenters={costCenters}
       audit={audit}
     />

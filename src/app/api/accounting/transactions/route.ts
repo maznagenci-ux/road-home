@@ -5,6 +5,11 @@ import { requireApiPermission } from '@/lib/api-auth';
 import { prisma } from '@/lib/prisma';
 import { seedAccountingChart } from '@/lib/accounting/seed-chart';
 import { postTransaction, softDeleteTransaction } from '@/lib/accounting/post';
+import {
+  ledgerBranchWhere,
+  resolveAccountingBranchScope,
+  resolveWriteBranchId,
+} from '@/lib/access/accounting-branch';
 
 const TXN_TYPES = [
   'INCOME',
@@ -42,10 +47,12 @@ export async function GET(req: Request) {
   const to = url.searchParams.get('to');
   const type = url.searchParams.get('type') as LedgerTxnType | null;
   const q = url.searchParams.get('q')?.trim();
+  const branchScope = resolveAccountingBranchScope(auth.session, url.searchParams.get('branchId'));
 
   const items = await prisma.ledgerTransaction.findMany({
     where: {
       deletedAt: null,
+      ...ledgerBranchWhere(branchScope),
       ...(from || to
         ? {
             date: {
@@ -74,15 +81,27 @@ export async function GET(req: Request) {
       bankAccount: { select: { name: true, code: true } },
       house: { select: { code: true, name: true } },
       property: { select: { name: true } },
+      branch: { select: { id: true, name: true, code: true } },
     },
   });
 
-  const [cashAccounts, bankAccounts] = await Promise.all([
+  const [cashAccounts, bankAccounts, branches] = await Promise.all([
     prisma.cashAccount.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } }),
     prisma.bankAccount.findMany({ where: { isActive: true }, orderBy: { code: 'asc' } }),
+    prisma.branch.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true, code: true },
+    }),
   ]);
 
-  return NextResponse.json({ items, cashAccounts, bankAccounts });
+  return NextResponse.json({
+    items,
+    cashAccounts,
+    bankAccounts,
+    branches,
+    branchId: branchScope,
+  });
 }
 
 const postSchema = z.object({
@@ -107,6 +126,7 @@ const postSchema = z.object({
   voucherNo: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
   attachmentUrl: z.string().optional().nullable(),
+  branchId: z.string().optional().nullable(),
   allowOverdraft: z.boolean().optional(),
 });
 
@@ -117,11 +137,17 @@ export async function POST(req: Request) {
 
   try {
     const data = postSchema.parse(await req.json());
+    const branchId = await resolveWriteBranchId({
+      session: auth.session,
+      explicit: data.branchId,
+      createdById: auth.session.id,
+    });
     const txn = await postTransaction({
       ...data,
       date: data.date ? new Date(data.date) : new Date(),
       type: data.type as LedgerTxnType,
       createdById: auth.session.id,
+      branchId,
     });
 
     // Auto employee commission on property sale when agent linked
@@ -152,6 +178,7 @@ export async function POST(req: Request) {
             bankAccountId: data.bankAccountId,
             description: `Auto commission on ${txn.txnNo}`,
             createdById: auth.session.id,
+            branchId,
             allowOverdraft: true,
           });
         }

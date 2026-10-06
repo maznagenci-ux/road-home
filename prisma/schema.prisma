@@ -20,6 +20,12 @@ enum UserRole {
   SALESPERSON
   SITE_SUPERVISOR
   VIEW_ONLY
+  /// بەڕێوەبەری لق — مۆڵەتی بەڕێوەبردنی لق
+  BRANCH_MANAGER
+  /// محاسبی لق
+  BRANCH_ACCOUNTANT
+  /// کارمەندی فرۆشیاری لق
+  BRANCH_SALES
 }
 
 enum PermissionKey {
@@ -164,6 +170,11 @@ model User {
   role         UserRole            @default(VIEW_ONLY)
   locale       Locale              @default(ku)
   isActive     Boolean             @default(true)
+  /// دوایین چالاکی لە سیستەم (بۆ ئۆنڵاین/ئۆفڵاین)
+  lastSeenAt   DateTime?
+  /// لق — کام لق کارمەندەکەی تێدایە (حیسابات هەر لەسەرەکی دەمێنێتەوە)
+  branchId     String?
+  branch       Branch?             @relation(fields: [branchId], references: [id], onDelete: SetNull)
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   vouchers     Voucher[]           @relation("VoucherCreator")
@@ -179,6 +190,8 @@ model User {
   inventoryTxns  InventoryTransaction[] @relation("InventoryTxnCreator")
   wasteApproved  MaterialWaste[]   @relation("WasteApprover")
   wasteCreated   MaterialWaste[]   @relation("WasteCreator")
+
+  @@index([branchId])
 }
 
 model PasswordResetToken {
@@ -304,6 +317,21 @@ model House {
   price       Float?
   budgetIqd   Float          @default(0)
   location    String?
+  /// ناونیشانی تەواو بۆ حەرز / گووگڵ ماپ
+  address     String?
+  /// وێنەی سەرەکی (پێشوو) — یان یەکەم لە imageUrls
+  imageUrl    String?
+  /// تا ١٠ وێنە (JSON string[])
+  imageUrls   Json?
+  /// ڤیدۆ (تا ~١ خولەک) — URL یان /uploads/…
+  videoUrl    String?
+  /// واجیهە بە مەتر
+  facadeM     Float?
+  bedrooms    Int?
+  bathrooms   Int?
+  guestRooms  Int?
+  /// نرخی کۆتایی (دوای داشکاندن / ڕێکەوتن)
+  finalPrice  Float?
   status      ProjectStatus  @default(IN_CONSTRUCTION)
   description String?
   /// بەرواری پلانکراو بۆ تەواوبوونی بیناسازی
@@ -457,6 +485,7 @@ model RentPayment {
   createdAt   DateTime @default(now())
 
   @@index([leaseId])
+  @@unique([leaseId, periodLabel])
 }
 
 model Installment {
@@ -553,7 +582,7 @@ model Anket {
   /// JSON string array of document keys
   documents            String           @default("[]")
   notes                String?
-  organizerName        String           @default("عەقارات ڕۆد هۆم")
+  organizerName        String           @default("عقارات ZMKH ڕۆد هۆم")
   mukhtarName          String           @default("")
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
@@ -571,7 +600,7 @@ model SupportLetter {
   /// OWNERSHIP | RENTAL | RESIDENCY | TRANSACTION | OTHER
   purpose      String   @default("OWNERSHIP")
   /// داواکار / سوودمەند
-  applicant    String   @default("Road Home ZMKH Real Estate")
+  applicant    String   @default("ZMKH Road Home")
   beneficiaryName String?
   beneficiaryIdNo String?
   beneficiaryPhone String?
@@ -627,6 +656,28 @@ model Place {
   @@index([plotNo])
 }
 
+/// Company branches (لق) — registry only; all accounting stays centralized.
+model Branch {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  phone     String?
+  address   String?
+  city      String   @default("هەولێر")
+  isActive  Boolean  @default(true)
+  /// Main HQ — cannot delete; accounting always rolls up here
+  isHq      Boolean  @default(false)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users              User[]
+  vouchers           Voucher[]
+  ledgerTransactions LedgerTransaction[]
+
+  @@index([name])
+  @@index([isActive])
+}
+
 /// Immutable financial voucher — never delete; use reversal vouchers.
 model Voucher {
   id               String             @id @default(cuid())
@@ -634,6 +685,9 @@ model Voucher {
   /// Null for office / salary vouchers (not tied to a construction house)
   houseId          String?
   house            House?             @relation(fields: [houseId], references: [id])
+  /// Branch books — null = HQ / unassigned (visible in Super Admin combined view)
+  branchId         String?
+  branch           Branch?            @relation(fields: [branchId], references: [id])
   accountType      VoucherAccountType
   category         ExpenseCategory?
   amountIqd        Float
@@ -675,6 +729,7 @@ model Voucher {
   @@index([houseId, status])
   @@index([accountType, status])
   @@index([voucherNo])
+  @@index([branchId, status])
 }
 
 // ─── Double-entry Accounting Engine ─────────────────────────────────────────
@@ -809,6 +864,9 @@ model LedgerTransaction {
   property         Property?       @relation(fields: [propertyId], references: [id])
   houseId          String?
   house            House?          @relation(fields: [houseId], references: [id])
+  /// Branch books — null = HQ / unassigned (visible in Super Admin combined view)
+  branchId         String?
+  branch           Branch?         @relation(fields: [branchId], references: [id])
   paymentMethod    LedgerPayMethod @default(CASH)
   cashAccountId    String?
   cashAccount      CashAccount?    @relation("TxnCash", fields: [cashAccountId], references: [id])
@@ -841,6 +899,7 @@ model LedgerTransaction {
   @@index([propertyId])
   @@index([houseId])
   @@index([category])
+  @@index([branchId, date])
 }
 
 model TransactionLine {
@@ -1100,4 +1159,16 @@ model MaterialWaste {
 
   @@index([projectId])
   @@index([approvalStatus])
+}
+
+/// ناونیشان و مۆبایلی کۆمپانیا بۆ وەسڵ/گرێبەست — تەنها سوپەر ئەدمین دەستکاری دەکات
+model CompanyProfile {
+  id        String   @id @default("default")
+  address   String   @default("هەولێر")
+  phone1    String   @default("0750 207 0008")
+  phone2    String   @default("0750 490 0302")
+  phone3    String   @default("")
+  phone4    String   @default("")
+  updatedAt DateTime @updatedAt
+  updatedBy String?
 }

@@ -8,6 +8,7 @@ import {
   DO_PERMISSIONS,
   getEffectivePermissions,
   getRoleDefaults,
+  isBranchScopedRole,
   isSuperAdmin,
   logActivity,
   PERMISSION_KEYS,
@@ -31,6 +32,8 @@ export async function GET() {
       phone: true,
       role: true,
       isActive: true,
+      branchId: true,
+      branch: { select: { id: true, name: true, code: true, isHq: true } },
     },
   });
 
@@ -41,9 +44,18 @@ export async function GET() {
       phone: u.phone,
       role: toStoredRole(u.role),
       isActive: u.isActive,
+      branchId: u.branchId,
+      branch: u.branch,
       permissions: await getEffectivePermissions(u.id, u.role),
     })),
   );
+
+  const branches = await prisma.branch.findMany({
+    where: { isActive: true },
+    orderBy: [{ isHq: 'desc' }, { code: 'asc' }],
+    select: { id: true, name: true, code: true, isHq: true },
+    take: 500,
+  });
 
   return NextResponse.json({
     permissionKeys: PERMISSION_KEYS,
@@ -51,6 +63,7 @@ export async function GET() {
     doKeys: DO_PERMISSIONS,
     roleDefaults: Object.fromEntries(ASSIGNABLE_ROLES.map((r) => [r, getRoleDefaults(r)])),
     users: matrix,
+    branches,
   });
 }
 
@@ -62,7 +75,17 @@ const patchSchema = z.object({
 
 const roleSchema = z.object({
   userId: z.string().min(1),
-  role: z.enum(['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY', 'SITE_SUPERVISOR']),
+  role: z.enum([
+    'SUPER_ADMIN',
+    'ACCOUNTANT',
+    'SALESPERSON',
+    'VIEW_ONLY',
+    'SITE_SUPERVISOR',
+    'BRANCH_MANAGER',
+    'BRANCH_ACCOUNTANT',
+    'BRANCH_SALES',
+  ]),
+  branchId: z.string().min(1).nullable().optional(),
 });
 
 const bulkSchema = z.object({
@@ -84,10 +107,25 @@ export async function PATCH(req: Request) {
     if (action === 'setRole') {
       const data = roleSchema.parse(body);
       const role = toStoredRole(data.role);
+      const existing = await prisma.user.findUnique({ where: { id: data.userId } });
+      if (!existing) return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+
+      let branchId = existing.branchId;
+      if (data.branchId !== undefined) {
+        branchId = data.branchId;
+      }
+      if (isBranchScopedRole(role) && !branchId) {
+        return NextResponse.json({ error: 'BRANCH_REQUIRED' }, { status: 400 });
+      }
+
       const user = await prisma.user.update({
         where: { id: data.userId },
-        data: { role },
+        data: {
+          role,
+          ...(data.branchId !== undefined ? { branchId: data.branchId } : {}),
+        },
       });
+      // Clear overrides so role defaults apply automatically
       await prisma.userPermission.deleteMany({ where: { userId: user.id } });
       await logActivity({
         userId: session.id,

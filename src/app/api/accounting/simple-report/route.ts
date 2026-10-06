@@ -8,6 +8,8 @@ import {
   resolveSimpleRange,
 } from '@/lib/accounting/simple-report';
 import { renderSimpleReportWordHtml } from '@/lib/pdf/simple-owner-report';
+import { getPublicOrigin } from '@/lib/pdf/assets';
+import { resolveAccountingBranchScope } from '@/lib/access/accounting-branch';
 
 function fmt(n: number) {
   return Math.round(n);
@@ -20,13 +22,16 @@ function asciiStamp(from: Date, to: Date) {
 }
 
 export async function GET(req: Request) {
-  const auth = await requireApiPermission('VIEW_ACCOUNTING');
+  let auth = await requireApiPermission('VIEW_ACCOUNTING');
   if ('error' in auth) {
     // Also allow VIEW_REPORTS / EXPORT_FINANCE for owners who export
     const alt = await requireApiPermission('VIEW_REPORTS');
     if ('error' in alt) {
       const exp = await requireApiPermission('EXPORT_FINANCE');
       if ('error' in exp) return auth.error;
+      auth = exp;
+    } else {
+      auth = alt;
     }
   }
 
@@ -42,7 +47,12 @@ export async function GET(req: Request) {
       to: url.searchParams.get('to'),
     });
 
-    const report = await getSimpleOwnerReport(range);
+    const branchScope = resolveAccountingBranchScope(
+      auth.session,
+      url.searchParams.get('branchId'),
+    );
+
+    const report = await getSimpleOwnerReport(range, branchScope);
     const stamp = asciiStamp(range.from, range.to);
 
     if (format === 'json') {
@@ -144,7 +154,7 @@ export async function GET(req: Request) {
     }
 
     if (format === 'doc' || format === 'word') {
-      const html = renderSimpleReportWordHtml(report);
+      const html = renderSimpleReportWordHtml(report, { assetBase: getPublicOrigin(req) });
       // UTF-8 BOM so Word opens Kurdish correctly
       const bom = '\uFEFF';
       return new NextResponse(bom + html, {
@@ -157,7 +167,7 @@ export async function GET(req: Request) {
     }
 
     if (format === 'pdf' || format === 'html') {
-      const html = renderSimpleReportWordHtml(report).replace(
+      const html = renderSimpleReportWordHtml(report, { assetBase: getPublicOrigin(req) }).replace(
         '</head>',
         `<style>@media print{body{padding:0}} .print-bar{margin:0 0 16px;display:flex;gap:8px}
         .print-bar button{padding:8px 14px;border-radius:8px;border:1px solid #d6d3d1;background:#0f766e;color:#fff;cursor:pointer}

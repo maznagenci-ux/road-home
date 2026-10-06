@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { toIqd, toUsd } from '@/lib/contracts/templates';
-import { logActivity } from '@/lib/access/permissions';
+import { logActivity, isSuperAdmin } from '@/lib/access/permissions';
 import { requireApiPermission } from '@/lib/api-auth';
 import { BRAND_NAME } from '@/lib/brand';
 import { resolveDealEmployee } from '@/lib/deals/employee';
+import { assertContractInBranch } from '@/lib/access/branch-scope';
 
 function parseDateOnly(value: string) {
   return new Date(`${value.slice(0, 10)}T12:00:00.000Z`);
@@ -17,60 +18,78 @@ function optDate(value?: string | null) {
   return parseDateOnly(value);
 }
 
-const updateSchema = z.object({
-  kind: z.enum(['SALE', 'PURCHASE']).optional(),
-  propertyType: z.enum(['HOUSE', 'APARTMENT', 'LAND', 'SHOP', 'BUILDING']).optional(),
-  title: z.string().min(1).optional(),
-  tapuCode: z.string().optional().nullable(),
-  buyerName: z.string().min(1).optional(),
-  buyerPhone: z.string().optional().nullable(),
-  buyerIdNo: z.string().optional().nullable(),
-  sellerName: z.string().min(1).optional(),
-  sellerPhone: z.string().optional().nullable(),
-  sellerIdNo: z.string().optional().nullable(),
-  witness1Name: z.string().optional().nullable(),
-  witness1Phone: z.string().optional().nullable(),
-  witness1IdNo: z.string().optional().nullable(),
-  witness2Name: z.string().optional().nullable(),
-  witness2Phone: z.string().optional().nullable(),
-  witness2IdNo: z.string().optional().nullable(),
-  guarantorName: z.string().optional().nullable(),
-  guarantorPhone: z.string().optional().nullable(),
-  lawyerName: z.string().optional().nullable(),
-  lawyerPhone: z.string().optional().nullable(),
-  houseCode: z.string().optional().nullable(),
-  areaSqm: z.number().optional().nullable(),
-  currency: z.enum(['IQD', 'USD']).optional(),
-  exchangeRate: z.number().positive().optional(),
-  totalAmount: z.number().positive().optional(),
-  downPayment: z.number().min(0).optional(),
-  downPaymentHeld: z.boolean().optional(),
-  cancelFee: z.number().min(0).optional(),
-  dailyPenalty: z.number().min(0).optional(),
-  commissionSeller: z.number().min(0).optional(),
-  commissionBuyer: z.number().min(0).optional(),
-  remainingDueDate: z.string().optional().nullable(),
-  handoverDate: z.string().optional().nullable(),
-  signingDate: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
-  staffNote: z.string().optional().nullable(),
-  organizerName: z.string().optional().nullable(),
-  showOrganizer: z.boolean().optional(),
-  dealEmployeeId: z.string().optional().nullable(),
-  isExternal: z.boolean().optional(),
-  status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED']).optional(),
-  legalConditions: z.string().optional().nullable(),
-  description: z.string().optional().nullable(),
-  installments: z
-    .array(
-      z.object({
-        amount: z.number().positive(),
-        dueDate: z.string(),
-        notes: z.string().optional().nullable(),
-      }),
-    )
-    .optional(),
-});
+function dayKey(d: Date) {
+  return d.toISOString().slice(0, 10);
+}
+
+const updateSchema = z
+  .object({
+    kind: z.enum(['SALE', 'PURCHASE']).optional(),
+    propertyType: z.enum(['HOUSE', 'APARTMENT', 'LAND', 'SHOP', 'BUILDING']).optional(),
+    title: z.string().min(1).optional(),
+    tapuCode: z.string().optional().nullable(),
+    buyerName: z.string().min(1).optional(),
+    buyerPhone: z.string().optional().nullable(),
+    buyerIdNo: z.string().optional().nullable(),
+    sellerName: z.string().min(1).optional(),
+    sellerPhone: z.string().optional().nullable(),
+    sellerIdNo: z.string().optional().nullable(),
+    witness1Name: z.string().optional().nullable(),
+    witness1Phone: z.string().optional().nullable(),
+    witness1IdNo: z.string().optional().nullable(),
+    witness2Name: z.string().optional().nullable(),
+    witness2Phone: z.string().optional().nullable(),
+    witness2IdNo: z.string().optional().nullable(),
+    guarantorName: z.string().optional().nullable(),
+    guarantorPhone: z.string().optional().nullable(),
+    lawyerName: z.string().optional().nullable(),
+    lawyerPhone: z.string().optional().nullable(),
+    houseCode: z.string().optional().nullable(),
+    areaSqm: z.number().optional().nullable(),
+    currency: z.enum(['IQD', 'USD']).optional(),
+    exchangeRate: z.number().positive().optional(),
+    totalAmount: z.number().positive().optional(),
+    downPayment: z.number().min(0).optional(),
+    downPaymentHeld: z.boolean().optional(),
+    cancelFee: z.number().min(0).optional(),
+    dailyPenalty: z.number().min(0).optional(),
+    commissionSeller: z.number().min(0).optional(),
+    commissionBuyer: z.number().min(0).optional(),
+    remainingDueDate: z.string().optional().nullable(),
+    handoverDate: z.string().optional().nullable(),
+    signingDate: z.string().optional().nullable(),
+    notes: z.string().optional().nullable(),
+    staffNote: z.string().optional().nullable(),
+    organizerName: z.string().optional().nullable(),
+    showOrganizer: z.boolean().optional(),
+    dealEmployeeId: z.string().optional().nullable(),
+    isExternal: z.boolean().optional(),
+    status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'CANCELLED']).optional(),
+    legalConditions: z.string().optional().nullable(),
+    description: z.string().optional().nullable(),
+    installments: z
+      .array(
+        z.object({
+          amount: z.number().positive(),
+          dueDate: z.string(),
+          notes: z.string().optional().nullable(),
+        }),
+      )
+      .optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.totalAmount !== undefined &&
+      data.downPayment !== undefined &&
+      data.downPayment > data.totalAmount
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'DOWN_GT_TOTAL',
+        path: ['downPayment'],
+      });
+    }
+  });
 
 export async function GET(
   _req: Request,
@@ -80,6 +99,9 @@ export async function GET(
   if ('error' in auth) return auth.error;
 
   const { id } = await params;
+  const ok = await assertContractInBranch(auth.session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
   const contract = await prisma.contract.findUnique({
     where: { id },
     include: {
@@ -100,6 +122,9 @@ export async function PATCH(
   const { session } = auth;
 
   const { id } = await params;
+  const ok = await assertContractInBranch(session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
   const existing = await prisma.contract.findUnique({
     where: { id },
     include: { installments: true },
@@ -108,6 +133,10 @@ export async function PATCH(
 
   try {
     const data = updateSchema.parse(await req.json());
+
+    if (data.status === 'CANCELLED' && !isSuperAdmin(session.role)) {
+      return NextResponse.json({ error: 'SUPER_ADMIN_REQUIRED' }, { status: 403 });
+    }
 
     let houseId = existing.houseId;
     if (data.houseCode !== undefined) {
@@ -136,35 +165,63 @@ export async function PATCH(
           ? existing.downPaymentUsd
           : existing.downPayment;
 
+    if (downInput > totalInput) {
+      return NextResponse.json({ error: 'DOWN_GT_TOTAL' }, { status: 400 });
+    }
+
     const totalIqd = toIqd(totalInput, currency, rate);
     const downIqd = toIqd(downInput, currency, rate);
     const totalUsd = toUsd(totalInput, currency, rate);
     const downUsd = toUsd(downInput, currency, rate);
 
+    // Keep original maker; if legacy null, stamp current user once
     let dealEmployeeId = existing.dealEmployeeId;
     let dealEmployeeName = existing.dealEmployeeName;
-    if (data.dealEmployeeId !== undefined) {
-      const dealEmp = await resolveDealEmployee(data.dealEmployeeId);
-      if ('error' in dealEmp) {
-        return NextResponse.json({ error: 'DEAL_EMPLOYEE_NOT_FOUND' }, { status: 400 });
+    if (!dealEmployeeId) {
+      const dealEmp = await resolveDealEmployee(null, session);
+      if (!('error' in dealEmp)) {
+        dealEmployeeId = dealEmp.dealEmployeeId;
+        dealEmployeeName = dealEmp.dealEmployeeName;
       }
-      dealEmployeeId = dealEmp.dealEmployeeId;
-      dealEmployeeName = dealEmp.dealEmployeeName;
     }
     const signing = optDate(data.signingDate);
 
     const contract = await prisma.$transaction(async (tx) => {
+      if (data.status === 'CANCELLED') {
+        await tx.installment.updateMany({
+          where: {
+            contractId: id,
+            status: { in: ['PENDING', 'OVERDUE'] },
+          },
+          data: { status: 'CANCELLED', paidDate: null },
+        });
+      }
+
       if (data.installments) {
+        const prev = existing.installments;
+        const used = new Set<string>();
         await tx.installment.deleteMany({ where: { contractId: id } });
         if (data.installments.length > 0) {
           await tx.installment.createMany({
-            data: data.installments.map((i) => ({
-              contractId: id,
-              amount: toIqd(i.amount, currency, rate),
-              dueDate: parseDateOnly(i.dueDate),
-              notes: i.notes ?? null,
-              status: 'PENDING',
-            })),
+            data: data.installments.map((i) => {
+              const amountIqd = toIqd(i.amount, currency, rate);
+              const due = parseDateOnly(i.dueDate);
+              const match = prev.find((p) => {
+                if (used.has(p.id)) return false;
+                return (
+                  dayKey(p.dueDate) === dayKey(due) && Math.abs(p.amount - amountIqd) < 0.01
+                );
+              });
+              if (match) used.add(match.id);
+              return {
+                contractId: id,
+                amount: amountIqd,
+                dueDate: due,
+                notes: i.notes ?? match?.notes ?? null,
+                status: match?.status ?? 'PENDING',
+                paidDate: match?.status === 'PAID' ? match.paidDate : null,
+              };
+            }),
           });
         }
       }
@@ -285,26 +342,47 @@ export async function DELETE(
   const auth = await requireApiPermission('MANAGE_CONTRACTS');
   if ('error' in auth) return auth.error;
   const { session } = auth;
+  if (!isSuperAdmin(session.role)) {
+    return NextResponse.json({ error: 'SUPER_ADMIN_REQUIRED' }, { status: 403 });
+  }
   const { id } = await params;
 
-  const existing = await prisma.contract.findUnique({
-    where: { id },
-    include: { house: { select: { code: true } } },
-  });
-  if (!existing) {
-    return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+  const ok = await assertContractInBranch(session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
+  try {
+    const existing = await prisma.contract.findUnique({
+      where: { id },
+      include: {
+        house: { select: { code: true } },
+        _count: { select: { receipts: true } },
+      },
+    });
+    if (!existing) {
+      return NextResponse.json({ error: 'NOT_FOUND' }, { status: 404 });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.receipt.updateMany({
+        where: { contractId: id },
+        data: { contractId: null },
+      });
+      await tx.installment.deleteMany({ where: { contractId: id } });
+      await tx.contract.delete({ where: { id } });
+    });
+
+    await logActivity({
+      userId: session.id,
+      userName: session.name,
+      action: 'DELETE_CONTRACT',
+      projectCode: existing.house?.code ?? null,
+      amountIqd: null,
+      meta: `${existing.contractNo} · ${existing.status} · receiptsUnlinked=${existing._count.receipts}`,
+    });
+
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error('[DELETE_CONTRACT]', err);
+    return NextResponse.json({ error: 'SERVER_ERROR' }, { status: 500 });
   }
-
-  await prisma.contract.delete({ where: { id } });
-
-  await logActivity({
-    userId: session.id,
-    userName: session.name,
-    action: 'DELETE_CONTRACT',
-    projectCode: existing.house?.code ?? null,
-    amountIqd: null,
-    meta: `${existing.contractNo} · ${existing.status}`,
-  });
-
-  return NextResponse.json({ ok: true });
 }

@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       name: user.name,
       role: user.role,
       locale: user.locale,
+      branchId: user.branchId ?? null,
     };
 
     const token = await createSessionToken(sessionUser);
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
         name: user.name,
         role: user.role,
         locale: fromDbLocale(user.locale),
+        branchId: user.branchId ?? null,
       },
     });
     return attachSessionCookie(res, token);

@@ -9,6 +9,7 @@ import {
   ASSIGNABLE_ROLES,
   getEffectivePermissions,
   getRoleDefaults,
+  isBranchScopedRole,
   isSuperAdmin,
   logActivity,
   PERMISSION_KEYS,
@@ -30,12 +31,24 @@ const phoneField = z
     return n;
   });
 
+const ROLE_ENUM = z.enum([
+  'SUPER_ADMIN',
+  'ACCOUNTANT',
+  'SALESPERSON',
+  'VIEW_ONLY',
+  'SITE_SUPERVISOR',
+  'BRANCH_MANAGER',
+  'BRANCH_ACCOUNTANT',
+  'BRANCH_SALES',
+]);
+
 const createSchema = z.object({
   name: z.string().min(2).max(120),
   phone: phoneField,
   password: z.string().min(6).max(100),
-  role: z.enum(['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY', 'SITE_SUPERVISOR']),
+  role: ROLE_ENUM,
   isActive: z.boolean().optional().default(true),
+  branchId: z.string().min(1).nullable().optional(),
   permissions: permRecord,
 });
 
@@ -44,10 +57,9 @@ const updateSchema = z.object({
   name: z.string().min(2).max(120).optional(),
   phone: phoneField.optional(),
   password: z.string().min(6).max(100).optional(),
-  role: z
-    .enum(['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY', 'SITE_SUPERVISOR'])
-    .optional(),
+  role: ROLE_ENUM.optional(),
   isActive: z.boolean().optional(),
+  branchId: z.string().min(1).nullable().optional(),
   permissions: permRecord,
 });
 
@@ -76,6 +88,8 @@ export async function GET() {
       role: true,
       isActive: true,
       createdAt: true,
+      branchId: true,
+      branch: { select: { id: true, name: true, code: true, isHq: true } },
     },
   });
 
@@ -87,8 +101,16 @@ export async function GET() {
     })),
   );
 
+  const branches = await prisma.branch.findMany({
+    where: { isActive: true },
+    orderBy: [{ isHq: 'desc' }, { code: 'asc' }],
+    select: { id: true, name: true, code: true, isHq: true },
+    take: 500,
+  });
+
   return NextResponse.json({
     items,
+    branches,
     permissionKeys: PERMISSION_KEYS,
     roleDefaults: Object.fromEntries(
       ASSIGNABLE_ROLES.map((r) => [r, getRoleDefaults(r)]),
@@ -112,6 +134,16 @@ export async function POST(req: Request) {
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
+    const branchId =
+      body.branchId === undefined ? undefined : body.branchId === null || body.branchId === '' ? null : body.branchId;
+    if (isBranchScopedRole(role) && !branchId) {
+      return NextResponse.json({ error: 'BRANCH_REQUIRED' }, { status: 400 });
+    }
+    if (branchId) {
+      const br = await prisma.branch.findFirst({ where: { id: branchId, isActive: true } });
+      if (!br) return NextResponse.json({ error: 'INVALID_BRANCH' }, { status: 400 });
+    }
+
     const user = await prisma.user.create({
       data: {
         name: body.name.trim(),
@@ -119,7 +151,9 @@ export async function POST(req: Request) {
         passwordHash,
         role,
         isActive: body.isActive,
+        ...(branchId !== undefined ? { branchId } : {}),
       },
+      include: { branch: { select: { id: true, name: true, code: true, isHq: true } } },
     });
 
     const perms =
@@ -136,7 +170,12 @@ export async function POST(req: Request) {
       userId: session.id,
       userName: session.name,
       action: 'USER_CREATE',
-      meta: JSON.stringify({ targetUserId: user.id, phone: user.phone, role }),
+      meta: JSON.stringify({
+        targetUserId: user.id,
+        phone: user.phone,
+        role,
+        branchId: user.branchId,
+      }),
     });
 
     return NextResponse.json({
@@ -146,6 +185,8 @@ export async function POST(req: Request) {
         phone: user.phone,
         role,
         isActive: user.isActive,
+        branchId: user.branchId,
+        branch: user.branch,
         permissions: await getEffectivePermissions(user.id, role),
       },
     });
@@ -176,6 +217,21 @@ export async function PATCH(req: Request) {
 
     const role = body.role ? toStoredRole(body.role) : undefined;
     const passwordHash = body.password ? await bcrypt.hash(body.password, 10) : undefined;
+    const branchId =
+      body.branchId === undefined
+        ? undefined
+        : body.branchId === null || body.branchId === ''
+          ? null
+          : body.branchId;
+    if (branchId) {
+      const br = await prisma.branch.findFirst({ where: { id: branchId, isActive: true } });
+      if (!br) return NextResponse.json({ error: 'INVALID_BRANCH' }, { status: 400 });
+    }
+    const nextRole = role ?? target.role;
+    const nextBranch = branchId !== undefined ? branchId : target.branchId;
+    if (isBranchScopedRole(nextRole) && !nextBranch) {
+      return NextResponse.json({ error: 'BRANCH_REQUIRED' }, { status: 400 });
+    }
 
     const user = await prisma.user.update({
       where: { id: body.userId },
@@ -185,7 +241,9 @@ export async function PATCH(req: Request) {
         role,
         isActive: body.isActive,
         passwordHash,
+        ...(branchId !== undefined ? { branchId } : {}),
       },
+      include: { branch: { select: { id: true, name: true, code: true, isHq: true } } },
     });
 
     if (body.permissions) {
@@ -203,7 +261,12 @@ export async function PATCH(req: Request) {
       userId: session.id,
       userName: session.name,
       action: 'USER_UPDATE',
-      meta: JSON.stringify({ targetUserId: user.id, phone: user.phone, role: user.role }),
+      meta: JSON.stringify({
+        targetUserId: user.id,
+        phone: user.phone,
+        role: user.role,
+        branchId: user.branchId,
+      }),
     });
 
     return NextResponse.json({
@@ -213,6 +276,8 @@ export async function PATCH(req: Request) {
         phone: user.phone,
         role: toStoredRole(user.role),
         isActive: user.isActive,
+        branchId: user.branchId,
+        branch: user.branch,
         permissions: await getEffectivePermissions(user.id, user.role),
       },
     });

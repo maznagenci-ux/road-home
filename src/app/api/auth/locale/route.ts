@@ -25,6 +25,7 @@ export async function PATCH(req: Request) {
     name: user.name,
     role: user.role,
     locale: user.locale,
+    branchId: user.branchId ?? null,
   });
 
   return NextResponse.json({ locale: locale as Locale });

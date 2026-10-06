@@ -18,6 +18,10 @@ export function normalizeLoginPhone(input: string): string | null {
   if (d.startsWith('964') && d.length >= 12) {
     d = `0${d.slice(3)}`;
   }
+  // Accept 7XXXXXXXXX (missing leading 0)
+  if (d.length === 10 && d.startsWith('7')) {
+    d = `0${d}`;
+  }
   if (!/^07\d{9}$/.test(d)) return null;
   return d;
 }

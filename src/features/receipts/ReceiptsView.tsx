@@ -419,7 +419,7 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
 
       const dispositionLine =
         to === 'roadhome'
-          ? (rr.depositDispRoadHome ?? 'تأمینات لای ڕۆد هۆم ماوەتەوە')
+          ? (rr.depositDispRoadHome ?? 'تأمینات لای ZMKH ڕۆد هۆم ماوەتەوە')
           : to === 'landlord'
             ? (rr.depositDispLandlord ??
               `پارەی تأمینات درا بە خاوەن خانوو: ${lease.landlordName || '—'}`)
@@ -430,7 +430,7 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
 
       const partyName =
         to === 'roadhome'
-          ? 'ڕۆد هۆم'
+          ? 'ZMKH ڕۆد هۆم'
           : to === 'landlord'
             ? lease.landlordName || (rr.depositToLandlord ?? 'خاوەن خانوو')
             : lease.tenantName || '';
@@ -590,6 +590,22 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
       : rentLeaseId
         ? 'RENT'
         : 'GENERAL';
+    const numOrNull = (v: string) => {
+      if (v == null || String(v).trim() === '') return null;
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    };
+    const amount = Number(form.amount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setSaving(false);
+      setError(t.pages.projects.required);
+      return;
+    }
+    let totalAmount = numOrNull(form.totalAmount);
+    let remainingAmount = numOrNull(form.remainingAmount);
+    if (totalAmount != null && remainingAmount == null) {
+      remainingAmount = Math.max(0, totalAmount - amount);
+    }
     const payload = {
       type: form.type,
       contractId: form.contractId || null,
@@ -597,9 +613,9 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
       purpose,
       partyName: form.partyName.trim(),
       currency: form.currency,
-      amount: Number(form.amount),
-      totalAmount: form.totalAmount === '' ? null : Number(form.totalAmount),
-      remainingAmount: form.remainingAmount === '' ? null : Number(form.remainingAmount),
+      amount,
+      totalAmount,
+      remainingAmount,
       description: form.description.trim() || null,
     };
     const res = await fetch('/api/receipts', {
@@ -609,7 +625,14 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
     });
     if (!res.ok) {
       setSaving(false);
-      setError(t.pages.projects.error);
+      const errBody = (await res.json().catch(() => ({}))) as { error?: string };
+      setError(
+        errBody.error === 'DUPLICATE_RECEIPT_NO'
+          ? (rc.duplicateNo ?? 'ژمارەی وەسڵ دووبارەیە — دووبارە هەوڵ بدەرەوە')
+          : errBody.error === 'VALIDATION'
+            ? (t.pages.projects.required ?? t.pages.projects.error)
+            : (t.pages.projects.error ?? 'تۆمارکردن سەرکەوتوو نەبوو'),
+      );
       return;
     }
 
@@ -657,7 +680,7 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
     }
 
     if (andPrint && receiptId) {
-      window.open(pdfUrl(receiptId, true), '_blank', 'noopener,noreferrer');
+      window.open(pdfUrl(receiptId, true), '_blank');
     }
 
     const pendingLandlord = depositLeaseId ? null : landlordNotify;
@@ -922,7 +945,7 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
                     ? t.pages.receipts.edit
                     : depositLeaseId
                       ? depositTo === 'roadhome'
-                        ? (rr.depositToRoadHome ?? 'ڕۆد هۆم')
+                        ? (rr.depositToRoadHome ?? 'ZMKH ڕۆد هۆم')
                         : depositTo === 'landlord'
                           ? (rr.depositToLandlord ?? 'خاوەن خانوو')
                           : depositTo === 'tenant'

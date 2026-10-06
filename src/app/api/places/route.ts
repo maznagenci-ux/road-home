@@ -31,19 +31,63 @@ export async function GET(req: Request) {
           ],
         }
       : undefined,
-    orderBy: [{ neighborhood: 'asc' }, { name: 'asc' }],
-    take: 500,
+    orderBy: [{ code: 'asc' }],
+    take: 2000,
   });
 
-  return NextResponse.json({ items });
+  const codes = items.map((p) => p.code);
+  const houses = codes.length
+    ? await prisma.house.findMany({
+        where: { code: { in: codes } },
+        select: {
+          code: true,
+          price: true,
+          finalPrice: true,
+          area: true,
+          facadeM: true,
+          bedrooms: true,
+          bathrooms: true,
+          guestRooms: true,
+          address: true,
+          imageUrl: true,
+          imageUrls: true,
+          videoUrl: true,
+        },
+      })
+    : [];
+  const houseByCode = new Map(houses.map((h) => [h.code, h]));
+  const enriched = items.map((p) => {
+    const house = houseByCode.get(p.code);
+    const imageUrls = Array.isArray(house?.imageUrls)
+      ? (house!.imageUrls as string[]).filter((u) => typeof u === 'string' && u.trim())
+      : house?.imageUrl
+        ? [house.imageUrl]
+        : [];
+    return {
+      ...p,
+      price: house?.price ?? null,
+      finalPrice: house?.finalPrice ?? null,
+      area: house?.area ?? null,
+      facadeM: house?.facadeM ?? null,
+      bedrooms: house?.bedrooms ?? null,
+      bathrooms: house?.bathrooms ?? null,
+      guestRooms: house?.guestRooms ?? null,
+      address: house?.address ?? null,
+      imageUrl: imageUrls[0] ?? house?.imageUrl ?? null,
+      imageUrls,
+      videoUrl: house?.videoUrl ?? null,
+    };
+  });
+
+  return NextResponse.json({ items: enriched });
 }
 
 const createSchema = z.object({
   code: z.string().min(1),
-  neighborhood: z.string().min(1),
   name: z.string().min(1),
-  province: z.string().min(1).default('هەولێر'),
-  city: z.string().min(1).default('هەولێر'),
+  neighborhood: z.string().optional().default(''),
+  province: z.string().optional().default('هەولێر'),
+  city: z.string().optional().default('هەولێر'),
   plotNo: z.string().optional(),
   lat: z.number().finite().optional().nullable(),
   lng: z.number().finite().optional().nullable(),
@@ -61,37 +105,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'CODE_EXISTS' }, { status: 409 });
     }
 
+    const name = data.name.trim();
     const item = await prisma.place.create({
       data: {
         code,
-        neighborhood: data.neighborhood.trim(),
-        name: data.name.trim(),
-        province: data.province.trim() || 'هەولێر',
-        city: data.city.trim() || 'هەولێر',
+        neighborhood: (data.neighborhood || name).trim() || name,
+        name,
+        province: (data.province || 'هەولێر').trim() || 'هەولێر',
+        city: (data.city || 'هەولێر').trim() || 'هەولێر',
         plotNo: data.plotNo?.trim() || '',
         lat: data.lat ?? null,
         lng: data.lng ?? null,
       },
     });
-
-    if (item.lat == null || item.lng == null) {
-      const { resolveErbilCoords } = await import('@/lib/map/geocode');
-      const geo = await resolveErbilCoords({
-        neighborhood: item.neighborhood,
-        name: item.name,
-        city: item.city,
-        province: item.province,
-        seed: item.code,
-      });
-      if (geo) {
-        const updated = await prisma.place.update({
-          where: { id: item.id },
-          data: { lat: geo.lat, lng: geo.lng },
-        });
-        await syncHouseFromPlace(updated);
-        return NextResponse.json({ item: updated }, { status: 201 });
-      }
-    }
 
     await syncHouseFromPlace(item);
 

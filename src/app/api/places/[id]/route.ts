@@ -27,10 +27,10 @@ export async function PATCH(
 
   const schema = z.object({
     code: z.string().min(1).optional(),
-    neighborhood: z.string().min(1).optional(),
+    neighborhood: z.string().optional(),
     name: z.string().min(1).optional(),
-    province: z.string().min(1).optional(),
-    city: z.string().min(1).optional(),
+    province: z.string().optional(),
+    city: z.string().optional(),
     plotNo: z.string().optional(),
     lat: z.number().finite().optional().nullable(),
     lng: z.number().finite().optional().nullable(),
@@ -52,7 +52,10 @@ export async function PATCH(
       where: { id },
       data: {
         code: nextCode,
-        neighborhood: data.neighborhood?.trim() ?? existing.neighborhood,
+        neighborhood:
+          data.neighborhood?.trim() ??
+          data.name?.trim() ??
+          existing.neighborhood,
         name: data.name?.trim() ?? existing.name,
         province: data.province?.trim() ?? existing.province,
         city: data.city?.trim() ?? existing.city,
@@ -61,23 +64,6 @@ export async function PATCH(
         lng: data.lng !== undefined ? data.lng : existing.lng,
       },
     });
-
-    if (item.lat == null || item.lng == null) {
-      const { resolveErbilCoords } = await import('@/lib/map/geocode');
-      const geo = await resolveErbilCoords({
-        neighborhood: item.neighborhood,
-        name: item.name,
-        city: item.city,
-        province: item.province,
-        seed: item.code,
-      });
-      if (geo) {
-        item = await prisma.place.update({
-          where: { id },
-          data: { lat: geo.lat, lng: geo.lng },
-        });
-      }
-    }
 
     await syncHouseFromPlace(item);
 

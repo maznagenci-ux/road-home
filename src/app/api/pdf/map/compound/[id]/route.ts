@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import sharp from 'sharp';
-import { requireApiPermission } from '@/lib/api-auth';
+import { getSession } from '@/lib/auth';
+import { isSuperAdmin } from '@/lib/access/permissions';
 import { loadCompound } from '@/lib/map/compound-loader';
 import { stitchCompoundMap } from '@/lib/map/stitch-compound';
 
@@ -10,19 +11,18 @@ export const dynamic = 'force-dynamic';
 
 type Ctx = { params: Promise<{ id: string }> };
 
-/** Page long-edge in PDF points (≈ A2). Keep modest so Edge/Chrome can render. */
-const MAX_PAGE_PT = 1400;
-/** Rasterize embed at 2× page size for sharper zoom. */
-const EMBED_SCALE = 2;
+/** Long-edge cap (px) — full compound tiles can be ~15k; keep sharp but bounded. */
+const MAX_EMBED_PX = 14_336;
 
 /**
- * Compound map PDF. Query: ?force=1 · ?format=jpg · ?full=1
+ * Compound map PDF — Super Admin only.
+ * Query: ?force=1 · ?format=jpg · ?fast=1 (maxZoom-1, quicker)
  */
 export async function GET(req: Request, ctx: Ctx) {
-  const auth = await requireApiPermission('VIEW_PROPERTIES');
-  if ('error' in auth) {
-    const alt = await requireApiPermission('VIEW_CONTRACTS');
-    if ('error' in alt) return alt.error;
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isSuperAdmin(session.role)) {
+    return NextResponse.json({ error: 'SUPER_ADMIN_REQUIRED' }, { status: 403 });
   }
 
   const { id } = await ctx.params;
@@ -33,7 +33,8 @@ export async function GET(req: Request, ctx: Ctx) {
   const url = new URL(req.url);
   const force = url.searchParams.get('force') === '1';
   const format = url.searchParams.get('format') === 'jpg' ? 'jpg' : 'pdf';
-  const fullQuality = url.searchParams.get('full') === '1';
+  const fast = url.searchParams.get('fast') === '1';
+  const fullQuality = !fast;
 
   try {
     const data = await loadCompound(id, false);
@@ -45,7 +46,7 @@ export async function GET(req: Request, ctx: Ctx) {
     }
 
     const stitched = await stitchCompoundMap(data.meta, {
-      quality: fullQuality ? 92 : 88,
+      quality: fullQuality ? 96 : 88,
       force,
       fullQuality,
     });
@@ -57,16 +58,25 @@ export async function GET(req: Request, ctx: Ctx) {
     const titleEn = (data.meta.title || `map-${id}`).replace(/[^\w\s\-()]+/g, '').trim();
     const safeName = `road-home-map-${id}`;
 
-    const scale = Math.min(MAX_PAGE_PT / stitched.width, MAX_PAGE_PT / stitched.height, 1);
-    const pageW = Math.max(200, Math.round(stitched.width * scale));
-    const pageH = Math.max(200, Math.round(stitched.height * scale));
-    const embedW = Math.min(stitched.width, pageW * EMBED_SCALE);
-    const embedH = Math.min(stitched.height, pageH * EMBED_SCALE);
+    let embedW = stitched.width;
+    let embedH = stitched.height;
+    const longEdge = Math.max(embedW, embedH);
+    if (longEdge > MAX_EMBED_PX) {
+      const s = MAX_EMBED_PX / longEdge;
+      embedW = Math.max(1, Math.round(embedW * s));
+      embedH = Math.max(1, Math.round(embedH * s));
+    }
 
-    // Downscale + baseline JPEG — huge progressive embeds render blank in Edge/Chrome
-    const embedJpg = await sharp(stitched.bytes)
-      .resize(embedW, embedH, { fit: 'fill' })
-      .jpeg({ quality: 92, progressive: false, mozjpeg: false })
+    const needsResize = embedW !== stitched.width || embedH !== stitched.height;
+    let raster = sharp(stitched.bytes);
+    if (needsResize) {
+      raster = raster.resize(embedW, embedH, {
+        fit: 'fill',
+        kernel: sharp.kernel.lanczos3,
+      });
+    }
+    const embedJpg = await raster
+      .jpeg({ quality: 96, progressive: false, mozjpeg: true })
       .toBuffer();
 
     if (format === 'jpg') {
@@ -79,6 +89,10 @@ export async function GET(req: Request, ctx: Ctx) {
       });
     }
 
+    // 1 PDF point ≈ 1 pixel at embed resolution — best zoom in viewers
+    const pageW = embedW;
+    const pageH = embedH;
+
     const pdf = await PDFDocument.create();
     const page = pdf.addPage([pageW, pageH]);
     page.drawImage(await pdf.embedJpg(embedJpg), {
@@ -90,21 +104,21 @@ export async function GET(req: Request, ctx: Ctx) {
 
     const font = await pdf.embedFont(StandardFonts.HelveticaBold);
     const label = `Road Home  ·  ${titleEn || id}`;
-    const pad = 10;
-    const textSize = Math.max(10, Math.min(14, pageW / 90));
+    const pad = Math.max(10, Math.round(pageW / 400));
+    const textSize = Math.max(12, Math.min(28, pageW / 80));
     const textW = font.widthOfTextAtSize(label, textSize);
-    const boxH = textSize + 12;
+    const boxH = textSize + pad;
     page.drawRectangle({
       x: pad,
       y: pageH - pad - boxH,
-      width: Math.min(textW + 20, pageW - pad * 2),
+      width: Math.min(textW + pad * 2, pageW - pad * 2),
       height: boxH,
       color: rgb(0.043, 0.122, 0.22),
       opacity: 0.9,
     });
     page.drawText(label, {
-      x: pad + 10,
-      y: pageH - pad - boxH + 6,
+      x: pad + pad / 2,
+      y: pageH - pad - boxH + pad / 2,
       size: textSize,
       font,
       color: rgb(1, 1, 1),
@@ -116,6 +130,8 @@ export async function GET(req: Request, ctx: Ctx) {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${safeName}.pdf"`,
         'Cache-Control': 'private, max-age=60',
+        'X-Map-Zoom': String(stitched.zoom),
+        'X-Map-Pixels': `${embedW}x${embedH}`,
       },
     });
   } catch (e) {

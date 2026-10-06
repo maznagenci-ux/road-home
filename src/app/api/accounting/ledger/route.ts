@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import type { VoucherAccountType } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireApiPermission } from '@/lib/api-auth';
+import {
+  resolveAccountingBranchScope,
+  voucherBranchWhere,
+} from '@/lib/access/accounting-branch';
 
 const STREAM_TYPES = {
   construction: ['EXPENSE', 'VENDOR_PAYMENT', 'PAYABLE'] as const satisfies readonly VoucherAccountType[],
@@ -24,6 +28,7 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const stream = searchParams.get('stream'); // construction | trading | rental
   const kind = searchParams.get('kind'); // income | expense | all (legacy)
+  const branchScope = resolveAccountingBranchScope(auth.session, searchParams.get('branchId'));
 
   let accountTypes: readonly VoucherAccountType[] | undefined;
   if (stream && stream in STREAM_TYPES) {
@@ -35,12 +40,14 @@ export async function GET(req: Request) {
   const items = await prisma.voucher.findMany({
     where: {
       status: 'POSTED',
+      ...voucherBranchWhere(branchScope),
       ...(accountTypes ? { accountType: { in: [...accountTypes] } } : {}),
     },
     orderBy: { createdAt: 'desc' },
     include: {
       house: { select: { code: true, name: true } },
       createdBy: { select: { name: true } },
+      branch: { select: { id: true, name: true, code: true } },
     },
     take: 200,
   });
@@ -58,5 +65,11 @@ export async function GET(req: Request) {
     { income: 0, expense: 0, salesIncome: 0, rentalIncome: 0, constructionExpense: 0 },
   );
 
-  return NextResponse.json({ items, totals, stream: stream ?? null, kind: kind ?? 'all' });
+  return NextResponse.json({
+    items,
+    totals,
+    stream: stream ?? null,
+    kind: kind ?? 'all',
+    branchId: branchScope,
+  });
 }

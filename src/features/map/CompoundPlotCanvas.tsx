@@ -60,32 +60,74 @@ function escapeHtml(s: string) {
 function FitCompound({
   meta,
   focusPointer,
+  fillViewport = false,
 }: {
   meta: CompoundMeta;
   focusPointer?: CompoundPointer | null;
+  /** TV / large screens — fit image to container instead of fixed low zoom */
+  fillViewport?: boolean;
 }) {
   const map = useMap();
 
   useEffect(() => {
-    const w = meta.image?.width ?? 16384;
-    const h = meta.image?.height ?? 8192;
+    const w = Math.max(1, Math.round(meta.image?.width ?? 16384));
+    const h = Math.max(1, Math.round(meta.image?.height ?? 8192));
     const bounds = L.latLngBounds([0, 0], [h, w]);
     map.setMaxBounds(bounds.pad(0.08));
 
-    if (focusPointer && Number.isFinite(focusPointer.x) && Number.isFinite(focusPointer.y)) {
-      map.setView(
-        [focusPointer.y, focusPointer.x],
-        Math.max(map.getZoom(), Math.min(meta.maxZoom, meta.maxZoom - 1)),
-      );
-      return;
-    }
+    const apply = () => {
+      map.invalidateSize({ animate: false });
 
-    if (meta.center?.x && meta.center?.y) {
-      map.setView([meta.center.y, meta.center.x], Math.min(2, meta.maxZoom));
-    } else {
-      map.fitBounds(bounds, { padding: [20, 20] });
-    }
-  }, [map, meta, focusPointer]);
+      if (focusPointer && Number.isFinite(focusPointer.x) && Number.isFinite(focusPointer.y)) {
+        map.setView(
+          [focusPointer.y, focusPointer.x],
+          Math.max(map.getZoom(), Math.min(meta.maxZoom, meta.maxZoom - 1)),
+        );
+        return;
+      }
+
+      // Always cover-fill the stage so the plot map isn't a tiny white patch
+      const size = map.getSize();
+      if (!size.x || !size.y) {
+        map.invalidateSize({ animate: false });
+      }
+      let z = map.getBoundsZoom(bounds, true, L.point(8, 8));
+      if (!Number.isFinite(z) || z < (meta.minZoom ?? 0)) {
+        z = map.getBoundsZoom(bounds, false, L.point(16, 16));
+      }
+      const openZ = Math.min(
+        meta.maxZoom ?? 6,
+        Math.max(Number.isFinite(z) ? z : 2, (meta.minZoom ?? 0)),
+      );
+      map.setView(bounds.getCenter(), openZ);
+    };
+
+    apply();
+    const t = window.setTimeout(apply, 80);
+    const t2 = window.setTimeout(apply, 320);
+    const t3 = window.setTimeout(apply, 700);
+    const t4 = window.setTimeout(apply, 1400);
+
+    const el = map.getContainer();
+    const stage = el?.parentElement;
+    const ro =
+      typeof ResizeObserver !== 'undefined'
+        ? new ResizeObserver(() => {
+            map.invalidateSize({ animate: false });
+            if (fillViewport && !focusPointer) apply();
+          })
+        : null;
+    if (ro && el) ro.observe(el);
+    if (ro && stage) ro.observe(stage);
+
+    return () => {
+      window.clearTimeout(t);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.clearTimeout(t4);
+      ro?.disconnect();
+    };
+  }, [map, meta, focusPointer, fillViewport]);
 
   return null;
 }
@@ -96,6 +138,8 @@ export type CompoundPlotCanvasProps = {
   selectedNo?: string | null;
   onSelect?: (p: CompoundPointer) => void;
   labels: { plotNo: string };
+  /** When true, fit the plot image to the map container (TV fullscreen). */
+  fillViewport?: boolean;
 };
 
 export function CompoundPlotCanvas({
@@ -104,6 +148,7 @@ export function CompoundPlotCanvas({
   selectedNo,
   onSelect,
   labels,
+  fillViewport = false,
 }: CompoundPlotCanvasProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -127,21 +172,29 @@ export function CompoundPlotCanvas({
   const tileUrl = `/api/map/plot-tiles/${meta.tileFolder}/{z}/{x}/{y}?v=rh21`;
   const minZ = meta.minZoom ?? 0;
   const maxZ = meta.maxZoom ?? 6;
-  const imgW = meta.image?.width ?? 16384;
-  const imgH = meta.image?.height ?? 8192;
+  const imgW = Math.max(1, Math.round(meta.image?.width ?? 16384));
+  const imgH = Math.max(1, Math.round(meta.image?.height ?? 8192));
+  const centerY = Number(meta.center?.y);
+  const centerX = Number(meta.center?.x);
 
   return (
     <MapContainer
-      key={`${meta.id}-${maxZ}-rh21`}
+      key={`${meta.id}-${maxZ}-${imgW}x${imgH}`}
       crs={crs}
-      center={[meta.center.y || 0, meta.center.x || 0]}
+      center={[Number.isFinite(centerY) ? centerY : imgH / 2, Number.isFinite(centerX) ? centerX : imgW / 2]}
       zoom={1}
       minZoom={minZ}
       maxZoom={maxZ}
       scrollWheelZoom
-      className="h-full w-full rounded-2xl z-0 rh-compound-map"
-      style={{ minHeight: 480, background: '#1a2332' }}
+      className="h-full w-full z-0 rh-compound-map"
+      style={{
+        height: '100%',
+        width: '100%',
+        minHeight: fillViewport ? '100%' : 480,
+        background: '#1a2332',
+      }}
       attributionControl={false}
+      keyboard={false}
     >
       <TileLayer
         url={tileUrl}
@@ -149,9 +202,11 @@ export function CompoundPlotCanvas({
         noWrap
         minZoom={minZ}
         maxZoom={maxZ}
+        maxNativeZoom={maxZ}
         bounds={L.latLngBounds([0, 0], [imgH, imgW])}
+        errorTileUrl="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
       />
-      <FitCompound meta={meta} focusPointer={focus} />
+      <FitCompound meta={meta} focusPointer={focus} fillViewport />
       {visible.map((p) => (
         <Marker
           key={p.id}
@@ -162,7 +217,7 @@ export function CompoundPlotCanvas({
           }}
         >
           <Popup>
-            <div className="text-sm" dir="auto">
+            <div className="text-sm" dir="ltr">
               <p className="font-bold tabular-nums">
                 {labels.plotNo}: {p.no}
               </p>

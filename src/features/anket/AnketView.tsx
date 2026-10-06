@@ -95,7 +95,7 @@ const emptyForm = (): FormState => ({
   party2Origin: '',
   documents: ['national-card', 'information-card', 'mukhtar-letter'],
   notes: '',
-  organizerName: 'Road Home ZMKH Real Estate',
+  organizerName: 'ZMKH Road Home',
   mukhtarName: '',
 });
 

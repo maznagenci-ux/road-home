@@ -38,6 +38,8 @@ export async function syncPlaceFromHouse(input: {
   province?: string | null;
   plotNo?: string | null;
   location?: string | null;
+  lat?: number | null;
+  lng?: number | null;
 }) {
   const code = input.code.toUpperCase().trim();
   const neighborhood =
@@ -58,6 +60,8 @@ export async function syncPlaceFromHouse(input: {
       province,
       city,
       plotNo,
+      lat: input.lat ?? null,
+      lng: input.lng ?? null,
     },
     update: {
       name,
@@ -67,6 +71,8 @@ export async function syncPlaceFromHouse(input: {
       ...(input.province != null ? { province } : {}),
       ...(input.city != null ? { city } : {}),
       ...(input.plotNo != null ? { plotNo } : {}),
+      ...(input.lat !== undefined ? { lat: input.lat } : {}),
+      ...(input.lng !== undefined ? { lng: input.lng } : {}),
     },
   });
 

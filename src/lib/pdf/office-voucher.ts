@@ -2,6 +2,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
 import { isRTL } from '@/i18n/locale-config';
 import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
+import { brandLogoPair } from '@/lib/pdf/assets';
 
 function esc(value: string) {
   return value
@@ -74,9 +75,7 @@ export function renderOfficeVoucherHtml(
   const party = esc(data.partyName || '—');
   const safeNo = esc(data.voucherNo);
   const dateStr = isoDate(data.issuedAt);
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
   const payLabel =
     data.paymentMethod === 'CREDIT'
       ? (o.credit ?? 'قەرز')
@@ -99,7 +98,7 @@ export function renderOfficeVoucherHtml(
     <div class="wm" aria-hidden="true"><img src="${logoMark}" alt="" /></div>
     <header class="head">
       <div class="brand-col">
-        <img class="logo" src="${logoFull}" alt="Road Home" />
+        <img class="logo" src="${logoFull}" alt="ZMKH Road Home" />
         <div class="copy-pill">${
           copy === 'original'
             ? (t.pdf.receiptCopyOriginal ?? 'ڕەسەن')
@@ -199,14 +198,14 @@ export function renderOfficeVoucherHtml(
     .toolbar { max-width: 210mm; margin: 10px auto; display: flex; justify-content: flex-end; padding: 0 8px; }
     .toolbar button { font-family: inherit; border: 0; background: #0f2744; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
     .page {
-      width: 210mm; height: 297mm; margin: 0 auto 12px; background: #fff;
+      width: 210mm; min-height: 297mm; margin: 0 auto 12px; background: #fff;
       padding: 5mm 8mm; display: flex; flex-direction: column; gap: 0;
-      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12); overflow: hidden;
+      box-shadow: 0 8px 28px rgb(15 39 68 / 0.12); overflow: visible;
     }
     .voucher {
-      position: relative; flex: 1 1 50%; height: 50%; min-height: 0;
-      padding: 2mm 1mm 1mm; display: flex; flex-direction: column;
-      border-bottom: 1px dashed #c5d0dc; overflow: hidden;
+      position: relative; flex: 0 0 auto; min-height: 0;
+      padding: 2mm 1mm 3mm; display: flex; flex-direction: column;
+      border-bottom: 1px dashed #c5d0dc; overflow: visible;
     }
     .voucher:last-child { border-bottom: 0; }
     .wm { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.04; pointer-events: none; }
@@ -242,16 +241,16 @@ export function renderOfficeVoucherHtml(
     .sign-line { border-top: 1px solid #0f2744; margin-top: 0; }
     .sign-name { font-size: 11px; font-weight: 600; padding-top: 4px; }
     @media print {
-      html, body { height: auto; background: #fff; }
+      html, body { height: auto; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .toolbar { display: none !important; }
       .page {
         box-shadow: none; margin: 0; width: 100%; height: auto;
-        max-height: 287mm; padding: 0; overflow: hidden;
-        page-break-after: avoid; page-break-inside: avoid;
+        max-height: none; padding: 0; overflow: visible;
+        page-break-after: avoid;
       }
       .voucher {
-        flex: none; height: auto; max-height: 140mm;
-        page-break-inside: avoid; page-break-after: avoid;
+        flex: 0 0 auto; height: auto; max-height: none;
+        overflow: visible; page-break-inside: avoid;
       }
     }
   </style>

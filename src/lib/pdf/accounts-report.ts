@@ -1,13 +1,14 @@
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
 import { isRTL } from '@/i18n/locale-config';
-import { BRAND_NAME, BRAND_NAME_AR, BRAND_NAME_EN } from '@/lib/brand';
+import { BRAND_NAME, BRAND_NAME_AR, BRAND_NAME_EN, BRAND_NAME_KU } from '@/lib/brand';
 import {
   accountColumnLabels,
   kindLabel,
   type AccountRow,
   type AccountStream,
 } from '@/lib/exports/account-rows';
+import { brandLogoPair } from '@/lib/pdf/assets';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 function esc(value: string) {
@@ -38,9 +39,7 @@ export function renderAccountsReportHtml(
   const rtl = isRTL(locale);
   const dir = rtl ? 'rtl' : 'ltr';
   const font = "'Noto Kufi Arabic', 'Segoe UI', Tahoma, sans-serif";
-  const base = (data.assetBase ?? '').replace(/\/$/, '');
-  const logoFull = `${base}/brand/logo.png`;
-  const logoMark = `${base}/brand/logo-mark.png`;
+  const { logo: logoFull, mark: logoMark } = brandLogoPair(data.assetBase);
   const stream: AccountStream = data.stream ?? 'all';
   const L = accountColumnLabels(locale, stream);
   const showKind = stream === 'all';
@@ -203,7 +202,7 @@ export function renderAccountsReportHtml(
     <header class="head">
       <div>
         <div class="logo-row">
-          <img class="logo" src="${esc(logoFull)}" alt="Road Home" onerror="this.src='${esc(logoMark)}'" />
+          <img class="logo" src="${esc(logoFull)}" alt="ZMKH Road Home" onerror="this.src='${esc(logoMark)}'" />
           <div>
             <div class="brand-mark">${esc(BRAND_NAME)}</div>
             <div class="page-tag">${esc(isoDate(new Date()))}</div>
@@ -211,8 +210,8 @@ export function renderAccountsReportHtml(
         </div>
       </div>
       <div class="names">
-        <p class="n-ku">${esc(BRAND_NAME)}</p>
-        <p class="n-ar">${esc(BRAND_NAME_AR)}</p>
+        <p class="n-ku">${esc(BRAND_NAME_KU)}</p>
+        ${BRAND_NAME_AR ? `<p class="n-ar">${esc(BRAND_NAME_AR)}</p>` : ''}
         <p class="n-en">${esc(BRAND_NAME_EN)}</p>
         <div class="phones"><span>${phones[0]}</span><span class="sep">·</span><span>${phones[1]}</span></div>
         <h1 class="doc-title">${esc(data.title)}</h1>

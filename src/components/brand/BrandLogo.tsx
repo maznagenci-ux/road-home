@@ -42,7 +42,7 @@ export function BrandLogo({
   return (
     <Image
       src={src}
-      alt="Road Home ZMKH Real Estate"
+      alt="ZMKH Road Home"
       width={size}
       height={size}
       className={cn('object-contain', className)}

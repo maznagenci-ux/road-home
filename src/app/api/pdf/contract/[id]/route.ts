@@ -4,9 +4,12 @@ import { getSession } from '@/lib/auth';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import { getFixedSaleClauses } from '@/lib/contracts/sale-clauses';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderContractHtml } from '@/lib/pdf/templates';
 import { formatCurrency } from '@/lib/utils';
 import { BRAND_NAME } from '@/lib/brand';
+import { assertContractInBranch } from '@/lib/access/branch-scope';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(
   req: Request,
@@ -16,6 +19,11 @@ export async function GET(
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const ok = await assertContractInBranch(session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
+  await loadCompanyContact();
+
   const url = new URL(req.url);
   const localeParam = url.searchParams.get('locale');
   const locale: Locale =
@@ -96,6 +104,7 @@ export async function GET(
     propertyType: contract.propertyType,
     propertyCode,
     location,
+    areaSqm,
     sellerName: contract.sellerName,
     sellerPhone: contract.sellerPhone,
     buyerName: contract.buyerName,
@@ -108,11 +117,14 @@ export async function GET(
     guarantorPhone: contract.guarantorPhone,
     lawyerName: contract.lawyerName,
     lawyerPhone: contract.lawyerPhone,
+    organizerName: contract.organizerName || BRAND_NAME,
+    showOrganizer: contract.showOrganizer,
+    notes: contract.notes,
     signingDate: signing,
     isExternal: contract.isExternal,
     clauses,
     autoPrint,
-    assetBase: url.origin,
+    assetBase: getPublicOrigin(req),
   });
 
   return new NextResponse(html, {

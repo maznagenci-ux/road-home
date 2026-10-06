@@ -31,6 +31,8 @@ export type PostTransactionInput = {
   createdById?: string | null;
   sourceVoucherId?: string | null;
   sourceReceiptId?: string | null;
+  /** Branch books — null = HQ / unassigned */
+  branchId?: string | null;
   /** Skip overdraft check when true */
   allowOverdraft?: boolean;
   /** Optional explicit txn number (migration) */

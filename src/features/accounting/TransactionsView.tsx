@@ -4,6 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/accounting/chart';
+import {
+  AccountingBranchFilterBar,
+  useAccountingBranchFilter,
+} from '@/features/accounting/AccountingBranchFilter';
 
 type Txn = {
   id: string;
@@ -45,6 +49,15 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
   const [q, setQ] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const {
+    canPick,
+    branchId,
+    setBranchId,
+    branches,
+    setBranches,
+    withBranchParam,
+    writeBranchId,
+  } = useAccountingBranchFilter();
   const [form, setForm] = useState({
     type: 'INCOME' as (typeof POST_TYPES)[number],
     category: 'OTHER_INCOME',
@@ -59,8 +72,9 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
   });
 
   const load = useCallback(async () => {
-    const qs = q ? `?q=${encodeURIComponent(q)}` : '';
-    const res = await fetch(`/api/accounting/transactions${qs}`);
+    const base = q ? `?q=${encodeURIComponent(q)}` : '';
+    const url = withBranchParam(`/api/accounting/transactions${base}`);
+    const res = await fetch(url);
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || 'error');
@@ -68,15 +82,16 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
     }
     setItems(data.items || []);
     setCashAccounts(data.cashAccounts || []);
+    if (Array.isArray(data.branches)) setBranches(data.branches);
     setForm((f) => ({
       ...f,
       cashAccountId: f.cashAccountId || data.cashAccounts?.[0]?.id || '',
     }));
-  }, [q]);
+  }, [q, withBranchParam, setBranches]);
 
   useEffect(() => {
     void load();
-  }, [load]);
+  }, [load, branchId]);
 
   const field =
     'w-full rounded-xl border border-border bg-muted px-3 py-2 text-sm outline-none focus:border-primary/50';
@@ -99,6 +114,7 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
         exchangeRate: 1,
         cashAccountId: form.paymentMethod === 'CASH' ? form.cashAccountId : null,
         bankAccountId: null,
+        branchId: writeBranchId(),
       }),
     });
     const data = await res.json();
@@ -139,37 +155,98 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
         />
       </div>
 
+      <AccountingBranchFilterBar
+        canPick={canPick}
+        branchId={branchId}
+        setBranchId={setBranchId}
+        branches={branches}
+      />
+
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-      <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-card p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
-        <select className={field} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })}>
+      <form
+        onSubmit={onSubmit}
+        className="rounded-2xl border border-border bg-card p-4 grid grid-cols-1 md:grid-cols-3 gap-3"
+      >
+        <select
+          className={field}
+          value={form.type}
+          onChange={(e) => setForm({ ...form, type: e.target.value as typeof form.type })}
+        >
           {POST_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>
+              {t}
+            </option>
           ))}
         </select>
-        <select className={field} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+        <select
+          className={field}
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+        >
           {categories.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
-        <input className={field} type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
-        <input className={field} type="number" min={1} required placeholder={labels.amount ?? 'بڕ (دینار)'} value={form.amountOriginal || ''} onChange={(e) => setForm({ ...form, amountOriginal: Number(e.target.value) })} />
-        <select className={field} value={form.paymentMethod} onChange={(e) => setForm({ ...form, paymentMethod: e.target.value as typeof form.paymentMethod })}>
+        <input
+          className={field}
+          type="date"
+          value={form.date}
+          onChange={(e) => setForm({ ...form, date: e.target.value })}
+        />
+        <input
+          className={field}
+          type="number"
+          min={1}
+          required
+          placeholder={labels.amount ?? 'بڕ (دینار)'}
+          value={form.amountOriginal || ''}
+          onChange={(e) => setForm({ ...form, amountOriginal: Number(e.target.value) })}
+        />
+        <select
+          className={field}
+          value={form.paymentMethod}
+          onChange={(e) =>
+            setForm({ ...form, paymentMethod: e.target.value as typeof form.paymentMethod })
+          }
+        >
           <option value="CASH">نەقد</option>
           <option value="CREDIT">قەرز</option>
         </select>
         {form.paymentMethod === 'CASH' ? (
-          <select className={field} value={form.cashAccountId} onChange={(e) => setForm({ ...form, cashAccountId: e.target.value })}>
+          <select
+            className={field}
+            value={form.cashAccountId}
+            onChange={(e) => setForm({ ...form, cashAccountId: e.target.value })}
+          >
             {cashAccounts.map((a) => (
-              <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+              <option key={a.id} value={a.id}>
+                {a.code} — {a.name}
+              </option>
             ))}
           </select>
         ) : (
           <div />
         )}
-        <input className={field} placeholder={labels.party ?? 'لایەن'} value={form.partyName} onChange={(e) => setForm({ ...form, partyName: e.target.value })} />
-        <input className={`${field} md:col-span-2`} placeholder={labels.note ?? 'تێبینی'} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-        <button type="submit" disabled={busy} className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm md:col-span-3">
+        <input
+          className={field}
+          placeholder={labels.party ?? 'لایەن'}
+          value={form.partyName}
+          onChange={(e) => setForm({ ...form, partyName: e.target.value })}
+        />
+        <input
+          className={`${field} md:col-span-2`}
+          placeholder={labels.note ?? 'تێبینی'}
+          value={form.description}
+          onChange={(e) => setForm({ ...form, description: e.target.value })}
+        />
+        <button
+          type="submit"
+          disabled={busy}
+          className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm md:col-span-3"
+        >
           {labels.post ?? 'تۆمارکردن'}
         </button>
       </form>
@@ -196,10 +273,16 @@ export function TransactionsView({ t, lang }: { t: Dictionary; lang: string }) {
                 <td className="p-3">{row.type}</td>
                 <td className="p-3">{row.category}</td>
                 <td className="p-3">{row.partyName ?? '—'}</td>
-                <td className="p-3 font-medium">{formatCurrency(row.amountBaseIqd, lang, 'IQD')}</td>
+                <td className="p-3 font-medium">
+                  {formatCurrency(row.amountBaseIqd, lang, 'IQD')}
+                </td>
                 <td className="p-3 text-xs text-muted-foreground">د.ع</td>
                 <td className="p-3">
-                  <button type="button" onClick={() => softDelete(row.id)} className="text-xs text-destructive">
+                  <button
+                    type="button"
+                    onClick={() => softDelete(row.id)}
+                    className="text-xs text-destructive"
+                  >
                     {labels.delete ?? 'سڕینەوە'}
                   </button>
                 </td>

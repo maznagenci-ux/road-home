@@ -21,8 +21,10 @@ npm run build
 
 echo "==> Copy static assets into standalone"
 mkdir -p .next/standalone/.next
-cp -r public .next/standalone/public
-cp -r .next/static .next/standalone/.next/static
+# Remove first so `cp` does not nest as public/public
+rm -rf .next/standalone/public .next/standalone/.next/static
+cp -a public .next/standalone/public
+cp -a .next/static .next/standalone/.next/static
 
 echo "==> Restart PM2"
 if pm2 describe road-home >/dev/null 2>&1; then

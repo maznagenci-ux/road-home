@@ -81,7 +81,7 @@ export function TvSystemMap({ t, lang }: { t: Dictionary; lang: string }) {
         // Load ALL plot numbers (slim) — needed for complete list + map labels
         void (async () => {
           try {
-            const pr = await fetch(`/api/map/compounds/${compoundId}?pointers=slim`);
+            const pr = await fetch(`/api/map/compounds/${compoundId}?pointers=slim&v=rh31`);
             if (!pr.ok || cancelled) return;
             const full = (await pr.json()) as CompoundMeta & {
               pointerFormat?: string;
@@ -282,18 +282,16 @@ export function TvSystemMap({ t, lang }: { t: Dictionary; lang: string }) {
                 {m.emptyCompoundPlots ?? 'رەقەمێک نەدۆزرایەوە'}
               </div>
             ) : (
-              <ul>
+              <ul dir="ltr">
                 {filteredPointers.map((p) => (
-                  <li key={p.id}>
+                  <li key={`${p.id}-${p.seq}`}>
                     <button
                       type="button"
                       data-tv-focus
                       onClick={() => setSelectedPlotNo(p.no)}
                       className={selectedPlotNo === p.no ? 'is-active' : undefined}
                     >
-                      <span className="rh-tv-mapview-plot-no" dir="ltr">
-                        {p.no}
-                      </span>
+                      <span className="rh-tv-mapview-plot-no">{p.no}</span>
                     </button>
                   </li>
                 ))}

@@ -1,0 +1,1500 @@
+/* Isolated TV styles — loaded only by /[lang]/tv layout. Does not affect desktop/mobile. */
+
+.rh-tv-root,
+.rh-tv-body {
+  overflow-x: hidden;
+}
+
+.rh-tv-root {
+  /* Smart TVs often lack dvh — vh first, then dvh where supported */
+  min-height: 100vh;
+  height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.rh-tv-body {
+  margin: 0;
+  background: #0b1220;
+  color: #f8fafc;
+  font-size: clamp(20px, 1.35vw, 28px);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  cursor: none;
+  overscroll-behavior: none;
+}
+
+@media (min-width: 2560px) {
+  .rh-tv-body {
+    font-size: clamp(26px, 1.1vw, 36px);
+  }
+}
+
+@media (min-width: 3840px) {
+  .rh-tv-body {
+    font-size: clamp(32px, 0.95vw, 42px);
+  }
+}
+
+.rh-tv-shell {
+  min-height: 100vh;
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: 100%;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  padding: 3.5vh 4vw 3.5vh;
+  box-sizing: border-box;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at top, rgba(20, 184, 166, 0.14), transparent 55%),
+    #0b1220;
+}
+
+.rh-tv-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.2vh;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.rh-tv-header-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.rh-tv-header-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.65rem;
+  flex: 0 0 auto;
+}
+
+.rh-tv-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.72em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.rh-tv-title {
+  margin: 0;
+  font-size: 1.75em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.rh-tv-subtitle {
+  margin: 0.45rem 0 0;
+  font-size: 0.92em;
+  color: rgba(248, 250, 252, 0.65);
+  max-width: 42ch;
+}
+
+.rh-tv-hint {
+  margin: 0;
+  font-size: 0.78em;
+  color: rgba(248, 250, 252, 0.45);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+  .rh-tv-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  padding-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.rh-tv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.15rem;
+  width: 100%;
+}
+
+@media (min-width: 2560px) {
+  .rh-tv-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 3840px) {
+  .rh-tv-grid {
+    gap: 1.75rem;
+  }
+}
+
+.rh-tv-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 10rem;
+  min-width: 0;
+  padding: 1.4rem 1.45rem;
+  border-radius: 1.25rem;
+  border: 3px solid rgba(148, 163, 184, 0.28);
+  background: rgba(15, 23, 42, 0.9);
+  color: inherit;
+  text-decoration: none;
+  outline: none;
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rh-tv-tile-icon {
+  display: inline-flex;
+  width: 3.25rem;
+  height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.95rem;
+  background: rgba(20, 184, 166, 0.18);
+  color: #5eead4;
+}
+
+.rh-tv-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.rh-tv-icon-inline {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-inline-end: 0.4rem;
+}
+
+.rh-tv-spin {
+  animation: rh-tv-spin 0.9s linear infinite;
+}
+
+@keyframes rh-tv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rh-tv-tile-label {
+  font-size: 1.2em;
+  font-weight: 700;
+}
+
+.rh-tv-tile-hint {
+  font-size: 0.78em;
+  color: rgba(248, 250, 252, 0.55);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.rh-tv-card {
+  border-radius: 1.25rem;
+  border: 3px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.92);
+  padding: 1.3rem 1.45rem;
+  min-width: 0;
+}
+
+.rh-tv-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .rh-tv-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.rh-tv-metric-label {
+  margin: 0;
+  font-size: 0.82em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.rh-tv-metric-value {
+  margin: 0.45rem 0 0;
+  font-size: 1.4em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  word-break: break-word;
+}
+
+.rh-tv-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-align: start;
+  padding: 1.15rem 1.25rem;
+  margin: 0 0 0.75rem;
+  border-radius: 1rem;
+  border: 3px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.8);
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+  min-height: 4.25rem;
+}
+
+.rh-tv-row-title {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.rh-tv-row-meta {
+  font-size: 0.85em;
+  color: rgba(248, 250, 252, 0.55);
+  max-width: 40vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rh-tv-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.rh-tv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.6rem;
+  min-width: 7rem;
+  padding: 0.85rem 1.45rem;
+  border-radius: 1rem;
+  border: 3px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+  color: #f8fafc;
+  text-decoration: none;
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.rh-tv-btn:disabled {
+  opacity: 0.55;
+}
+
+.rh-tv-btn-primary {
+  border-color: #14b8a6;
+  background: #0f766e;
+}
+
+.rh-tv-login-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1.5rem;
+  align-items: start;
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (max-width: 1100px) {
+  .rh-tv-login-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rh-tv-login {
+  max-width: none;
+  margin: 0;
+}
+
+.rh-tv-login-hint {
+  margin: 0 0 1.1rem;
+  font-size: 0.85em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.rh-tv-field-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0 0 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: 1rem;
+  border: 3px solid rgba(148, 163, 184, 0.3);
+  background: #0f172a;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.rh-tv-field-btn-active {
+  border-color: #2dd4bf;
+  box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.35);
+}
+
+.rh-tv-field-label {
+  font-size: 0.8em;
+  color: rgba(248, 250, 252, 0.55);
+}
+
+.rh-tv-field-value {
+  font-size: 1.25em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  min-height: 1.4em;
+}
+
+.rh-tv-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 3px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.92);
+  /* Keep phone pad LTR even on Kurdish/Arabic RTL pages */
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.rh-tv-key {
+  min-height: 4.25rem;
+  border-radius: 1rem;
+  border: 3px solid rgba(148, 163, 184, 0.35);
+  background: #0f172a;
+  color: #f8fafc;
+  font: inherit;
+  font-size: 1.35em;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rh-tv-error {
+  margin: 0 0 1rem;
+  color: #fda4af;
+  font-size: 0.95em;
+}
+
+.rh-tv-shell-minimal {
+  padding: 0;
+  background: #0b1220;
+  min-height: 100vh;
+  max-height: 100vh;
+  height: 100vh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  height: 100dvh;
+}
+
+.rh-tv-shell-minimal .rh-tv-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 0;
+}
+
+.rh-tv-map-only {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  background: #f4f7fb;
+}
+
+.rh-tv-map-topbar {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.1rem;
+  flex: 0 0 auto;
+  padding: 0.65rem 1.1rem;
+  /* Brand stays on the visual left on Kurdish RTL pages */
+  direction: ltr;
+  background:
+    linear-gradient(105deg, #07111f 0%, #102a44 52%, #0b3d36 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 28px rgba(10, 22, 40, 0.28);
+  z-index: 20;
+}
+
+.rh-tv-map-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 0 1 auto;
+  order: 1;
+}
+
+.rh-tv-map-logo {
+  width: 4.25rem;
+  height: 4.25rem;
+  object-fit: contain;
+  flex: 0 0 auto;
+  border-radius: 0.9rem;
+  background: #ffffff;
+  padding: 0.3rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.95);
+}
+
+.rh-tv-map-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.rh-tv-map-brand-name {
+  font-size: 1.15em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f8fafc;
+  line-height: 1.1;
+}
+
+.rh-tv-map-brand-sub {
+  font-size: 0.78em;
+  color: rgba(226, 232, 240, 0.78);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 28vw;
+}
+
+.rh-tv-map-search-wrap {
+  position: relative;
+  min-width: 16rem;
+  flex: 1 1 22rem;
+  order: 2;
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.rh-tv-map-search-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.55rem;
+}
+
+.rh-tv-map-search {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: 1 1 auto;
+  min-height: 3.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 1rem;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  background: rgba(255, 255, 255, 0.98);
+  color: #0f172a;
+  box-sizing: border-box;
+}
+
+.rh-tv-map-search-btn {
+  flex: 0 0 auto;
+  min-width: 7.5rem;
+}
+
+.rh-tv-map-search:focus-within {
+  border-color: #14b8a6;
+  box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.28);
+}
+
+.rh-tv-map-search-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: 0.95em;
+  color: inherit;
+}
+
+.rh-tv-map-search-input::placeholder {
+  color: #64748b;
+}
+
+.rh-tv-map-search-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: #e2e8f0;
+  color: #0f172a;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+.rh-tv-map-search-results {
+  position: absolute;
+  top: calc(100% + 0.45rem);
+  inset-inline: 0;
+  max-height: min(42vh, 22rem);
+  overflow: auto;
+  border-radius: 1rem;
+  border: 2px solid rgba(15, 23, 42, 0.12);
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.22);
+  z-index: 40;
+  padding: 0.4rem;
+}
+
+.rh-tv-map-search-empty {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  color: #64748b;
+  font-size: 0.9em;
+}
+
+.rh-tv-map-search-hit {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  text-align: start;
+  padding: 0.85rem 1rem;
+  margin: 0;
+  border: 0;
+  border-radius: 0.75rem;
+  background: transparent;
+  color: #0f172a;
+  font: inherit;
+  cursor: pointer;
+}
+
+.rh-tv-map-search-hit:focus {
+  background: #ecfdf8 !important;
+}
+
+.rh-tv-map-search-hit-kind {
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #0f766e;
+  background: #ccfbf1;
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+}
+
+.rh-tv-map-search-hit-label {
+  font-weight: 700;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rh-tv-map-search-hit-sub {
+  font-size: 0.85em;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.rh-tv-map-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  order: 3;
+}
+
+.rh-tv-map-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  /* Fill remaining viewport under topbar — do not use a short fixed calc */
+  height: auto;
+  border-radius: 0;
+  overflow: hidden;
+  border: 0;
+  background: #ffffff;
+}
+
+.rh-tv-map-stage .leaflet-container,
+.rh-tv-map-stage .rh-compound-map,
+.rh-tv-map-stage .rh-tv-leaflet,
+.rh-tv-map-stage > .leaflet-container,
+.rh-tv-map-stage > div.rh-compound-map,
+.rh-tv-map-stage > div.rh-tv-leaflet {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+}
+
+.rh-tv-map-stage .leaflet-tile-pane {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.rh-tv-map-stage .leaflet-tile,
+.rh-tv-map-stage img.rh-tv-plot-tile {
+  width: 256px !important;
+  height: 256px !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.rh-tv-map-stage .leaflet-container {
+  background: #ffffff !important;
+}
+
+/* Keep Leaflet zoom in DOM for HUD clickZoom, but hide chrome */
+.rh-tv-map-stage .leaflet-control-zoom {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rh-tv-map-chip {
+  position: absolute;
+  bottom: 1.25rem;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  z-index: 600;
+  pointer-events: none;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #fff;
+  font-size: 1.05em;
+  font-weight: 700;
+  padding: 0.65rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1100px) {
+  .rh-tv-map-tools {
+    justify-content: flex-start;
+  }
+
+  .rh-tv-map-brand-sub {
+    max-width: 50vw;
+  }
+}
+
+.rh-tv-map-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.rh-tv-map-panel-fill {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.rh-tv-map-wrap-fill {
+  flex: 1 1 auto;
+  height: auto !important;
+  min-height: 55vh;
+  max-height: none;
+}
+
+.rh-tv-map-panel-fill .rh-tv-map-wrap-fill {
+  height: calc(100vh - 12rem) !important;
+  max-height: calc(100dvh - 12rem);
+}
+
+.rh-tv-map-toolbar {
+  margin-bottom: 0.75rem;
+}
+
+.rh-tv-map-controls {
+  margin-bottom: 0;
+}
+
+.rh-tv-map-wrap {
+  height: min(62vh, 780px);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  border: 3px solid rgba(148, 163, 184, 0.25);
+  background: #111827;
+  min-width: 0;
+}
+
+.rh-tv-map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  height: 100%;
+  width: 100%;
+  min-height: 240px;
+  color: #334155;
+  font-size: 1.05em;
+  background: #e8eef5;
+}
+
+.rh-tv-leaflet {
+  width: 100%;
+  height: 100%;
+  min-height: 240px;
+  background: #e8eef5;
+}
+
+.rh-tv-plot-labels {
+  pointer-events: none !important;
+}
+
+@media (min-width: 2560px) {
+  .rh-tv-map-wrap {
+    height: min(66vh, 1100px);
+  }
+}
+
+@media (min-width: 3840px) {
+  .rh-tv-map-wrap {
+    height: min(68vh, 1500px);
+  }
+
+  .rh-tv-tile {
+    min-height: 12rem;
+  }
+
+  .rh-tv-key,
+  .rh-tv-btn {
+    min-height: 4.5rem;
+  }
+}
+
+/* Always-visible focus ring for remote navigation */
+.rh-tv-shell :is(a, button, input, select, textarea, [data-tv-focus]):focus {
+  outline: 4px solid #2dd4bf !important;
+  outline-offset: 5px !important;
+  box-shadow: 0 0 0 8px rgba(45, 212, 191, 0.32) !important;
+  z-index: 2;
+  position: relative;
+}
+
+.rh-tv-shell :is(a, button, [data-tv-focus]):focus {
+  transform: scale(1.03);
+  border-color: #2dd4bf !important;
+  background-color: rgba(15, 118, 110, 0.35);
+}
+
+.rh-tv-shell :is(a, button, input, select, textarea, [data-tv-focus]):focus-visible {
+  outline: 4px solid #2dd4bf !important;
+  outline-offset: 5px !important;
+}
+
+.rh-tv-shell * {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide mouse cursor affordances; keep remote focus primary */
+.rh-tv-shell a:hover,
+.rh-tv-shell button:hover {
+  /* no hover-only state — focus ring is the signal */
+}
+
+/* —— Web-TV MapView (same system UI: sidebar + plot map) —— */
+.rh-tv-body-map {
+  background: #0b1220 !important;
+  color: #f8fafc !important;
+  cursor: default !important;
+  font-size: clamp(16px, 1.05vw, 22px) !important;
+}
+
+.rh-tv-crash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  height: 100vh;
+  height: 100dvh;
+  padding: 2rem;
+  background: #e8eef5;
+  color: #0f172a;
+  text-align: center;
+}
+
+.rh-tv-crash-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.rh-tv-crash-sub {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #475569;
+}
+
+.rh-tv-crash-btn {
+  margin-top: 0.5rem;
+  border: 0;
+  border-radius: 0.85rem;
+  padding: 0.85rem 1.6rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #0d9488;
+}
+
+/* next/dynamic wrapper must fill the TV shell main area */
+.rh-tv-mapview-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.rh-tv-mapview-host > * {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.rh-tv-mapview {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.4rem 0.5rem 0.5rem;
+  box-sizing: border-box;
+  background: #0b1220;
+  color: #f8fafc;
+  overflow: hidden;
+  color-scheme: light;
+}
+
+.rh-tv-mapview .text-foreground,
+.rh-tv-mapview .text-muted-foreground,
+.rh-tv-mapview p,
+.rh-tv-mapview span,
+.rh-tv-mapview button,
+.rh-tv-mapview label,
+.rh-tv-mapview h1 {
+  color: #0f172a !important;
+}
+
+.rh-tv-mapview .text-muted-foreground {
+  color: #475569 !important;
+}
+
+.rh-tv-mapview input {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  caret-color: #0f172a;
+}
+
+.rh-tv-mapview input::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+
+.rh-tv-mapview .bg-muted,
+.rh-tv-mapview .bg-card,
+.rh-tv-mapview .bg-muted\/30,
+.rh-tv-mapview .bg-muted\/40 {
+  background-color: #f1f5f9 !important;
+}
+
+.rh-tv-mapview .bg-primary {
+  background-color: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+.rh-tv-mapview .bg-primary\/10 {
+  background-color: rgb(13 148 136 / 0.14) !important;
+}
+
+.rh-tv-mapview .text-primary-foreground {
+  color: #ffffff !important;
+}
+
+.rh-tv-mapview .border-border {
+  border-color: #dbe3ef !important;
+}
+
+.rh-tv-mapview-aside button {
+  color: #0f172a !important;
+}
+
+.rh-tv-mapview-aside button:focus-visible,
+.rh-tv-mapview-aside button:focus {
+  outline: 3px solid #0d9488;
+  outline-offset: -3px;
+  background: rgb(13 148 136 / 0.12) !important;
+}
+
+.rh-tv-mapview-aside button p {
+  color: inherit !important;
+}
+
+.rh-tv-mapview-loading {
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  font-size: 1.1rem;
+  color: #475569;
+}
+
+.rh-tv-mapview-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+  flex: 0 0 auto;
+  padding: 0.1rem 0.15rem;
+}
+
+.rh-tv-mapview-title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: #f8fafc !important;
+}
+
+.rh-tv-mapview-title-icon {
+  width: 1.15em;
+  height: 1.15em;
+  color: #2dd4bf !important;
+}
+
+.rh-tv-mapview-sub {
+  display: none;
+}
+
+.rh-tv-mapview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.rh-tv-mapview-mode {
+  display: inline-flex;
+  border-radius: 0.75rem;
+  border: 1px solid #334155;
+  overflow: hidden;
+  background: #1e293b;
+}
+
+.rh-tv-mapview-mode button {
+  border: 0;
+  background: transparent;
+  color: #e2e8f0 !important;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.rh-tv-mapview-mode button.is-active {
+  background: #0d9488;
+  color: #ffffff !important;
+}
+
+.rh-tv-mapview-mode button {
+  border: 0;
+  background: transparent;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #0f172a !important;
+  cursor: pointer;
+}
+
+.rh-tv-mapview-mode button.is-active {
+  background: #0d9488 !important;
+  color: #ffffff !important;
+}
+
+.rh-tv-mapview-aside-head {
+  flex: 0 0 auto;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rh-tv-mapview-aside-label {
+  margin: 0;
+  font-size: 0.85em;
+  font-weight: 700;
+  color: #0f172a !important;
+}
+
+.rh-tv-mapview-count {
+  font-weight: 500;
+  color: #64748b !important;
+}
+
+.rh-tv-mapview-input {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  padding: 0.7rem 0.85rem;
+  font-size: 1em;
+  line-height: 1.4;
+  min-height: 2.75rem;
+  outline: none;
+  vertical-align: middle;
+}
+
+.rh-tv-mapview-input:focus {
+  border-color: #0d9488;
+  box-shadow: 0 0 0 3px rgb(13 148 136 / 0.2);
+}
+
+.rh-tv-mapview-input-num {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.25em !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.5 !important;
+  min-height: 3.1rem !important;
+  padding: 0.85rem 1rem !important;
+  direction: ltr;
+  text-align: start;
+  color: #0f172a !important;
+  /* Hisense often clips tall glyphs in inputs */
+  overflow: visible;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.rh-tv-mapview-range {
+  margin: 0.15rem 0 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.rh-tv-mapview-aside-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #b45309;
+  line-height: 1.35;
+}
+
+.rh-tv-mapview-aside-list {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  border-bottom: 1px solid #e2e8f0;
+  padding-inline: 0.35rem;
+  /* Don't clip glyph tops inside rows */
+  -webkit-overflow-scrolling: touch;
+}
+
+.rh-tv-mapview-aside-areas {
+  flex: 0 1 34%;
+  max-height: 34%;
+}
+
+.rh-tv-mapview-aside-plots {
+  flex: 1 1 66%;
+  border-bottom: 0;
+}
+
+.rh-tv-mapview-plot-virt {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.rh-tv-mapview-plot-spacer {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 0 !important;
+  pointer-events: none;
+}
+
+.rh-tv-mapview-aside-plots li {
+  border-bottom: 1px solid #eef2f7;
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.rh-tv-mapview-aside-plots button {
+  height: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  padding-block: 0.55rem;
+}
+
+.rh-tv-mapview-plot-seq {
+  flex-shrink: 0;
+  min-width: 2.25rem;
+  text-align: center;
+  font-size: 0.85em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #0b2a55;
+  background: rgb(11 42 85 / 0.12);
+  border-radius: 0.5rem;
+  padding: 0.2rem 0.45rem;
+  margin-inline-end: 0.5rem;
+}
+
+.rh-tv-mapview-plot-no {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  font-size: 1.15em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, "Cascadia Mono", "Segoe UI", Tahoma, sans-serif;
+  letter-spacing: 0.05em;
+  color: #0f172a !important;
+  white-space: nowrap;
+  overflow: visible;
+  line-height: 1.5;
+  padding-block: 0.15rem;
+  padding-inline: 0.2rem 0.4rem;
+  text-align: start;
+}
+
+.rh-tv-mapview-plot-official {
+  font-size: 0.72em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #64748b !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.rh-tv-mapview-plot-seq {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.6rem;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.5rem;
+  background: rgb(13 148 136 / 0.18);
+  color: #0f766e;
+  font-size: 1em;
+  font-weight: 800;
+}
+
+.rh-tv-mapview-plot-mapno {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.rh-tv-mapview-plot-official {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.05rem;
+  line-height: 1.15;
+}
+
+.rh-tv-mapview-plot-official strong {
+  font-size: 1em;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.rh-tv-mapview-plot-official small {
+  font-size: 0.65em;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.rh-tv-mapview-aside-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rh-tv-mapview-aside-list li {
+  border-bottom: 1px solid #eef2f7;
+}
+
+.rh-tv-mapview-aside-list button {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: start;
+  border: 0;
+  background: transparent;
+  /* Extra end padding so RTL digits aren't clipped by panel/TV overscan */
+  padding: 0.7rem 1.1rem 0.7rem 0.85rem;
+  padding-inline: 1.15rem 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: #0f172a !important;
+  min-height: 2.75rem;
+}
+
+.rh-tv-mapview-aside-list button.is-active {
+  background: rgb(13 148 136 / 0.12) !important;
+}
+
+.rh-tv-mapview-area-title {
+  font-size: 0.9em;
+  font-weight: 600;
+  color: #0f172a !important;
+}
+
+.rh-tv-mapview-area-en {
+  font-size: 0.72em;
+  color: #64748b !important;
+}
+
+.rh-tv-mapview-aside-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9em;
+  display: flex;
+  justify-content: center;
+}
+
+.rh-tv-mapview-stage-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.95em;
+}
+
+.rh-tv-mapview-chip {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-start: 0.75rem;
+  z-index: 500;
+  pointer-events: none;
+  border-radius: 0.85rem;
+  background: rgb(11 31 56 / 0.78);
+  color: #ffffff !important;
+  font-size: 0.85em;
+  font-weight: 600;
+  padding: 0.45rem 0.85rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgb(15 39 68 / 0.2);
+}
+
+.rh-tv-mapview-stage .rh-tv-leaflet {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.rh-tv-spin {
+  width: 1.5rem;
+  height: 1.5rem;
+  animation: rh-tv-spin 0.8s linear infinite;
+}
+
+@keyframes rh-tv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.rh-tv-mapview-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  /* Map dominates the TV — sidebar is a narrow control strip */
+  grid-template-columns: minmax(220px, 18vw) minmax(0, 1fr);
+  gap: 0.5rem;
+  height: 100%;
+  overflow: hidden;
+}
+
+.rh-tv-mapview-aside {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid #dbe3ef;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgb(15 39 68 / 0.08);
+  /* Keep list text inside safe area on TV bezels */
+  padding-inline-end: 0.15rem;
+}
+
+.rh-tv-mapview-aside .flex-1 {
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+}
+
+.rh-tv-mapview-stage {
+  position: relative;
+  z-index: 0;
+  isolation: isolate;
+  min-height: 0;
+  height: 100% !important;
+  max-height: none !important;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  box-shadow: 0 10px 28px rgb(0 0 0 / 0.35);
+}
+
+.rh-tv-mapview-stage .leaflet-container,
+.rh-tv-mapview-stage .rh-compound-map,
+.rh-tv-mapview-stage .rh-tv-leaflet {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  border-radius: 0 !important;
+  background: #0f172a !important;
+}
+
+.rh-tv-leaflet-err {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: #e2e8f0;
+  font-size: 1.1rem;
+}
+
+.rh-tv-mapview-stage .leaflet-tile-pane {
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* Close hairline seams between plot tiles on TV (DPR / subpixel transform) */
+.rh-tv-mapview-stage .leaflet-tile,
+.rh-tv-map-stage .leaflet-tile,
+.rh-tv-mapview-stage img.rh-tv-plot-tile,
+.rh-tv-map-stage img.rh-tv-plot-tile {
+  width: 256px !important;
+  height: 256px !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* 0.5px bleed hides gaps without visible overlap on most TVs */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.rh-tv-mapview-stage .leaflet-tile-container,
+.rh-tv-map-stage .leaflet-tile-container {
+  /* Keep tile grid on whole pixels */
+  transform: translateZ(0) !important;
+}
+
+.rh-tv-mapview-stage .leaflet-control-zoom {
+  border: none !important;
+  margin: 12px !important;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.35) !important;
+}
+
+.rh-tv-mapview-stage .leaflet-control-zoom a {
+  width: 2.6rem !important;
+  height: 2.6rem !important;
+  line-height: 2.6rem !important;
+  font-size: 1.35rem !important;
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+@media (max-width: 900px) {
+  .rh-tv-mapview-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(38vh, 1fr) minmax(220px, 40vh);
+  }
+  .rh-tv-mapview-aside {
+    order: 2;
+  }
+  .rh-tv-mapview-stage {
+    order: 1;
+  }
+}

@@ -37,7 +37,7 @@ export function DashboardShell({
 
   return (
     <PermissionsProvider>
-      <div className="flex h-screen overflow-hidden bg-background text-foreground">
+      <div className="flex h-[100dvh] overflow-hidden bg-background text-foreground">
         <div className={cn('hidden lg:flex shrink-0', collapsed && 'lg:w-[4.5rem]')}>
           <SidebarSlot lang={lang} t={t} collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)} />
         </div>
@@ -45,15 +45,17 @@ export function DashboardShell({
         {mobileOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
             <div className="absolute inset-0 bg-sidebar/50 backdrop-blur-[2px]" onClick={() => setMobileOpen(false)} />
-            <div className="absolute top-0 bottom-0 start-0 w-[17rem] z-10 shadow-2xl">
+            <div className="absolute top-0 bottom-0 start-0 w-[min(18rem,88vw)] z-10 shadow-2xl safe-pb">
               <SidebarSlot lang={lang} t={t} collapsed={false} onToggle={() => setMobileOpen(false)} />
             </div>
           </div>
         )}
 
-        <div className="flex flex-col flex-1 min-w-0 bg-background">
+        <div className="relative z-0 flex flex-col flex-1 min-w-0 bg-background">
           <Header lang={lang} t={t} user={user} onMenuClick={() => setMobileOpen(true)} />
-          <main className="rh-scroll flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-[hsl(var(--background))]">{children}</main>
+          <main className="rh-scroll relative z-0 flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 bg-[hsl(var(--background))] safe-pb">
+            {children}
+          </main>
         </div>
       </div>
     </PermissionsProvider>

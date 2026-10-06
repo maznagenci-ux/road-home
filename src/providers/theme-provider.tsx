@@ -64,7 +64,12 @@ export function ThemeProvider({
 
   useEffect(() => {
     if (!mounted) return;
-    const resolved = theme === 'system' ? getSystemTheme() : theme;
+    const forceLight = document.documentElement.getAttribute('data-tv-force-light') === '1';
+    const resolved = forceLight
+      ? 'light'
+      : theme === 'system'
+        ? getSystemTheme()
+        : theme;
     setResolvedTheme(resolved);
     applyThemeClass(resolved);
     try {
@@ -78,6 +83,11 @@ export function ThemeProvider({
     if (!mounted || theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const onChange = () => {
+      if (document.documentElement.getAttribute('data-tv-force-light') === '1') {
+        setResolvedTheme('light');
+        applyThemeClass('light');
+        return;
+      }
       const resolved = getSystemTheme();
       setResolvedTheme(resolved);
       applyThemeClass(resolved);

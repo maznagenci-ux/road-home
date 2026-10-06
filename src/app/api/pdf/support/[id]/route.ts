@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
+import { isSuperAdmin } from '@/lib/access/permissions';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderSupportHtml } from '@/lib/pdf/templates';
 
 export async function GET(
@@ -11,6 +13,9 @@ export async function GET(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!isSuperAdmin(session.role)) {
+    return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+  }
 
   const { id } = await params;
   const url = new URL(req.url);
@@ -42,7 +47,7 @@ export async function GET(
     branch: item.branch,
     issuedAt: item.issuedAt,
     autoPrint,
-    assetBase: url.origin,
+    assetBase: getPublicOrigin(req),
   });
 
   return new NextResponse(html, {

@@ -1,13 +1,25 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireApiPermission } from '@/lib/api-auth';
+import { getSession } from '@/lib/auth';
+import { isSuperAdmin } from '@/lib/access/permissions';
+
+async function requireSuperAdmin() {
+  const session = await getSession();
+  if (!session) {
+    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+  }
+  if (!isSuperAdmin(session.role)) {
+    return { error: NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 }) };
+  }
+  return { session };
+}
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiPermission('VIEW_CONTRACTS');
+  const auth = await requireSuperAdmin();
   if ('error' in auth) return auth.error;
 
   const { id } = await params;
@@ -39,7 +51,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireSuperAdmin();
   if ('error' in auth) return auth.error;
 
   const { id } = await params;
@@ -102,7 +114,7 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireSuperAdmin();
   if ('error' in auth) return auth.error;
 
   const { id } = await params;

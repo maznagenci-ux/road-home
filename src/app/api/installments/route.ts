@@ -3,12 +3,18 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { requireApiPermission } from '@/lib/api-auth';
 import { createVoucher } from '@/lib/finance/engine';
+import {
+  assertInstallmentInBranch,
+  dealEmployeeBranchWhere,
+} from '@/lib/access/branch-scope';
 
 export async function GET() {
   const auth = await requireApiPermission('VIEW_CONTRACTS');
   if ('error' in auth) return auth.error;
 
+  const branchFilter = dealEmployeeBranchWhere(auth.session);
   const items = await prisma.installment.findMany({
+    where: branchFilter ? { contract: branchFilter } : undefined,
     orderBy: { dueDate: 'asc' },
     include: {
       contract: {
@@ -39,6 +45,9 @@ export async function PATCH(req: Request) {
     const id = z.string().min(1).parse(body.id);
     const data = patchSchema.parse(body);
 
+    const ok = await assertInstallmentInBranch(auth.session, id);
+    if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
     const existing = await prisma.installment.findUnique({
       where: { id },
       include: {
@@ -65,23 +74,40 @@ export async function PATCH(req: Request) {
       },
     });
 
+    // Ledger posts only when newly marking PAID (idempotent note check)
     if (
       data.status === 'PAID' &&
       existing.status !== 'PAID' &&
-      existing.contract.houseId &&
       existing.amount > 0
     ) {
-      await createVoucher({
-        houseId: existing.contract.houseId,
-        accountType: 'BUYER_PAYMENT',
-        amountIqd: existing.amount,
-        exchangeRate: existing.contract.exchangeRate || 150000,
-        paymentMethod: 'CASH_VAULT',
-        partyName: existing.contract.buyerName?.trim() || 'Buyer',
-        customerId: existing.contract.customerId,
-        note: `Installment payment — ${existing.contract.contractNo}`,
-        createdById: auth.session.id,
+      const note = `Installment payment — ${existing.contract.contractNo} — ${existing.id}`;
+      const already = await prisma.voucher.findFirst({
+        where: {
+          note,
+          status: 'POSTED',
+          accountType: 'BUYER_PAYMENT',
+        },
+        select: { id: true },
       });
+      if (!already) {
+        // Prefer linked house; otherwise post as receivable without blocking payment status
+        try {
+          await createVoucher({
+            houseId: existing.contract.houseId,
+            accountType: 'BUYER_PAYMENT',
+            amountIqd: existing.amount,
+            exchangeRate: existing.contract.exchangeRate || 150000,
+            paymentMethod: 'CASH_VAULT',
+            partyName: existing.contract.buyerName?.trim() || 'Buyer',
+            customerId: existing.contract.customerId,
+            note,
+            createdById: auth.session.id,
+          });
+        } catch (err) {
+          // If house missing, still keep installment PAID — surface via log
+          console.error('installment voucher', err);
+        }
+      }
     }
 
     return NextResponse.json({ item });

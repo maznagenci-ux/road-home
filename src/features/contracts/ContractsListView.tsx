@@ -10,13 +10,16 @@ import {
   Pencil,
   Search,
   Ban,
-  Trash2,
   MoreHorizontal,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
-import { locales, localeLabels, type Locale } from '@/i18n/locale-config';
+import { type Locale } from '@/i18n/locale-config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { tContractStatus } from '@/i18n/translate';
+import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
+import { usePermissions } from '@/features/access/PermissionsProvider';
 
 type ContractItem = {
   id: string;
@@ -28,6 +31,7 @@ type ContractItem = {
   customerId: string | null;
   customer: { id: string; name: string } | null;
   currency: 'IQD' | 'USD';
+  exchangeRate?: number;
   totalAmount: number;
   totalAmountUsd: number;
   status: string;
@@ -38,6 +42,7 @@ type ContractItem = {
   paidCount: number;
   pendingCount: number;
   pendingAmount: number;
+  pendingAmountDisplay?: number;
   paidAmount: number;
 };
 
@@ -72,10 +77,13 @@ export function ContractsListView({
   initialScope?: string | null;
 }) {
   const router = useRouter();
+  const { role, ready } = usePermissions();
+  const isSuperAdminUser = ready && role === 'SUPER_ADMIN';
   const [items, setItems] = useState<ContractItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [scope, setScope] = useState<ScopeFilter>(() => parseScope(initialScope));
   const [search, setSearch] = useState('');
+  const [error, setError] = useState('');
   const [debounced, setDebounced] = useState('');
   const [status, setStatus] = useState<StatusFilter>('');
   const [from, setFrom] = useState('');
@@ -83,7 +91,7 @@ export function ContractsListView({
   const [printMenuId, setPrintMenuId] = useState<string | null>(null);
   const [actionMenuId, setActionMenuId] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const printMenuRef = useRef<HTMLDivElement | null>(null);
+  const [printAnchor, setPrintAnchor] = useState<HTMLElement | null>(null);
   const actionMenuRef = useRef<HTMLDivElement | null>(null);
   const g = t.pages.contractGen as Record<string, string>;
   const c = t.pages.contracts as Record<string, string>;
@@ -122,27 +130,21 @@ export function ContractsListView({
   }, [load]);
 
   useEffect(() => {
-    if (!printMenuId && !actionMenuId) return;
+    if (!actionMenuId) return;
     const onDoc = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (printMenuRef.current && !printMenuRef.current.contains(target)) {
-        setPrintMenuId(null);
-      }
       if (actionMenuRef.current && !actionMenuRef.current.contains(target)) {
         setActionMenuId(null);
       }
     };
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
-  }, [printMenuId, actionMenuId]);
+  }, [actionMenuId]);
 
   const printContract = (id: string, pdfLocale: Locale) => {
     setPrintMenuId(null);
-    window.open(
-      `/api/pdf/contract/${id}?locale=${pdfLocale}&print=1`,
-      '_blank',
-      'noopener,noreferrer',
-    );
+    setPrintAnchor(null);
+    window.open(`/api/pdf/contract/${id}?locale=${pdfLocale}&print=1`, '_blank');
   };
 
   const selectScope = (next: ScopeFilter) => {
@@ -151,29 +153,70 @@ export function ContractsListView({
     router.replace(url, { scroll: false });
   };
 
-  async function cancelContract(row: ContractItem) {
-    if (row.status === 'CANCELLED') return;
-    const ok = window.confirm(c.confirmCancel ?? 'هەڵوەشاندنەوەی ئەم گرێبەستە؟');
+  async function voidContract(row: ContractItem) {
+    if (row.status === 'CANCELLED' || !isSuperAdminUser) return;
+    const ok = window.confirm(
+      c.confirmVoid ?? c.confirmCancel ?? 'دەتەوێت ئەم گرێبەستە ڕەش بکەیتەوە؟',
+    );
     if (!ok) return;
     setBusyId(row.id);
     setActionMenuId(null);
+    setError('');
     const res = await fetch(`/api/contracts/${row.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'CANCELLED' }),
     });
     setBusyId(null);
-    if (res.ok) void load();
+    if (res.ok) {
+      void load();
+      return;
+    }
+    const body = (await res.json().catch(() => ({}))) as { error?: string };
+    setError(
+      body.error === 'SUPER_ADMIN_REQUIRED'
+        ? (c.voidForbidden ?? 'تەنها سوپەر ئەدمین دەتوانێت گرێبەست ڕەش بکاتەوە')
+        : (t.common.error ?? 'سەرکەوتوو نەبوو'),
+    );
   }
 
   async function deleteContract(row: ContractItem) {
-    const ok = window.confirm(c.confirmDelete ?? 'سڕینەوەی ئەم گرێبەستە بۆ هەمیشە؟');
+    if (!isSuperAdminUser) return;
+    const ok = window.confirm(
+      c.confirmDelete ??
+        'دڵنیایت دەتەوێت ئەم گرێبەستە بۆ هەمیشە بسڕیتەوە؟ ئەم کردارە ناگەڕێتەوە.',
+    );
     if (!ok) return;
     setBusyId(row.id);
     setActionMenuId(null);
-    const res = await fetch(`/api/contracts/${row.id}`, { method: 'DELETE' });
-    setBusyId(null);
-    if (res.ok) void load();
+    setError('');
+    try {
+      const res = await fetch(`/api/contracts/${row.id}`, {
+        method: 'DELETE',
+        credentials: 'same-origin',
+      });
+      if (res.ok) {
+        setItems((prev) => prev.filter((x) => x.id !== row.id));
+        setBusyId(null);
+        return;
+      }
+      const body = (await res.json().catch(() => ({}))) as { error?: string };
+      const msg =
+        body.error === 'SUPER_ADMIN_REQUIRED'
+          ? (c.deleteForbidden ?? 'تەنها سوپەر ئەدمین دەتوانێت گرێبەست بسڕێتەوە')
+          : body.error === 'FORBIDDEN'
+            ? (t.errors?.forbidden ?? 'ڕێگەت پێنەدراوە')
+            : body.error === 'NOT_FOUND'
+              ? (t.common.notFound ?? 'نەدۆزرایەوە')
+              : body.error
+                ? `${t.common.error ?? 'سەرکەوتوو نەبوو'} (${body.error})`
+                : (t.common.error ?? 'سەرکەوتوو نەبوو');
+      setError(msg);
+    } catch {
+      setError(t.errors?.networkError ?? t.common.error ?? 'سەرکەوتوو نەبوو');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   const counts = useMemo(() => ({ current: items.length }), [items.length]);
@@ -187,7 +230,7 @@ export function ContractsListView({
   const field =
     'rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none focus:border-primary/50';
 
-  const colSpan = 10;
+  const colSpan = 9;
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">
@@ -269,6 +312,11 @@ export function ContractsListView({
       </div>
 
       <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        {error ? (
+          <p className="px-4 py-2 text-sm text-rose-600 bg-rose-500/10 border-b border-rose-500/20">
+            {error}
+          </p>
+        ) : null}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1100px] text-sm text-start">
             <thead>
@@ -279,7 +327,6 @@ export function ContractsListView({
                 <th className="px-4 py-3 font-medium text-start">{t.pages.contractGen.buyer}</th>
                 <th className="px-4 py-3 font-medium text-start">{g.seller ?? 'فرۆشیار'}</th>
                 <th className="px-4 py-3 font-medium text-start">{t.pages.projects.code}</th>
-                <th className="px-4 py-3 font-medium text-start">{c.installments ?? 'قیست'}</th>
                 <th className="px-4 py-3 font-medium text-start">{t.table.amount}</th>
                 <th className="px-4 py-3 font-medium text-start">{t.table.date}</th>
                 <th className="px-4 py-3 font-medium text-start">
@@ -315,12 +362,23 @@ export function ContractsListView({
                       className={cn(
                         'border-b border-border hover:bg-muted/40',
                         row.isExternal && 'bg-amber-500/[0.06]',
+                        row.status === 'CANCELLED' && 'opacity-60',
                       )}
                     >
-                      <td className="px-4 py-3 font-mono text-xs text-primary">
+                      <td
+                        className={cn(
+                          'px-4 py-3 font-mono text-xs text-primary',
+                          row.status === 'CANCELLED' && 'line-through',
+                        )}
+                      >
                         {row.contractNo}
                       </td>
-                      <td className="px-4 py-3 text-foreground">
+                      <td
+                        className={cn(
+                          'px-4 py-3 text-foreground',
+                          row.status === 'CANCELLED' && 'line-through text-muted-foreground',
+                        )}
+                      >
                         <span className="inline-flex items-center gap-2">
                           <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                           <span>
@@ -359,29 +417,10 @@ export function ContractsListView({
                       <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
                         {row.house?.code ?? '—'}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        <span className="tabular-nums">
-                          {row.paidCount}/{row.installmentCount}
-                        </span>
-                        {row.pendingCount > 0 ? (
-                          <span className="block text-xs text-amber-700">
-                            {formatCurrency(row.pendingAmount, lang, 'IQD')}{' '}
-                            {c.pendingShort ?? 'ماوە'}
-                          </span>
-                        ) : row.installmentCount > 0 ? (
-                          <span className="block text-xs text-emerald-700">
-                            {c.paidAll ?? 'تەواو'}
-                          </span>
-                        ) : (
-                          <span className="block text-xs">—</span>
-                        )}
-                      </td>
                       <td className="px-4 py-3 tabular-nums">
-                        <div>{formatCurrency(row.totalAmount, lang, 'IQD')}</div>
-                        <div className="text-[11px] text-muted-foreground">
-                          {formatCurrency(row.totalAmountUsd || 0, lang, 'USD')}
-                          {row.currency ? ` · ${row.currency}` : ''}
-                        </div>
+                        {row.currency === 'USD'
+                          ? formatCurrency(row.totalAmountUsd || 0, lang, 'USD')
+                          : formatCurrency(row.totalAmount, lang, 'IQD')}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">
                         {formatDate(row.createdAt, lang)}
@@ -396,81 +435,76 @@ export function ContractsListView({
                           >
                             <Pencil className="h-4 w-4" />
                           </Link>
-                          <div
-                            className="relative inline-block"
-                            ref={printMenuId === row.id ? printMenuRef : undefined}
-                          >
+                          {isSuperAdminUser ? (
                             <button
                               type="button"
-                              onClick={() => {
+                              disabled={busyId === row.id}
+                              onClick={() => void deleteContract(row)}
+                              className="p-2 rounded-lg text-rose-700 hover:bg-rose-500/10 disabled:opacity-50"
+                              title={t.common.delete ?? 'سڕینەوە'}
+                              aria-label={t.common.delete ?? 'سڕینەوە'}
+                            >
+                              {busyId === row.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </button>
+                          ) : null}
+                          <div className="relative inline-block">
+                            <button
+                              type="button"
+                              onClick={(e) => {
                                 setActionMenuId(null);
-                                setPrintMenuId((cur) => (cur === row.id ? null : row.id));
+                                if (printMenuId === row.id) {
+                                  setPrintMenuId(null);
+                                  setPrintAnchor(null);
+                                } else {
+                                  setPrintMenuId(row.id);
+                                  setPrintAnchor(e.currentTarget);
+                                }
                               }}
                               className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                               title={g.printPdfLang ?? t.common.print}
                               aria-label={g.printPdfLang ?? t.common.print}
+                              aria-expanded={printMenuId === row.id}
                             >
                               <Printer className="h-4 w-4" />
                             </button>
-                            {printMenuId === row.id ? (
-                              <div className="absolute end-0 z-20 mt-1 min-w-[9.5rem] rounded-xl border border-border bg-card p-1 shadow-lg">
-                                <p className="px-2 py-1 text-[10px] text-muted-foreground">
-                                  {g.printPdfLang ?? 'زمانی PDF'}
-                                </p>
-                                {locales.map((loc) => (
-                                  <button
-                                    key={loc}
-                                    type="button"
-                                    onClick={() => printContract(row.id, loc)}
-                                    className={cn(
-                                      'w-full text-start rounded-lg px-2 py-1.5 text-xs hover:bg-muted',
-                                      loc === lang && 'font-semibold text-primary',
-                                    )}
-                                  >
-                                    {localeLabels[loc]}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : null}
                           </div>
                           <div
                             className="relative inline-block"
                             ref={actionMenuId === row.id ? actionMenuRef : undefined}
                           >
-                            <button
-                              type="button"
-                              disabled={busyId === row.id}
-                              onClick={() => {
-                                setPrintMenuId(null);
-                                setActionMenuId((cur) => (cur === row.id ? null : row.id));
-                              }}
-                              className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
-                              title={c.moreActions ?? 'زیاتر'}
-                              aria-label={c.moreActions ?? 'زیاتر'}
-                            >
-                              <MoreHorizontal className="h-4 w-4" />
-                            </button>
-                            {actionMenuId === row.id ? (
-                              <div className="absolute end-0 z-20 mt-1 min-w-[10.5rem] rounded-xl border border-border bg-card p-1 shadow-lg">
-                                {row.status !== 'CANCELLED' ? (
-                                  <button
-                                    type="button"
-                                    onClick={() => void cancelContract(row)}
-                                    className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-amber-900 hover:bg-amber-500/10"
-                                  >
-                                    <Ban className="h-3.5 w-3.5" />
-                                    {c.cancelAction ?? t.common.cancel}
-                                  </button>
-                                ) : null}
+                            {isSuperAdminUser && row.status !== 'CANCELLED' ? (
+                              <>
                                 <button
                                   type="button"
-                                  onClick={() => void deleteContract(row)}
-                                  className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-rose-700 hover:bg-rose-500/10"
+                                  disabled={busyId === row.id}
+                                  onClick={() => {
+                                    setPrintMenuId(null);
+                                    setPrintAnchor(null);
+                                    setActionMenuId((cur) => (cur === row.id ? null : row.id));
+                                  }}
+                                  className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground disabled:opacity-50"
+                                  title={c.moreActions ?? 'زیاتر'}
+                                  aria-label={c.moreActions ?? 'زیاتر'}
                                 >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                  {t.common.delete}
+                                  <MoreHorizontal className="h-4 w-4" />
                                 </button>
-                              </div>
+                                {actionMenuId === row.id ? (
+                                  <div className="absolute end-0 z-20 mt-1 min-w-[11rem] rounded-xl border border-border bg-card p-1 shadow-lg">
+                                    <button
+                                      type="button"
+                                      onClick={() => void voidContract(row)}
+                                      className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-xs text-rose-800 hover:bg-rose-500/10"
+                                    >
+                                      <Ban className="h-3.5 w-3.5" />
+                                      {c.voidAction ?? 'ڕەشکردنەوە'}
+                                    </button>
+                                  </div>
+                                ) : null}
+                              </>
                             ) : null}
                           </div>
                         </div>
@@ -483,6 +517,20 @@ export function ContractsListView({
           </table>
         </div>
       </section>
+
+      <PdfPrintLangMenu
+        open={Boolean(printMenuId)}
+        anchorEl={printAnchor}
+        title={g.printPdfLang ?? 'زمانی PDF'}
+        currentLocale={lang}
+        onSelect={(loc) => {
+          if (printMenuId) printContract(printMenuId, loc);
+        }}
+        onClose={() => {
+          setPrintMenuId(null);
+          setPrintAnchor(null);
+        }}
+      />
     </div>
   );
 }

@@ -12,7 +12,7 @@ import {
   Pencil,
 } from 'lucide-react';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
-import { UserFormModal, type EditableUser, type PermMap } from './UserFormModal';
+import { UserFormModal, type EditableUser, type PermMap, type BranchOption } from './UserFormModal';
 import type { Dictionary } from '@/i18n/dictionaries';
 
 type MatrixUser = {
@@ -21,6 +21,8 @@ type MatrixUser = {
   phone: string;
   role: string;
   isActive: boolean;
+  branchId?: string | null;
+  branch?: { id: string; name: string; code: string; isHq?: boolean } | null;
   permissions: Record<string, boolean>;
 };
 
@@ -33,11 +35,26 @@ type ActivityRow = {
   createdAt: string;
 };
 
-const ROLES = ['SUPER_ADMIN', 'ACCOUNTANT', 'SALESPERSON', 'VIEW_ONLY'] as const;
+const ROLES = [
+  'SUPER_ADMIN',
+  'BRANCH_MANAGER',
+  'BRANCH_ACCOUNTANT',
+  'BRANCH_SALES',
+  'ACCOUNTANT',
+  'SALESPERSON',
+  'VIEW_ONLY',
+] as const;
+
+const BRANCH_PRESETS = [
+  'BRANCH_MANAGER',
+  'BRANCH_ACCOUNTANT',
+  'BRANCH_SALES',
+] as const;
 
 export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) {
   const [tab, setTab] = useState<'users' | 'matrix' | 'activity' | 'locks'>('users');
   const [users, setUsers] = useState<MatrixUser[]>([]);
+  const [branches, setBranches] = useState<BranchOption[]>([]);
   const [seeKeys, setSeeKeys] = useState<string[]>([]);
   const [doKeys, setDoKeys] = useState<string[]>([]);
   const [keys, setKeys] = useState<string[]>([]);
@@ -65,6 +82,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
     }
     const data = await res.json();
     setUsers(data.users ?? []);
+    setBranches(data.branches ?? []);
     setKeys(data.permissionKeys ?? []);
     setSeeKeys(data.seeKeys ?? []);
     setDoKeys(data.doKeys ?? []);
@@ -107,12 +125,20 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
 
   const setRole = async (userId: string, role: string) => {
     setSaving(`${userId}:role`);
+    setError('');
     const res = await fetch('/api/access/matrix', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'setRole', userId, role }),
     });
     setSaving(null);
+    if (res.status === 400) {
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (data.error === 'BRANCH_REQUIRED') {
+        setError(t.pages.access.branchRequired ?? 'تکایە سەرەتا لق دیاری بکە بۆ ئەم ڕۆڵە');
+      }
+      return;
+    }
     if (res.ok) await loadMatrix();
   };
 
@@ -127,16 +153,22 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
     if (res.ok) await loadMatrix();
   };
 
-  const openCreate = () => {
+  const openCreatePreset = (preset: (typeof BRANCH_PRESETS)[number]) => {
     setModalMode('create');
+    const firstBranch = branches.find((b) => !b.isHq) ?? branches[0];
     setEditing({
       name: '',
       phone: '',
-      role: 'SALESPERSON',
+      role: preset,
       isActive: true,
-      permissions: { ...(roleDefaults.SALESPERSON ?? {}) },
+      branchId: firstBranch?.id ?? null,
+      permissions: { ...(roleDefaults[preset] ?? {}) },
     });
     setModalOpen(true);
+  };
+
+  const openCreate = () => {
+    openCreatePreset('BRANCH_SALES');
   };
 
   const openEdit = (u: MatrixUser) => {
@@ -147,6 +179,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
       phone: u.phone,
       role: u.role,
       isActive: u.isActive,
+      branchId: u.branchId ?? null,
       permissions: { ...u.permissions },
     });
     setModalOpen(true);
@@ -159,6 +192,9 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
       SALESPERSON: t.roles.SALESPERSON,
       SITE_SUPERVISOR: t.roles.SALESPERSON,
       VIEW_ONLY: t.roles.VIEW_ONLY,
+      BRANCH_MANAGER: t.roles.BRANCH_MANAGER ?? 'بەڕێوەبەری لق',
+      BRANCH_ACCOUNTANT: t.roles.BRANCH_ACCOUNTANT ?? 'محاسبی لق',
+      BRANCH_SALES: t.roles.BRANCH_SALES ?? 'کارمەندی فرۆشیاری لق',
     };
     return map[role] ?? role;
   };
@@ -225,16 +261,50 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
       {loading && !error && <p className="text-sm text-muted-foreground">{t.common.loading}</p>}
 
       {!loading && !error && tab === 'users' && (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {BRANCH_PRESETS.map((preset) => {
+              const descMap: Record<string, string> = {
+                BRANCH_MANAGER:
+                  t.pages.access.presetManagerDesc ??
+                  'بەڕێوەبردنی گرێبەست، کرێ، و بینینی حیساباتی لق — مۆڵەت خۆکارە',
+                BRANCH_ACCOUNTANT:
+                  t.pages.access.presetAccountantDesc ??
+                  'حیسابات و ڤاوچەر و ڕاپۆرتی لق — مۆڵەت خۆکارە',
+                BRANCH_SALES:
+                  t.pages.access.presetSalesDesc ??
+                  'گرێبەست، کرێ، و ئەنکێتی لق — مۆڵەت خۆکارە',
+              };
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => openCreatePreset(preset)}
+                  className="rounded-2xl border border-border bg-card p-4 text-start shadow-sm hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                >
+                  <p className="font-semibold text-foreground">{roleLabel(preset)}</p>
+                  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                    {descMap[preset]}
+                  </p>
+                  <p className="text-[11px] text-primary mt-3 font-medium">
+                    {t.pages.access.presetAdd ?? '+ زیادکردن بەم ڕۆڵە'}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
         <section className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
             <h2 className="text-base font-semibold text-foreground">{t.pages.access.usersTitle}</h2>
             <p className="text-xs text-muted-foreground mt-1">{t.pages.access.usersHint}</p>
           </div>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[780px] text-sm text-start">
+            <table className="w-full min-w-[880px] text-sm text-start">
               <thead>
                 <tr className="border-b border-border bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
                   <th className="px-4 py-3 font-medium text-start">{t.table.name}</th>
+                  <th className="px-4 py-3 font-medium text-start">{t.pages.access.branch}</th>
                   <th className="px-4 py-3 font-medium text-start">{t.pages.users.role}</th>
                   <th className="px-4 py-3 font-medium text-start">{t.pages.access.seeGroup}</th>
                   <th className="px-4 py-3 font-medium text-start">{t.pages.access.doGroup}</th>
@@ -245,7 +315,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-muted-foreground">
+                    <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
                       {t.pages.users.empty}
                     </td>
                   </tr>
@@ -258,6 +328,9 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
                         <td className="px-4 py-3">
                           <p className="font-medium text-foreground">{u.name}</p>
                           <p className="text-[11px] text-muted-foreground" dir="ltr">{u.phone}</p>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground">
+                          {u.branch?.name ?? '—'}
                         </td>
                         <td className="px-4 py-3">
                           <select
@@ -311,6 +384,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
             </table>
           </div>
         </section>
+        </>
       )}
 
       {!loading && !error && tab === 'matrix' && (
@@ -464,6 +538,7 @@ export function AccessControlView({ t, lang }: { t: Dictionary; lang: string }) 
         seeKeys={seeKeys}
         doKeys={doKeys}
         roleDefaults={roleDefaults}
+        branches={branches}
         onClose={() => setModalOpen(false)}
         onSaved={() => void loadMatrix()}
       />

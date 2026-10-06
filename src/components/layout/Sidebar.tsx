@@ -5,9 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard,
-  Building2,
-  Home,
-  Users,
   UserCheck,
   FileText,
   KeyRound,
@@ -15,24 +12,20 @@ import {
   Receipt,
   BarChart3,
   Settings,
-  TrendingDown,
   TrendingUp,
-  HardHat,
   ShieldPlus,
   Wallet,
-  ArrowDownToLine,
-  ArrowUpFromLine,
   ChevronLeft,
   ChevronRight,
   LogOut,
-  ShoppingCart,
   Star,
   MapPin,
   Map,
   Banknote,
   Briefcase,
   Calculator,
-  Package,
+  Building2,
+  Home,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { isRTL } from '@/i18n/locale-config';
@@ -46,6 +39,8 @@ type NavItem = {
   label: string;
   perm?: string | null;
   exact?: boolean;
+  /** تەنها سوپەر ئەدمین دەیبینێت */
+  superAdminOnly?: boolean;
 };
 
 export function Sidebar({
@@ -64,7 +59,7 @@ export function Sidebar({
   const router = useRouter();
   const rtl = isRTL(lang);
   const Chevron = rtl ? ChevronRight : ChevronLeft;
-  const { can, ready } = usePermissions();
+  const { can, ready, role } = usePermissions();
   const [navReady, setNavReady] = useState(false);
   const n = t.nav as Record<string, string>;
   const currentStream = searchParams.get('stream');
@@ -97,6 +92,19 @@ export function Sidebar({
           icon: MapPin,
           label: n.places ?? 'شوێنەکان',
           perm: 'VIEW_PROPERTIES',
+        },
+        {
+          href: `/${lang}/houses`,
+          icon: Home,
+          label: n.houses ?? 'خانووەکان',
+          perm: 'VIEW_PROPERTIES',
+        },
+        {
+          href: `/${lang}/branches`,
+          icon: Building2,
+          label: n.branches ?? 'لق',
+          perm: null,
+          superAdminOnly: true,
         },
       ],
     },
@@ -137,7 +145,8 @@ export function Sidebar({
           href: `/${lang}/support`,
           icon: Star,
           label: n.support ?? 'پشتگیرییەکان',
-          perm: 'VIEW_CONTRACTS',
+          perm: null,
+          superAdminOnly: true,
         },
       ],
     },
@@ -173,71 +182,6 @@ export function Sidebar({
           icon: TrendingUp,
           label: n.rentalIncome ?? 'داهاتی کرێ',
           perm: 'VIEW_ACCOUNTING',
-        },
-      ],
-    },
-    {
-      title: n.construction ?? 'دروستکردنی خانوو',
-      items: [
-        {
-          href: `/${lang}/projects`,
-          icon: HardHat,
-          label: n.constructionDashboard ?? 'داشبۆردی بیناسازی',
-          perm: 'VIEW_PROJECTS',
-        },
-        {
-          href: `/${lang}/houses`,
-          icon: Home,
-          label: t.nav.houses,
-          perm: 'VIEW_PROPERTIES',
-        },
-        {
-          href: `/${lang}/properties`,
-          icon: Building2,
-          label: t.nav.properties,
-          perm: 'VIEW_PROPERTIES',
-        },
-        {
-          href: `/${lang}/owners`,
-          icon: Users,
-          label: t.nav.owners,
-          perm: 'VIEW_PROPERTIES',
-        },
-        {
-          href: `/${lang}/suppliers`,
-          icon: ShoppingCart,
-          label: n.buySupplies ?? 'کرینی کەلوپەل',
-          perm: 'VIEW_CONTRACTS',
-        },
-        {
-          href: `/${lang}/inventory`,
-          icon: Package,
-          label: n.inventory ?? 'کۆگای کەلوپەل',
-          perm: 'VIEW_INVENTORY',
-        },
-        {
-          href: `/${lang}/accounting/expenses`,
-          icon: TrendingDown,
-          label: n.constructionExpenses ?? 'خەرجی بیناسازی',
-          perm: 'VIEW_ACCOUNTING',
-        },
-        {
-          href: `/${lang}/accounting/construction/deposit`,
-          icon: ArrowDownToLine,
-          label: n.moneyDeposit ?? 'پارە دانان',
-          perm: 'VIEW_ACCOUNTING',
-        },
-        {
-          href: `/${lang}/accounting/construction/withdraw`,
-          icon: ArrowUpFromLine,
-          label: n.moneyWithdraw ?? 'پارە بردن',
-          perm: 'VIEW_ACCOUNTING',
-        },
-        {
-          href: `/${lang}/receipts?stream=construction`,
-          icon: Receipt,
-          label: n.constructionReceipts ?? 'وەسڵی بیناسازی',
-          perm: 'VIEW_PROJECTS',
         },
       ],
     },
@@ -319,7 +263,7 @@ export function Sidebar({
                 className="font-bold tracking-tight text-white leading-tight text-[13px]"
                 suppressHydrationWarning
               >
-                {(t.app as { shortName?: string }).shortName ?? 'Road Home ZMKH'}
+                {(t.app as { shortName?: string }).shortName ?? 'ZMKH Road Home'}
               </p>
               <p className="text-[10px] text-white/45 truncate mt-0.5" suppressHydrationWarning>
                 {t.app.tagline}
@@ -370,7 +314,7 @@ export function Sidebar({
                     href={href}
                     title={collapsed ? label : undefined}
                     className={cn(
-                      'flex items-center gap-3 px-3 py-2.5 text-sm transition-colors rounded-xl',
+                      'rh-nav-link flex items-center gap-3 px-3 py-2.5 text-sm transition-colors rounded-xl',
                       collapsed && 'justify-center px-2',
                       active
                         ? 'rh-nav-active'

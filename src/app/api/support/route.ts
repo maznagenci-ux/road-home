@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireApiPermission } from '@/lib/api-auth';
+import { getSession } from '@/lib/auth';
+import { isSuperAdmin } from '@/lib/access/permissions';
 import { BRAND_NAME } from '@/lib/brand';
+
+async function requireSuperAdmin() {
+  const session = await getSession();
+  if (!session) {
+    return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
+  }
+  if (!isSuperAdmin(session.role)) {
+    return { error: NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 }) };
+  }
+  return { session };
+}
 
 async function nextSupportNo() {
   const count = await prisma.supportLetter.count();
@@ -11,7 +23,7 @@ async function nextSupportNo() {
 }
 
 export async function GET(req: Request) {
-  const auth = await requireApiPermission('VIEW_CONTRACTS');
+  const auth = await requireSuperAdmin();
   if ('error' in auth) return auth.error;
 
   const url = new URL(req.url);
@@ -79,7 +91,7 @@ const createSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireSuperAdmin();
   if ('error' in auth) return auth.error;
 
   try {

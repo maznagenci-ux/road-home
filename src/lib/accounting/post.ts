@@ -14,11 +14,10 @@ export const INCOME_TYPES: LedgerTxnType[] = [
   'CUSTOMER_PAYMENT',
 ];
 
-/** Types that affect P&L expense */
+/** Types that affect P&L expense (COMMISSION income stays in INCOME_TYPES only) */
 export const EXPENSE_TYPES: LedgerTxnType[] = [
   'EXPENSE',
   'SALARY',
-  'COMMISSION',
   'EMPLOYEE_COMMISSION',
   'SUPPLIER_PAYMENT',
   'PROPERTY_PURCHASE',
@@ -397,6 +396,12 @@ export async function postTransaction(input: PostTransactionInput) {
   const exchangeRate = input.exchangeRate ?? 1;
   const amountBaseIqd = toBaseIqd(input.amountOriginal, currency, exchangeRate);
 
+  const { resolveWriteBranchId } = await import('@/lib/access/accounting-branch');
+  const branchId = await resolveWriteBranchId({
+    explicit: input.branchId,
+    createdById: input.createdById,
+  });
+
   return prisma.$transaction(async (tx) => {
     if (input.txnNo) {
       const dup = await tx.ledgerTransaction.findUnique({ where: { txnNo: input.txnNo } });
@@ -446,6 +451,7 @@ export async function postTransaction(input: PostTransactionInput) {
         description: input.description ?? null,
         attachmentUrl: input.attachmentUrl ?? null,
         createdById: input.createdById ?? null,
+        branchId,
         sourceVoucherId: input.sourceVoucherId ?? null,
         sourceReceiptId: input.sourceReceiptId ?? null,
         lines: {
@@ -491,6 +497,7 @@ export async function transfer(params: {
   toBankId?: string | null;
   description?: string;
   createdById?: string | null;
+  branchId?: string | null;
   allowOverdraft?: boolean;
 }) {
   if (!params.fromCashId && !params.fromBankId) throw new Error('Transfer source required');
@@ -509,6 +516,7 @@ export async function transfer(params: {
     transferBankId: params.toBankId ?? null,
     description: params.description ?? 'Transfer',
     createdById: params.createdById,
+    branchId: params.branchId,
     allowOverdraft: params.allowOverdraft,
   });
 }

@@ -16,6 +16,8 @@ export interface SessionUser {
   name: string;
   role: string;
   locale: string;
+  /** Assigned company branch (لق) — null/undefined = HQ / unrestricted for admins */
+  branchId?: string | null;
 }
 
 const cookieOptions = {
@@ -34,7 +36,7 @@ export async function createSessionToken(user: SessionUser): Promise<string> {
     .sign(secret());
 }
 
-/** Prefer attaching the cookie to the Route Handler response (Netlify/mobile-safe). */
+/** Prefer attaching the cookie to the Route Handler response (mobile-safe). */
 export function attachSessionCookie(res: NextResponse, token: string) {
   res.cookies.set(AUTH_COOKIE, token, cookieOptions);
   return res;
@@ -64,6 +66,7 @@ export async function getSession(): Promise<SessionUser | null> {
       name: payload.name as string,
       role: payload.role as string,
       locale: payload.locale as string,
+      branchId: (payload.branchId as string | null | undefined) ?? null,
     };
   } catch {
     return null;

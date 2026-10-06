@@ -135,7 +135,7 @@ export async function POST(req: Request) {
         party2Origin: data.party2Origin?.trim() || '',
         documents: JSON.stringify(data.documents ?? []),
         notes: data.notes?.trim() || null,
-        organizerName: data.organizerName?.trim() || 'Road Home ZMKH Real Estate',
+        organizerName: data.organizerName?.trim() || 'ZMKH Road Home',
         mukhtarName: data.mukhtarName?.trim() || '',
       },
     });

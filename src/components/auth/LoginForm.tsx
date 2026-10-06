@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
@@ -10,6 +10,9 @@ import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useT } from '@/i18n/I18nProvider';
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
+import { Map as MapIcon } from 'lucide-react';
+import { isSmartTvUserAgent } from '@/lib/tv-detect';
+import { toAsciiDigits } from '@/lib/phone';
 
 const BRAND_NAME = 'Mazn Agency';
 const BRAND_URL =
@@ -47,6 +50,14 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Smart TV fallback → public TV map (if middleware UA miss)
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return;
+    if (!isSmartTvUserAgent(navigator.userAgent)) return;
+    document.cookie = 'rh-ui=tv;path=/;max-age=34560000;samesite=lax';
+    router.replace(`/${lang}/tv`);
+  }, [lang, router]);
 
   const creditPrefix = dict.auth.developerCreditPrefix || 'دیزاین و گەشەپێدان لەلایەن';
   const creditName = dict.auth.developerName || BRAND_NAME;
@@ -99,6 +110,15 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
       </div>
 
       <div className="relative lg:col-span-5 flex flex-col min-h-[62vh] lg:min-h-screen order-2">
+        <div className="absolute top-4 start-4 sm:top-6 sm:start-6 z-10">
+          <Link
+            href={`/${lang}/map`}
+            className="inline-flex items-center gap-2 min-h-10 px-3.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+          >
+            <MapIcon className="h-4 w-4" />
+            {dict.nav.map}
+          </Link>
+        </div>
         <div className="absolute top-4 end-4 sm:top-6 sm:end-6 flex items-center gap-2 z-10">
           <ThemeToggle t={dict} variant="icon" />
           <LanguageSwitcher lang={lang} t={dict} alwaysVisible />
@@ -114,6 +134,12 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-sm">
                 {dict.auth.loginSubtitle}
               </p>
+              <Link
+                href={`/${lang}/tv`}
+                className="mt-4 text-sm font-semibold text-primary hover:underline underline-offset-2"
+              >
+                Smart TV →
+              </Link>
             </div>
 
             <form
@@ -128,18 +154,16 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
                   id="phone"
                   type="tel"
                   inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder="07501234567"
+                  placeholder="07XXXXXXXXX"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/[^\d\u0660-\u0669\u06f0-\u06f9]/g, ''))}
+                  onChange={(e) =>
+                    setPhone(toAsciiDigits(e.target.value).replace(/\D/g, '').slice(0, 11))
+                  }
                   className={fieldClass}
                   autoComplete="tel"
                   enterKeyHint="next"
                   dir="ltr"
                 />
-                <p className="mt-1.5 text-[11px] text-muted-foreground">
-                  {dict.auth.phoneHint ?? 'تەنها ژمارەی مۆبایل — وەک 0750xxxxxxx (ئیمەیڵ نا)'}
-                </p>
               </div>
 
               <div>

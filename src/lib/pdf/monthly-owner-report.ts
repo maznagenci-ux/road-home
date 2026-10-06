@@ -1,5 +1,6 @@
 import type { MonthlyOwnerBundle } from '@/lib/accounting/types';
 import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
+import { brandLogoUrl } from '@/lib/pdf/assets';
 
 function esc(value: string) {
   return value
@@ -33,8 +34,7 @@ export function renderMonthlyOwnerReportHtml(
   bundle: MonthlyOwnerBundle,
   opts?: { assetBase?: string },
 ) {
-  const base = (opts?.assetBase ?? '').replace(/\/$/, '');
-  const logo = `${base}/brand/logo.png`;
+  const logo = brandLogoUrl('logo.png', opts?.assetBase);
   const e = bundle.executive;
   const cards = [
     ['داهات', e.incomeIqd],

@@ -1,21 +1,31 @@
-import { prisma } from '@/lib/prisma';
+import type { SessionUser } from '@/lib/auth';
 
 export type DealEmployeeRef = {
   dealEmployeeId: string | null;
   dealEmployeeName: string | null;
 };
 
-/** Resolve active user for deal attribution. Returns null id when cleared. Throws on unknown id. */
+/**
+ * Deal is always attributed to the signed-in user who creates the contract/lease.
+ * No manual staff picker — system stamps the maker automatically.
+ */
+export function dealEmployeeFromSession(session: SessionUser): DealEmployeeRef {
+  return {
+    dealEmployeeId: session.id,
+    dealEmployeeName: session.name,
+  };
+}
+
+/**
+ * @deprecated Prefer dealEmployeeFromSession — kept for call-site compatibility.
+ * Ignores client-supplied id; always stamps the session user when creating.
+ */
 export async function resolveDealEmployee(
-  dealEmployeeId?: string | null,
-): Promise<DealEmployeeRef | { error: 'NOT_FOUND' }> {
-  if (!dealEmployeeId?.trim()) {
+  _dealEmployeeId?: string | null,
+  session?: SessionUser | null,
+): Promise<DealEmployeeRef | { error: 'NOT_FOUND' | 'CROSS_BRANCH' }> {
+  if (!session?.id) {
     return { dealEmployeeId: null, dealEmployeeName: null };
   }
-  const user = await prisma.user.findFirst({
-    where: { id: dealEmployeeId.trim(), isActive: true },
-    select: { id: true, name: true },
-  });
-  if (!user) return { error: 'NOT_FOUND' };
-  return { dealEmployeeId: user.id, dealEmployeeName: user.name };
+  return dealEmployeeFromSession(session);
 }

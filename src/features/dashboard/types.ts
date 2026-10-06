@@ -1,6 +1,8 @@
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatContractMoney } from '@/lib/utils';
 
 export type PaymentStatus = 'paid' | 'pending' | 'overdue' | 'partial';
+
+export type MoneyCurrency = 'IQD' | 'USD';
 
 export interface DashboardMetrics {
   salesIncomeIqd: number;
@@ -15,6 +17,11 @@ export interface DashboardMetrics {
   cashIqd?: number;
   bankIqd?: number;
   totalAvailableIqd?: number;
+  /** Original-currency month totals (not FX conversions) */
+  monthIncomeUsd?: number;
+  monthExpenseUsd?: number;
+  monthIncomeIqdOriginal?: number;
+  monthExpenseIqdOriginal?: number;
 }
 
 export interface DashboardActivityCounts {
@@ -49,12 +56,22 @@ export interface AuditEntry {
   occurredAt: string;
   costCenter: string;
   category: string;
+  /** کڕیار / فرۆشیار / کرێچی */
   partyName: string;
+  /** بڕی ڕەسەن بە دراوی گرێبەست/وەسڵ */
+  amountOriginal: number;
+  currency: MoneyCurrency;
+  exchangeRate: number;
+  /** دیناری بنەڕەت بۆ کۆکردنەوە */
   amountIqd: number;
   status: PaymentStatus;
+  /** کارمەندی خاوەنی گرێبەست / مامەڵە */
+  ownerName: string;
   staffName: string;
+  kind: 'money' | 'contract' | 'lease';
 }
 
+/** @deprecated prefer formatContractMoney — kept for callers */
 export function formatDualCurrency(iqd: number, usdToIqd: number, locale: string) {
   const rate = Math.max(1, usdToIqd);
   const usd = iqd / rate;
@@ -62,6 +79,14 @@ export function formatDualCurrency(iqd: number, usdToIqd: number, locale: string
     iqd: formatCurrency(iqd, locale, 'IQD'),
     usd: formatCurrency(usd, locale, 'USD'),
   };
+}
+
+export function formatAuditMoney(
+  row: Pick<AuditEntry, 'amountOriginal' | 'currency' | 'exchangeRate' | 'amountIqd'>,
+  locale: string,
+) {
+  const rate = Math.max(1, row.exchangeRate || 1);
+  return formatContractMoney(row.amountOriginal, row.currency, rate, locale);
 }
 
 export function formatAuditDate(iso: string, locale: string) {

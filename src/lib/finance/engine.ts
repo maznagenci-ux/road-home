@@ -119,13 +119,20 @@ export type CreateVoucherInput = {
   attachmentUrl?: string | null;
   dueDate?: Date | null;
   createdById?: string | null;
+  branchId?: string | null;
 };
 
 const OFFICE_TYPES: VoucherAccountType[] = ['OFFICE_EXPENSE', 'EMPLOYEE_SALARY'];
+/** Types that may post without a construction house (overhead / pure rental). */
+const HOUSE_OPTIONAL_TYPES: VoucherAccountType[] = [
+  ...OFFICE_TYPES,
+  'RENTAL_INCOME',
+  'BUYER_PAYMENT',
+];
 
 export async function createVoucher(input: CreateVoucherInput) {
-  const isOffice = OFFICE_TYPES.includes(input.accountType);
-  if (!isOffice && !input.houseId) throw new Error('HOUSE_CODE_REQUIRED');
+  const houseOptional = HOUSE_OPTIONAL_TYPES.includes(input.accountType);
+  if (!houseOptional && !input.houseId) throw new Error('HOUSE_CODE_REQUIRED');
   if (input.amountIqd <= 0) throw new Error('INVALID_AMOUNT');
   if (input.exchangeRate <= 0) throw new Error('INVALID_FX');
 
@@ -142,10 +149,17 @@ export async function createVoucher(input: CreateVoucherInput) {
   const voucherNo = await nextVoucherNo();
   const deductionIqd = Math.max(0, input.deductionIqd ?? 0);
 
+  const { resolveWriteBranchId } = await import('@/lib/access/accounting-branch');
+  const branchId = await resolveWriteBranchId({
+    explicit: input.branchId,
+    createdById: input.createdById,
+  });
+
   const voucher = await prisma.voucher.create({
     data: {
       voucherNo,
       houseId: input.houseId ?? null,
+      branchId,
       accountType: input.accountType,
       category: input.category ?? null,
       amountIqd: input.amountIqd,
@@ -188,8 +202,8 @@ export async function reverseVoucher(voucherId: string, createdById?: string) {
   const reversalNo = await nextVoucherNo();
   const lockedAt = new Date();
 
-  return prisma.$transaction(async (tx) => {
-    const reversal = await tx.voucher.create({
+  const reversal = await prisma.$transaction(async (tx) => {
+    const row = await tx.voucher.create({
       data: {
         voucherNo: reversalNo,
         houseId: original.houseId,
@@ -209,6 +223,7 @@ export async function reverseVoucher(voucherId: string, createdById?: string) {
         dueDate: null,
         reversesId: original.id,
         createdById: createdById ?? null,
+        branchId: original.branchId,
         status: 'POSTED',
       },
     });
@@ -218,8 +233,18 @@ export async function reverseVoucher(voucherId: string, createdById?: string) {
       data: { status: 'REVERSED' },
     });
 
-    return reversal;
+    return row;
   });
+
+  // Void the original ledger posting so books match voucher status
+  try {
+    const { voidVoucherLedger } = await import('@/lib/accounting/bridge');
+    await voidVoucherLedger(original.id, createdById);
+  } catch (err) {
+    console.error('reverseVoucher ledger void failed', err);
+  }
+
+  return reversal;
 }
 
 export async function getVendorDebts(houseId: string) {

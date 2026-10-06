@@ -1,24 +1,11 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-
-let admin: SupabaseClient | null = null;
-
-/** Server-only Supabase client (service role). Never import in client components. */
-export function getSupabaseAdmin(): SupabaseClient {
-  if (admin) return admin;
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const key =
-    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
-    process.env.SUPABASE_SECRET_KEY?.trim();
-
-  if (!url || !key) {
-    throw new Error('SUPABASE_URL_OR_KEY_MISSING');
-  }
-
-  admin = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  return admin;
+/**
+ * Deprecated — uploads and DB now run on Hostinger.
+ * Kept as a no-op stub so old imports do not crash during transition.
+ */
+export function getSupabaseAdmin(): never {
+  throw new Error(
+    'Supabase has been removed. File uploads use local disk; DATABASE_URL points to Hostinger Postgres.',
+  );
 }
 
 export const RECEIPTS_BUCKET = 'receipts';

@@ -12,6 +12,10 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import type { Dictionary } from '@/i18n/dictionaries';
+import {
+  AccountingBranchFilterBar,
+  useAccountingBranchFilter,
+} from '@/features/accounting/AccountingBranchFilter';
 
 type Snapshot = {
   todayIncomeIqd: number;
@@ -28,11 +32,20 @@ export function AccountingHubView({ t, lang }: { t: Dictionary; lang: string }) 
   const now = new Date();
   const month = now.getMonth() + 1;
   const year = now.getFullYear();
+  const {
+    canPick,
+    branchId,
+    setBranchId,
+    branches,
+    setBranches,
+    withBranchParam,
+  } = useAccountingBranchFilter();
 
   useEffect(() => {
-    void fetch('/api/accounting/summary')
+    void fetch(withBranchParam('/api/accounting/summary'))
       .then((r) => r.json())
       .then((d) => {
+        if (Array.isArray(d.branches)) setBranches(d.branches);
         const s = d.snapshot;
         if (!s) return;
         setSnap({
@@ -46,7 +59,11 @@ export function AccountingHubView({ t, lang }: { t: Dictionary; lang: string }) 
         });
       })
       .catch(() => undefined);
-  }, []);
+  }, [branchId, canPick, withBranchParam, setBranches]);
+
+  const reportHref = withBranchParam(
+    `/api/pdf/report/monthly?month=${month}&year=${year}`,
+  );
 
   const actions = [
     {
@@ -71,7 +88,7 @@ export function AccountingHubView({ t, lang }: { t: Dictionary; lang: string }) 
       tone: 'border-stone-200 bg-stone-50 text-stone-900',
     },
     {
-      href: `/api/pdf/report/monthly?month=${month}&year=${year}`,
+      href: reportHref,
       icon: FileBarChart,
       title: 'ڕاپۆرتی مانگانە',
       desc: 'بۆ خاوەن: پوختە + وردەکاریی ئەم مانگە (PDF)',
@@ -99,6 +116,12 @@ export function AccountingHubView({ t, lang }: { t: Dictionary; lang: string }) 
           <strong className="text-foreground">پارە دەڕوات</strong>، و{' '}
           <strong className="text-foreground">چەندت ماوە لە نەقد</strong>. هەموو ژمارەکان بە دینارن.
         </p>
+        <AccountingBranchFilterBar
+          canPick={canPick}
+          branchId={branchId}
+          setBranchId={setBranchId}
+          branches={branches}
+        />
       </header>
 
       <section className="rounded-2xl border border-border bg-card p-5 space-y-4">

@@ -22,12 +22,12 @@ export function sortPointersByNo(list: CompoundPointer[]): CompoundPointer[] {
   return out;
 }
 
-/** Sort only — list/search/pin use official map `no` (never remapped). */
+/** Sort by official map number (printed on tiles). seq is list order only. */
 export function withPlotSeq(list: CompoundPointer[]): NumberedPointer[] {
   return sortPointersByNo(list).map((p, i) => ({ ...p, seq: i + 1 }));
 }
 
-/** Search by official plot number printed on the map. */
+/** Search by official plot number on the map — never remap to a different plot. */
 export function filterPlotPointers(
   pointers: NumberedPointer[],
   query: string,
@@ -61,6 +61,7 @@ export function plotRangeLabel(pointers: NumberedPointer[]): string {
   if (!pointers.length) return '';
   const first = normalizePlotDigits(pointers[0]?.no ?? '');
   const last = normalizePlotDigits(pointers[pointers.length - 1]?.no ?? '');
-  if (!first || !last) return '';
-  return first === last ? first : `${first} – ${last}`;
+  if (!first && !last) return '';
+  if (!first || !last || first === last) return first || last;
+  return `${first} – ${last}`;
 }

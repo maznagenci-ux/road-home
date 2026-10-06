@@ -4,6 +4,7 @@ import { hasPermission } from '@/lib/access/permissions';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import { getUnifiedFinancials } from '@/lib/finance/unified-report';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderUnifiedFinancialReportHtml } from '@/lib/pdf/unified-report';
 
 export async function GET(req: Request) {
@@ -28,7 +29,10 @@ export async function GET(req: Request) {
 
   const data = await getUnifiedFinancials({ from, to });
   const t = await getDictionary(locale);
-  const html = renderUnifiedFinancialReportHtml(locale, t, data);
+  const html = renderUnifiedFinancialReportHtml(locale, t, {
+    ...data,
+    assetBase: getPublicOrigin(req),
+  });
 
   return new NextResponse(html, {
     headers: { 'Content-Type': 'text/html; charset=utf-8' },

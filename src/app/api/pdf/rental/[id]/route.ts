@@ -4,9 +4,12 @@ import { getSession } from '@/lib/auth';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
 import { getFixedRentalClauses } from '@/lib/contracts/rental-clauses';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderLeaseHtml } from '@/lib/pdf/templates';
 import { formatCurrency } from '@/lib/utils';
 import { BRAND_NAME } from '@/lib/brand';
+import { assertLeaseInBranch } from '@/lib/access/branch-scope';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(
   req: Request,
@@ -16,6 +19,11 @@ export async function GET(
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { id } = await params;
+  const ok = await assertLeaseInBranch(session, id);
+  if (!ok) return NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 });
+
+  await loadCompanyContact();
+
   const url = new URL(req.url);
   const localeParam = url.searchParams.get('locale');
   const locale: Locale =
@@ -95,7 +103,7 @@ export async function GET(
     showOrganizer: lease.showOrganizer,
     clauses,
     autoPrint,
-    assetBase: url.origin,
+    assetBase: getPublicOrigin(req),
   });
 
   return new NextResponse(html, {

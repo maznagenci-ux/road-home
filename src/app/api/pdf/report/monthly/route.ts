@@ -4,7 +4,9 @@ import { hasPermission } from '@/lib/access/permissions';
 import { prisma } from '@/lib/prisma';
 import { seedAccountingChart } from '@/lib/accounting/seed-chart';
 import { getMonthlyOwnerBundle } from '@/lib/accounting/reports';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderMonthlyOwnerReportHtml } from '@/lib/pdf/monthly-owner-report';
+import { resolveAccountingBranchScope } from '@/lib/access/accounting-branch';
 
 export async function GET(req: Request) {
   const session = await getSession();
@@ -24,10 +26,11 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'INVALID_PERIOD' }, { status: 400 });
   }
 
+  const branchScope = resolveAccountingBranchScope(session, url.searchParams.get('branchId'));
+
   await seedAccountingChart(prisma);
-  const bundle = await getMonthlyOwnerBundle(month, year);
-  const origin = url.origin;
-  const html = renderMonthlyOwnerReportHtml(bundle, { assetBase: origin });
+  const bundle = await getMonthlyOwnerBundle(month, year, branchScope);
+  const html = renderMonthlyOwnerReportHtml(bundle, { assetBase: getPublicOrigin(req) });
 
   await prisma.monthlyReport.upsert({
     where: { year_month: { year, month } },

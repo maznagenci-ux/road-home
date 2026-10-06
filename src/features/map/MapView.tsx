@@ -7,6 +7,8 @@ import type { Dictionary } from '@/i18n/dictionaries';
 import type { MapPlot } from '@/lib/map/types';
 import { KASNAZAN_VIEW } from '@/features/map/ErbilMapCanvas';
 import type { CompoundMeta, CompoundPointer } from '@/features/map/CompoundPlotCanvas';
+import { usePermissions } from '@/features/access/PermissionsProvider';
+import { isSuperAdmin } from '@/lib/access/permissions';
 import {
   filterPlotPointers,
   normalizePlotDigits,
@@ -77,6 +79,8 @@ export function MapView({
   tvMode?: boolean;
 }) {
   const m = (t.pages as { map?: Record<string, string> }).map ?? {};
+  const { role, ready: permsReady } = usePermissions();
+  const canDownloadMapPdf = permsReady && isSuperAdmin(role ?? '');
   const [mode, setMode] = useState<MapMode>('compound');
   const [data, setData] = useState<MapPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -186,7 +190,7 @@ export function MapView({
 
         // Slim pointers — small payload; full objects OOM/timeout on big compounds
         try {
-          const pr = await fetch(`/api/map/compounds/${compoundId}?pointers=slim&v=rh28`);
+          const pr = await fetch(`/api/map/compounds/${compoundId}?pointers=slim&v=rh31`);
           if (!pr.ok || cancelled) return;
           const full = (await pr.json()) as CompoundMeta & {
             pointerFormat?: string;
@@ -205,6 +209,7 @@ export function MapView({
                   lng: 0,
                 }))
               : (raw as CompoundPointer[]);
+          // Official map numbers only — click N must open plot N on the tiles.
           setPointers(withPlotSeq(list));
           setCompoundMeta((prev) =>
             prev
@@ -240,16 +245,27 @@ export function MapView({
     return () => window.clearTimeout(t);
   }, [compoundId, areas.length]);
 
-  const plots = (data?.plots ?? []).filter((p) => {
-    const s = q.trim().toLowerCase();
-    if (!s) return true;
-    return (
-      p.plotNo.toLowerCase().includes(s) ||
-      p.code.toLowerCase().includes(s) ||
-      p.name.toLowerCase().includes(s) ||
-      p.neighborhood.toLowerCase().includes(s)
-    );
-  });
+  const plots = useMemo(() => {
+    const filtered = (data?.plots ?? []).filter((p) => {
+      const s = q.trim().toLowerCase();
+      if (!s) return true;
+      return (
+        p.plotNo.toLowerCase().includes(s) ||
+        p.code.toLowerCase().includes(s) ||
+        p.name.toLowerCase().includes(s) ||
+        p.neighborhood.toLowerCase().includes(s)
+      );
+    });
+    const sorted = [...filtered].sort((a, b) => {
+      const na = Number(normalizePlotDigits(a.plotNo));
+      const nb = Number(normalizePlotDigits(b.plotNo));
+      if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb;
+      return normalizePlotDigits(a.plotNo).localeCompare(normalizePlotDigits(b.plotNo), 'en', {
+        numeric: true,
+      });
+    });
+    return sorted;
+  }, [data?.plots, q]);
 
   const filteredAreas = useMemo(() => {
     const s = areaQ.trim().toLowerCase();
@@ -334,7 +350,7 @@ export function MapView({
     setExporting(true);
     setExportError('');
     try {
-      const res = await fetch(`/api/pdf/map/compound/${compoundId}`);
+      const res = await fetch(`/api/pdf/map/compound/${compoundId}?force=1`);
       if (!res.ok) {
         const err = (await res.json().catch(() => null)) as { message?: string; error?: string } | null;
         throw new Error(err?.message || err?.error || 'export_failed');
@@ -406,7 +422,7 @@ export function MapView({
               </button>
             ) : null}
           </div>
-          {mode === 'compound' && !guestMode ? (
+          {mode === 'compound' && !guestMode && canDownloadMapPdf ? (
             <button
               type="button"
               disabled={!compoundMeta || compoundLoading || exporting}
@@ -587,17 +603,17 @@ export function MapView({
                     </p>
                   </div>
                 ) : (
-                  <ul className="divide-y divide-border">
+                  <ul className="divide-y divide-border" dir="ltr">
                     {filteredPointers.map((p) => (
-                      <li key={`${p.id}-${p.no}`}>
+                      <li key={`${p.id}-${p.seq}`}>
                         <button
                           type="button"
                           onClick={() => setSelectedPlotNo(p.no)}
-                          className={`w-full text-start px-4 py-2.5 flex items-center hover:bg-muted/60 ${
+                          className={`w-full text-start px-4 py-2.5 hover:bg-muted/60 ${
                             selectedPlotNo === p.no ? 'bg-primary/10' : ''
                           }`}
                         >
-                          <span className="font-bold tabular-nums text-base text-foreground" dir="ltr">
+                          <span className="font-bold tabular-nums text-base text-foreground">
                             {p.no}
                           </span>
                         </button>
@@ -719,7 +735,7 @@ export function MapView({
                             selectedId === p.id ? 'bg-primary/10' : ''
                           }`}
                         >
-                          <p className="font-semibold tabular-nums text-foreground text-base">
+                          <p className="font-semibold tabular-nums text-foreground text-base" dir="ltr">
                             {p.plotNo}
                           </p>
                           <p className="text-xs text-muted-foreground mt-0.5">

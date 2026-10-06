@@ -3,8 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { getDictionary } from '@/i18n/dictionaries';
 import { hasLocale, localeFromUser, type Locale } from '@/i18n/locale-config';
+import { getPublicOrigin } from '@/lib/pdf/assets';
 import { renderAnketHtml } from '@/lib/pdf/templates';
 import { labelAnketDoc } from '@/lib/anket/documents';
+import { loadCompanyContact } from '@/lib/company-contact';
 
 export async function GET(
   req: Request,
@@ -12,6 +14,8 @@ export async function GET(
 ) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  await loadCompanyContact();
 
   const { id } = await params;
   const url = new URL(req.url);
@@ -62,7 +66,7 @@ export async function GET(
     organizerName: item.organizerName,
     mukhtarName: item.mukhtarName,
     autoPrint,
-    assetBase: url.origin,
+    assetBase: getPublicOrigin(req),
   });
 
   return new NextResponse(html, {

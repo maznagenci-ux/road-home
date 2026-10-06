@@ -5,7 +5,8 @@ import { Loader2, Plus, Trash2, X } from 'lucide-react';
 import { cn, formatCurrency, formatContractMoney } from '@/lib/utils';
 import { useFxStore } from '@/stores/fx-store';
 import { BRAND_NAME } from '@/lib/brand';
-import { placeSelectLabel, type PlaceOption } from '@/lib/places';
+import { type PlaceOption } from '@/lib/places';
+import { PlaceSearchSelect } from '@/components/places/PlaceSearchSelect';
 import { DealEmployeeSelect } from '@/features/deals/DealEmployeeSelect';
 import type { Dictionary } from '@/i18n/dictionaries';
 
@@ -549,33 +550,22 @@ export function RentalContractForm({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <FieldLabel>{L.houseCode} *</FieldLabel>
-                    <select
-                      className={field}
+                    <PlaceSearchSelect
+                      options={placeOptions}
                       value={form.propertyCode}
                       required
-                      onChange={(e) => {
-                        const code = e.target.value;
-                        const place = placeOptions.find((p) => p.code === code);
+                      placeholder={L.selectPlace}
+                      searchPlaceholder={placesT.search ?? 'گەڕان بە کۆد یان ناو…'}
+                      onChange={(code, place) => {
                         setForm((prev) => ({
                           ...prev,
                           propertyCode: code,
                           propertyName: place?.name || prev.propertyName,
                         }));
                       }}
-                    >
-                      <option value="">{L.selectPlace}</option>
-                      {form.propertyCode &&
-                      !placeOptions.some((p) => p.code === form.propertyCode) ? (
-                        <option value={form.propertyCode}>{form.propertyCode}</option>
-                      ) : null}
-                      {placeOptions.map((p) => (
-                        <option key={p.id} value={p.code}>
-                          {placeSelectLabel(p)}
-                        </option>
-                      ))}
-                    </select>
+                    />
                     <p className="mt-1 text-[11px] text-muted-foreground">
-                      لە شوێنەکان هەڵیبژێرە — گەرەک و ناوی شوێن
+                      لە شوێنەکان هەڵیبژێرە — گەڕان بە کۆد یان ناو
                     </p>
                   </div>
                   <div>
@@ -628,16 +618,6 @@ export function RentalContractForm({
                   <input type="checkbox" checked={form.showOrganizer} onChange={(e) => set('showOrganizer', e.target.checked)} />
                   {L.showOrganizer}
                 </label>
-                <div className="mt-4">
-                  <DealEmployeeSelect
-                    className={field}
-                    value={form.dealEmployeeId}
-                    onChange={(id) => set('dealEmployeeId', id)}
-                    label={L.dealEmployee ?? 'کارمەندی بەکرێدان'}
-                    hint={L.dealEmployeeHint ?? 'بۆ هەژماری کارمەند — لەسەر پەڕەی گرێبەست دەرناکەوێت'}
-                    placeholder={L.dealEmployeeNone ?? 'کارمەند هەڵبژێرە'}
-                  />
-                </div>
               </section>
 
               <section className="rounded-2xl border border-border bg-card p-5">

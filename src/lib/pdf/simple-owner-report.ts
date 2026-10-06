@@ -1,5 +1,6 @@
 import type { SimpleOwnerReport } from '@/lib/accounting/simple-report';
-import { BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
+import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
+import { brandLogoPair } from '@/lib/pdf/assets';
 
 function esc(s: string) {
   return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -9,9 +10,13 @@ function fmt(n: number) {
   return new Intl.NumberFormat('en-IQ', { maximumFractionDigits: 0 }).format(Math.round(n));
 }
 
-export function renderSimpleReportWordHtml(report: SimpleOwnerReport) {
+export function renderSimpleReportWordHtml(
+  report: SimpleOwnerReport,
+  opts?: { assetBase?: string },
+) {
   const from = report.from.slice(0, 10);
   const to = report.to.slice(0, 10);
+  const { logo, mark } = brandLogoPair(opts?.assetBase);
 
   const incomeCat = report.incomeByCategory
     .map((r) => `<tr><td>${esc(r.category)}</td><td class="num">${fmt(r.amountIqd)}</td></tr>`)
@@ -45,7 +50,10 @@ export function renderSimpleReportWordHtml(report: SimpleOwnerReport) {
 <title>ڕاپۆرتی سادەی حیسابات</title>
 <style>
   body { font-family: 'Noto Kufi Arabic', Tahoma, sans-serif; color: #1c1917; padding: 24px; }
+  .head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .logo { height: 52px; width: auto; }
   h1 { font-size: 22px; margin: 0; }
+  .en { font-size: 12px; color: #57534e; }
   .sub { color: #78716c; margin: 4px 0 18px; }
   .cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
   .card { border: 1px solid #e7e5e4; border-radius: 10px; padding: 12px 16px; min-width: 140px; }
@@ -59,7 +67,13 @@ export function renderSimpleReportWordHtml(report: SimpleOwnerReport) {
 </style>
 </head>
 <body>
-  <h1>${esc(BRAND_NAME_KU)}</h1>
+  <div class="head">
+    <img class="logo" src="${logo}" alt="${esc(BRAND_NAME)}" onerror="this.src='${mark}'" />
+    <div>
+      <h1>${esc(BRAND_NAME_KU)}</h1>
+      <div class="en">${esc(BRAND_NAME)}</div>
+    </div>
+  </div>
   <div class="sub">${esc(BRAND_SLOGAN_KU)} · هەموو ژمارەکان بە دینار · ${from} → ${to}</div>
 
   <div class="cards">
