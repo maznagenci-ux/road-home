@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
-import { requireApiPermission } from '@/lib/api-auth';
+import { requireAnyApiPermission } from '@/lib/api-auth';
 import {
   assertReceiptInBranch,
   assertContractInBranch,
@@ -106,7 +106,11 @@ async function withContractAmounts(data: z.infer<typeof createSchema>) {
 }
 
 export async function GET(req: Request) {
-  const auth = await requireApiPermission('VIEW_CONTRACTS');
+  const auth = await requireAnyApiPermission([
+    'VIEW_RECEIPTS',
+    'VIEW_CONTRACTS',
+    'VIEW_RENTALS',
+  ]);
   if ('error' in auth) return auth.error;
 
   const url = new URL(req.url);
@@ -163,7 +167,11 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireAnyApiPermission([
+    'MANAGE_RECEIPTS',
+    'MANAGE_CONTRACTS',
+    'MANAGE_RENTALS',
+  ]);
   if ('error' in auth) return auth.error;
   try {
     const data = createSchema.parse(await req.json());
@@ -222,7 +230,11 @@ export async function POST(req: Request) {
 }
 
 export async function PATCH(req: Request) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireAnyApiPermission([
+    'MANAGE_RECEIPTS',
+    'MANAGE_CONTRACTS',
+    'MANAGE_RENTALS',
+  ]);
   if ('error' in auth) return auth.error;
   try {
     const body = updateSchema.parse(await req.json());
@@ -275,7 +287,11 @@ export async function PATCH(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const auth = await requireApiPermission('MANAGE_CONTRACTS');
+  const auth = await requireAnyApiPermission([
+    'MANAGE_RECEIPTS',
+    'MANAGE_CONTRACTS',
+    'MANAGE_RENTALS',
+  ]);
   if ('error' in auth) return auth.error;
 
   try {

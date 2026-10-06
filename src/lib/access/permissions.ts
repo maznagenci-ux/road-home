@@ -8,6 +8,7 @@ export const PERMISSION_KEYS: PermissionKey[] = [
   'VIEW_PROJECTS',
   'VIEW_PROPERTIES',
   'VIEW_CONTRACTS',
+  'VIEW_RECEIPTS',
   'VIEW_RENTALS',
   'VIEW_ANKET',
   'VIEW_REPORTS',
@@ -21,6 +22,7 @@ export const PERMISSION_KEYS: PermissionKey[] = [
   'REVERSE_VOUCHERS',
   'CHANGE_FX_RATE',
   'MANAGE_CONTRACTS',
+  'MANAGE_RECEIPTS',
   'MANAGE_RENTALS',
   'MANAGE_ANKET',
   'MANAGE_PROJECTS',
@@ -33,38 +35,34 @@ export const PERMISSION_KEYS: PermissionKey[] = [
   'APPROVE_WASTE',
 ];
 
+/** Shown in Super Admin “بینین” list — construction/inventory hidden from staff UI. */
 export const SEE_PERMISSIONS: PermissionKey[] = [
   'VIEW_DASHBOARD',
   'VIEW_ACCOUNTING',
   'VIEW_PROJECTS',
   'VIEW_PROPERTIES',
   'VIEW_CONTRACTS',
+  'VIEW_RECEIPTS',
   'VIEW_RENTALS',
   'VIEW_ANKET',
   'VIEW_REPORTS',
   'VIEW_USERS',
   'VIEW_CASH_VAULT',
   'VIEW_PAYABLES',
-  'VIEW_CONSTRUCTION_COST',
-  'VIEW_INVENTORY',
 ];
 
+/** Shown in Super Admin “کردار” list — budget/inventory/export hidden from staff UI. */
 export const DO_PERMISSIONS: PermissionKey[] = [
   'ADD_VOUCHERS',
   'EDIT_TRANSACTIONS',
   'REVERSE_VOUCHERS',
   'CHANGE_FX_RATE',
   'MANAGE_CONTRACTS',
+  'MANAGE_RECEIPTS',
   'MANAGE_RENTALS',
   'MANAGE_ANKET',
   'MANAGE_PROJECTS',
   'MANAGE_USERS',
-  'EXPORT_FINANCE',
-  'APPROVE_FINANCE',
-  'MANAGE_PROJECT_BUDGET',
-  'MANAGE_INVENTORY',
-  'ISSUE_MATERIALS',
-  'APPROVE_WASTE',
 ];
 
 export const ASSIGNABLE_ROLES: UserRole[] = [
@@ -113,6 +111,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: true,
@@ -126,6 +125,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: false,
+    MANAGE_RECEIPTS: true,
     MANAGE_RENTALS: true,
     MANAGE_ANKET: true,
     MANAGE_PROJECTS: false,
@@ -144,6 +144,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: true,
@@ -157,6 +158,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: true,
+    MANAGE_RECEIPTS: true,
     MANAGE_RENTALS: true,
     MANAGE_ANKET: true,
     MANAGE_PROJECTS: true,
@@ -175,6 +177,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: true,
@@ -188,6 +191,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: false,
+    MANAGE_RECEIPTS: true,
     MANAGE_RENTALS: true,
     MANAGE_ANKET: true,
     MANAGE_PROJECTS: false,
@@ -206,6 +210,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: false,
@@ -219,6 +224,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: true,
+    MANAGE_RECEIPTS: true,
     MANAGE_RENTALS: true,
     MANAGE_ANKET: true,
     MANAGE_PROJECTS: false,
@@ -230,19 +236,21 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: false,
     VIEW_USERS: false,
     VIEW_CASH_VAULT: false,
     VIEW_PAYABLES: true,
-    VIEW_CONSTRUCTION_COST: true,
+    VIEW_CONSTRUCTION_COST: false,
     VIEW_INVENTORY: false,
     ADD_VOUCHERS: false,
     EDIT_TRANSACTIONS: false,
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: true,
+    MANAGE_RECEIPTS: true,
     MANAGE_RENTALS: true,
     MANAGE_ANKET: true,
     MANAGE_PROJECTS: false,
@@ -254,6 +262,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: false,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: false,
@@ -267,6 +276,7 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: false,
+    MANAGE_RECEIPTS: false,
     MANAGE_RENTALS: false,
     MANAGE_ANKET: false,
     MANAGE_PROJECTS: true,
@@ -282,19 +292,21 @@ export const ROLE_DEFAULTS: Record<UserRole, Record<PermissionKey, boolean>> = {
     VIEW_PROJECTS: true,
     VIEW_PROPERTIES: true,
     VIEW_CONTRACTS: true,
+    VIEW_RECEIPTS: true,
     VIEW_RENTALS: true,
     VIEW_ANKET: true,
     VIEW_REPORTS: true,
     VIEW_USERS: false,
     VIEW_CASH_VAULT: false,
     VIEW_PAYABLES: true,
-    VIEW_CONSTRUCTION_COST: true,
-    VIEW_INVENTORY: true,
+    VIEW_CONSTRUCTION_COST: false,
+    VIEW_INVENTORY: false,
     ADD_VOUCHERS: false,
     EDIT_TRANSACTIONS: false,
     REVERSE_VOUCHERS: false,
     CHANGE_FX_RATE: false,
     MANAGE_CONTRACTS: false,
+    MANAGE_RECEIPTS: false,
     MANAGE_RENTALS: false,
     MANAGE_ANKET: false,
     MANAGE_PROJECTS: false,
@@ -434,12 +446,13 @@ export function navPermissionForPath(pathname: string, lang: string): Permission
   ) {
     return 'VIEW_PROPERTIES';
   }
+  // Receipts: layout allows VIEW_RECEIPTS | VIEW_CONTRACTS | VIEW_RENTALS (see layout)
+  if (rest.startsWith('/receipts')) return null;
   if (
     rest.startsWith('/customers') ||
     rest.startsWith('/suppliers') ||
     rest.startsWith('/contracts') ||
-    rest.startsWith('/installments') ||
-    rest.startsWith('/receipts')
+    rest.startsWith('/installments')
   ) {
     return 'VIEW_CONTRACTS';
   }

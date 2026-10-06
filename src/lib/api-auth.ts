@@ -24,3 +24,17 @@ export async function requireApiPermission(
   }
   return auth;
 }
+
+/** Allow if the user has any of the listed permissions. */
+export async function requireAnyApiPermission(
+  keys: PermissionKey[],
+): Promise<{ session: SessionUser } | { error: NextResponse }> {
+  const auth = await requireApiSession();
+  if ('error' in auth) return auth;
+  for (const key of keys) {
+    if (await hasPermission(auth.session.id, auth.session.role, key)) {
+      return auth;
+    }
+  }
+  return { error: NextResponse.json({ error: 'FORBIDDEN' }, { status: 403 }) };
+}

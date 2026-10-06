@@ -37,6 +37,11 @@ export default async function DashboardLayout({
     if (!perms[needed]) {
       redirect(`/${lang}`);
     }
+  } else if (rest.startsWith('/receipts') && !isSuperAdmin(session.role)) {
+    const perms = await getEffectivePermissions(session.id, session.role);
+    if (!perms.VIEW_RECEIPTS && !perms.VIEW_CONTRACTS && !perms.VIEW_RENTALS) {
+      redirect(`/${lang}`);
+    }
   }
 
   return (

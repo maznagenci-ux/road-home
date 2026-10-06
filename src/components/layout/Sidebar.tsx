@@ -127,7 +127,7 @@ export function Sidebar({
           href: `/${lang}/receipts?stream=trading`,
           icon: Receipt,
           label: n.tradingReceipts ?? 'وەسڵی فرۆشتن',
-          perm: 'VIEW_CONTRACTS',
+          perm: 'VIEW_RECEIPTS',
         },
         {
           href: `/${lang}/accounting/income`,
