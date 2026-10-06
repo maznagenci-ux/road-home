@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, Plus, Printer, Pencil, Star, X, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Printer, Pencil, Star, X, Trash2, Download } from 'lucide-react';
 import { cn, formatDate } from '@/lib/utils';
 import { type Locale } from '@/i18n/locale-config';
 import { PdfPrintLangMenu } from '@/components/print/PdfPrintLangMenu';
@@ -359,7 +359,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                 <th className="px-4 py-3 font-medium">{s.beneficiary ?? 'سوودمەند'}</th>
                 <th className="px-4 py-3 font-medium">{s.to ?? 'بۆ'}</th>
                 <th className="px-4 py-3 font-medium">{s.date ?? 'ڕێکەوت'}</th>
-                <th className="px-4 py-3 font-medium">{t.common.print}</th>
+                <th className="px-4 py-3 font-medium">{s.downloadPdf ?? t.common.download ?? 'داگرتنی PDF'}</th>
               </tr>
             </thead>
             <tbody>
@@ -421,10 +421,11 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
                               }
                             }}
                             className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-                            title={s.printPdfLang ?? t.common.print}
+                            title={s.downloadPdf ?? 'داگرتنی PDF'}
                             aria-expanded={printMenuId === row.id}
+                            aria-label={s.downloadPdf ?? 'داگرتنی PDF'}
                           >
-                            <Printer className="h-4 w-4" />
+                            <Download className="h-4 w-4" />
                           </button>
                         </div>
                         <button
@@ -708,7 +709,7 @@ export function SupportView({ t, lang }: { t: Dictionary; lang: string }) {
       <PdfPrintLangMenu
         open={Boolean(printMenuId)}
         anchorEl={printAnchor}
-        title={s.printPdfLang ?? 'زمانی PDF'}
+        title={s.downloadPdfLang ?? s.downloadPdf ?? 'زمانی PDF'}
         currentLocale={lang}
         onSelect={(loc) => {
           if (printMenuId) printItem(printMenuId, loc);

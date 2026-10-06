@@ -755,7 +755,9 @@
       "toDate": "To date",
       "confirmDelete": "Permanently delete this support letter?",
       "withRespect": "With respect…",
-      "copyTo": "Copy to:"
+      "copyTo": "Copy to:",
+      "downloadPdf": "Download PDF",
+      "downloadPdfLang": "PDF language — download"
     },
     "places": {
       "title": "Locations",

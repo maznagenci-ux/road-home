@@ -1289,19 +1289,35 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   const headKu = ['کۆمپانیای ZMKH ڕۆد هۆم', 'عەقارات و بیناسازی', branch];
   const headAr = ['شركة ZMKH رود هوم', 'للعقارات والمقاولات', branch];
 
-  const bodyHtml = esc(data.content || '')
+  /** Drop trailing closing lines from body — PDF prints one closing + signature. */
+  const bodyRaw = (data.content || '')
+    .replace(
+      /(?:\r?\n|[\s.·…])*((?:لەگەڵ\s*ڕ?ێزدا|مع فائق الاحترام|With respect|Respectfully|بە\s*ڕێزەوە|وتفضلوا بقبول فائق الاحترام)[.\s…·]*)+\s*$/iu,
+      '',
+    )
+    .trim();
+
+  const bodyHtml = esc(bodyRaw)
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter(Boolean)
     .map((p) => `<p>${p.replaceAll('\n', '<br/>')}</p>`)
     .join('');
 
+  const pdfFileTitle = (data.supportNo || 'support').replace(/[^\w.-]+/g, '_');
+  const downloadPdfLabel =
+    locale === 'en'
+      ? 'Download PDF'
+      : locale === 'ar'
+        ? 'تحميل PDF'
+        : (s.downloadPdf ?? 'داگرتنی PDF');
+
   const phonesHtml = phonesInlineHtml(phones);
   return `<!DOCTYPE html>
 <html lang="${locale}" dir="${dir}">
 <head>
   <meta charset="UTF-8"/>
-  <title> </title>
+  <title>${esc(pdfFileTitle)}</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=Noto+Kufi+Arabic:wght@600;700&display=block" rel="stylesheet"/>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1317,11 +1333,14 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
       line-height: 1.85;
     }
     .toolbar {
-      max-width: 210mm; margin: 10px auto 0; display: flex; justify-content: flex-end; padding: 0 4px;
+      max-width: 210mm; margin: 10px auto 0; display: flex; justify-content: flex-end; gap: 8px; padding: 0 4px;
     }
     .toolbar button {
-      font-family: inherit; border: 0; background: #111; color: #fff;
-      padding: 7px 16px; font-size: 12px; cursor: pointer; border-radius: 3px;
+      font-family: inherit; border: 0; background: #0f2744; color: #fff;
+      padding: 8px 18px; font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 6px;
+    }
+    .toolbar button.secondary {
+      background: #fff; color: #0f2744; border: 1px solid #0f2744;
     }
     .sheet {
       width: 210mm; min-height: 297mm; margin: 8px auto 16px; background: #fff;
@@ -1422,8 +1441,8 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
     .body p:last-child { margin-bottom: 0; }
 
     .closing {
-      margin: 18px 0 0;
-      text-align: center;
+      margin: 22px 0 0;
+      text-align: start;
       font-weight: 700;
       font-size: 14px;
       unicode-bidi: isolate;
@@ -1438,18 +1457,19 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
 
     .bottom {
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: flex-end;
       direction: inherit;
+      margin-top: 8px;
     }
     .copies { display: none; }
 
     .sign-block {
-      text-align: center;
+      text-align: start;
       unicode-bidi: isolate;
       min-width: 12rem;
     }
-    .sign-block .space { height: 36px; }
+    .sign-block .space { height: 28px; }
     .sign-block .name {
       font-weight: 700; font-size: 15px;
       display: block; padding-top: 0; margin-top: 0;
@@ -1487,7 +1507,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   </style>
   <script>
     function rhSupportPrint() {
-      document.title = '\\u00a0';
+      document.title = ${JSON.stringify(pdfFileTitle)};
       var prev = location.href;
       try { history.replaceState(null, '', '/'); } catch (e) {}
       function restore() {
@@ -1501,7 +1521,9 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
   </script>
 </head>
 <body>
-  <div class="toolbar"><button type="button" onclick="rhSupportPrint()">${t.common.print}</button></div>
+  <div class="toolbar">
+    <button type="button" onclick="rhSupportPrint()">${esc(downloadPdfLabel)}</button>
+  </div>
   <div class="sheet">
     <div class="wm" aria-hidden="true"><img src="${esc(logoMark)}" alt="" /></div>
     <div class="page">

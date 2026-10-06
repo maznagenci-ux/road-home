@@ -755,7 +755,9 @@
       "toDate": "إلى تاريخ",
       "confirmDelete": "هل تريد حذف هذا التأييد نهائياً؟",
       "withRespect": "مع فائق الاحترام…",
-      "copyTo": "نسخة إلى:"
+      "copyTo": "نسخة إلى:",
+      "downloadPdf": "تحميل PDF",
+      "downloadPdfLang": "لغة PDF — تحميل"
     },
     "places": {
       "title": "الأماكن",

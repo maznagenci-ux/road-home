@@ -757,7 +757,9 @@
       "toDate": "بۆ بەروار",
       "confirmDelete": "دەتەوێت ئەم پشتگیرییە بۆ هەمیشە بسڕیتەوە؟",
       "withRespect": "لەگەڵ ڕێزدا…",
-      "copyTo": "وێنەیەک بۆ:"
+      "copyTo": "وێنەیەک بۆ:",
+      "downloadPdf": "داگرتنی PDF",
+      "downloadPdfLang": "زمانی PDF — داگرتن"
     },
     "places": {
       "title": "شوێنەکان",
