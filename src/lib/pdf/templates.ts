@@ -865,20 +865,24 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
     .toolbar button { font-family: inherit; border: 0; background: #0f2744; color: #fff; padding: 8px 16px; font-size: 13px; cursor: pointer; border-radius: 6px; }
     .page {
       position: relative;
-      width: 210mm; min-height: 297mm; margin: 0 auto 16px; background: #fff;
-      padding: 12mm 14mm; box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
+      width: 210mm; margin: 0 auto 16px; background: #fff;
+      padding: 10mm 12mm 8mm; box-shadow: 0 8px 28px rgb(15 39 68 / 0.12);
+      display: flex; flex-direction: column;
     }
     .wm { position: absolute; inset: 22% 20%; display: flex; align-items: center; justify-content: center; opacity: 0.07; pointer-events: none; z-index: 0; }
     .wm img { width: 42%; max-width: 210px; height: auto; }
-    .content { position: relative; z-index: 1; }
-    .head { display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 14px; align-items: start; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid #0f2744; }
+    .content {
+      position: relative; z-index: 1; flex: 1;
+      display: flex; flex-direction: column; min-height: 0;
+    }
+    .head { display: grid; grid-template-columns: 1.05fr 1.15fr; gap: 12px; align-items: start; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 2px solid #0f2744; }
     .logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
     .logo { width: 72px; height: 72px; object-fit: contain; background: #fff; border: 1px solid #dbe3ef; border-radius: 10px; padding: 4px; }
     .brand-en { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 15px; font-weight: 700; color: #0f2744; }
     .kind-pill { display: none; }
     .deal-banner {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      margin: 12px 0 14px; padding: 10px 14px;
+      margin: 8px 0 10px; padding: 8px 12px;
       background: #0f2744; color: #fff;
       border: 1px solid #0f2744;
     }
@@ -896,34 +900,48 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
     .phones { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #0f2744; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
     .phones .sep { color: #94a3b8; font-weight: 500; }
     .doc-title { margin-top: 10px; font-size: 16px; font-weight: 700; color: #8b4513; }
-    .to { margin: 12px 0 8px; font-size: 14px; font-weight: 700; color: #0f2744; }
-    .subject { margin-bottom: 14px; padding: 8px 0 10px; border-bottom: 1px solid #dbe3ef; font-size: 12.5px; line-height: 1.7; color: #1e293b; }
+    .to { margin: 6px 0 4px; font-size: 13px; font-weight: 700; color: #0f2744; }
+    .subject { margin-bottom: 8px; padding: 4px 0 6px; border-bottom: 1px solid #dbe3ef; font-size: 11.5px; line-height: 1.55; color: #1e293b; }
     .subject strong { color: #8b4513; margin-inline-end: 6px; }
-    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 22px; margin-bottom: 8px; }
-    .block-title { font-size: 12px; font-weight: 700; color: #0f2744; margin: 4px 0 2px; padding-bottom: 4px; border-bottom: 1px solid #0f2744; }
-    .line { display: flex; gap: 10px; align-items: baseline; padding: 7px 0 6px; border-bottom: 1px dotted #94a3b8; font-size: 12.5px; line-height: 1.5; }
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 6px; }
+    .block-title { font-size: 11px; font-weight: 700; color: #0f2744; margin: 2px 0 0; padding-bottom: 3px; border-bottom: 1px solid #0f2744; }
+    .line { display: flex; gap: 8px; align-items: baseline; padding: 4px 0 3px; border-bottom: 1px dotted #94a3b8; font-size: 11px; line-height: 1.4; }
     .lab { flex: 0 0 auto; color: #475569; font-weight: 600; white-space: nowrap; min-width: 5.5rem; }
     .val { flex: 1; font-weight: 700; color: #0f172a; min-width: 0; text-align: end; }
-    .full { margin-top: 6px; }
-    .docs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .doc { display: inline-block; font-size: 11.5px; font-weight: 600; color: #0f2744; border: 1px solid #c4a484; background: #fbf7f2; padding: 4px 10px; }
-    .note { margin-top: 10px; font-size: 12px; color: #334155; }
-    .signs { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 20px; margin-top: 36px; padding-top: 8px; }
+    .docs-section { margin-top: 4px; page-break-inside: avoid; break-inside: avoid; }
+    .docs { display: flex; flex-wrap: wrap; gap: 5px 6px; margin-top: 5px; }
+    .doc { display: inline-block; font-size: 10px; font-weight: 600; color: #0f2744; border: 1px solid #c4a484; background: #fbf7f2; padding: 3px 8px; line-height: 1.3; }
+    .note { margin-top: 6px; font-size: 10.5px; color: #334155; line-height: 1.45; }
+    .signs {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+      margin-top: auto; padding-top: 10px;
+      page-break-inside: avoid; break-inside: avoid;
+    }
     .sign { text-align: center; }
-    .sign-space { height: 42px; }
+    .sign-space { height: 28px; }
     .sign-line { border-top: 1px solid #0f2744; padding-top: 8px; }
     .sign-role { font-size: 11px; color: #475569; font-weight: 600; margin-bottom: 4px; }
     .sign-name { font-size: 12px; font-weight: 700; color: #0f2744; min-height: 1.3em; }
     @media print {
-      html, body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      html, body {
+        background: #fff !important; margin: 0 !important; padding: 0 !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
       .toolbar { display: none !important; }
       .page {
         box-shadow: none !important;
         margin: 0 !important;
         width: 210mm !important;
-        min-height: 297mm !important;
-        padding: 12mm 14mm !important;
+        min-height: 0 !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
+        padding: 9mm 11mm 7mm !important;
+        overflow: hidden;
+        page-break-after: avoid !important;
+        break-after: avoid-page !important;
       }
+      .content { page-break-inside: avoid; break-inside: avoid; }
+      .cols { page-break-inside: avoid; break-inside: avoid; }
     }
   </style>
 </head>
@@ -990,17 +1008,13 @@ export function renderAnketHtml(locale: Locale, t: Dictionary, data: AnketPdfDat
           ${line(t.pages.anket.propertyNo, data.propertyNo)}
           ${line(t.pages.anket.propertyStatus, propertyStatusLabel)}
         </div>
-        <div>
-          <div class="block-title">${esc(t.pages.anket.organizer)} / ${esc(t.pages.anket.mukhtar)}</div>
-          ${line(t.pages.anket.organizer, data.organizerName)}
-          ${line(t.pages.anket.mukhtar, data.mukhtarName)}
-          <div class="full">
-            <div class="block-title" style="margin-top:14px">${esc(t.pages.anket.docsRequired)}</div>
-            <div class="docs">${docs}</div>
-            ${data.notes ? `<p class="note"><strong>${esc(t.form.notes)}:</strong> ${esc(data.notes)}</p>` : ''}
-          </div>
-        </div>
       </div>
+
+      <section class="docs-section">
+        <div class="block-title">${esc(t.pages.anket.docsRequired)}</div>
+        <div class="docs">${docs}</div>
+        ${data.notes ? `<p class="note"><strong>${esc(t.form.notes)}:</strong> ${esc(data.notes)}</p>` : ''}
+      </section>
 
       <footer class="signs">
         <div class="sign">
