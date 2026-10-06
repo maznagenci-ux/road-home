@@ -11,7 +11,7 @@ import {
   BRAND_SLOGAN_EN,
   BRAND_SLOGAN_KU,
 } from '@/lib/brand';
-import { companyContact } from '@/lib/company-contact';
+import { companyAddressLine, companyContact } from '@/lib/company-contact';
 import { rentalClausePrefix } from '@/lib/contracts/rental-clauses';
 import { saleClausePrefix } from '@/lib/contracts/sale-clauses';
 import { brandLogoPair } from '@/lib/pdf/assets';
@@ -322,7 +322,7 @@ function grebastiHeader(opts: {
         <div class="gh-slogan">${esc(BRAND_SLOGAN_KU)}</div>
       </div>
       <div class="gh-contact">
-        <div class="addr">${esc(companyContact().address)}</div>
+        <div class="addr">${esc(companyAddressLine())}</div>
         <div class="phones">${esc(phones)}</div>
         ${stamp}
       </div>
@@ -340,7 +340,7 @@ function grebastiFooter(): string {
     <footer class="gh-foot">
       <div>${email ? esc(email) : esc(BRAND_NAME)}</div>
       <div class="foot-end">
-        <div>${esc(contact.address)}</div>
+        <div>${esc(companyAddressLine(contact))}</div>
         <div class="phones">${esc(phones)}</div>
       </div>
     </footer>`;
@@ -665,7 +665,7 @@ export function renderContractHtml(locale: Locale, t: Dictionary, data: SaleCont
     data.areaSqm != null && String(data.areaSqm).trim() !== ''
       ? `${esc(String(data.areaSqm))} م٢`
       : '—';
-  const branch = display(data.branchName || data.location || companyContact().address);
+  const branch = display(data.branchName || data.location || companyAddressLine());
   const showOrganizer = data.showOrganizer !== false;
   const organizer = display(data.organizerName || BRAND_NAME);
   const clauseStrip = saleClausePrefix(locale);
@@ -1157,7 +1157,7 @@ export function renderLeaseHtml(locale: Locale, t: Dictionary, data: LeasePdfDat
       <div class="meta-box">
         <div class="mrow"><span class="mlab">${esc(leaseNoLab)}</span><span class="mval" dir="ltr">${esc(data.leaseNo)}</span></div>
         <div class="mrow"><span class="mlab">${esc(dateLab)}</span><span class="mval" dir="ltr">${esc(isoDateErbil(signing))}</span></div>
-        <div class="mrow"><span class="mlab">${esc(branchLab)}</span><span class="mval">${esc(companyContact().address)}</span></div>
+        <div class="mrow"><span class="mlab">${esc(branchLab)}</span><span class="mval">${esc(companyAddressLine())}</span></div>
       </div>
       <div class="party-fields">
         ${field(party1Lab, landlord)}
@@ -1579,7 +1579,7 @@ export function renderSupportHtml(locale: Locale, t: Dictionary, data: SupportPd
         </div>
         <hr class="rule-thick" />
         <div class="contact-bar">
-          <div class="addr">${esc(contact.address)}</div>
+          <div class="addr">${esc(companyAddressLine(contact))}</div>
           <div class="phones">${phonesHtml || '—'}</div>
         </div>
       </footer>

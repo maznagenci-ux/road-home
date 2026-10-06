@@ -1,6 +1,6 @@
 import type { MonthlyOwnerBundle } from '@/lib/accounting/types';
 import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
-import { companyContact } from '@/lib/company-contact';
+import { companyAddressLine, companyContact } from '@/lib/company-contact';
 import { brandLogoUrl } from '@/lib/pdf/assets';
 
 function esc(value: string) {
@@ -197,7 +197,7 @@ export function renderMonthlyOwnerReportHtml(
         <h1>${esc(BRAND_NAME_KU)}</h1>
         <div class="slogan">${esc(BRAND_SLOGAN_KU)} · ${esc(BRAND_NAME)}</div>
         <div class="meta">ڕاپۆرتی دارایی مانگانە · ${bundle.year}/${String(bundle.month).padStart(2, '0')}</div>
-        <div class="contact">${esc(contact.address)}</div>
+        <div class="contact">${esc(companyAddressLine(contact))}</div>
         <div class="phones">${phoneHtml || '—'}</div>
       </div>
     </header>

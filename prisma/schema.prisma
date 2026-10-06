@@ -1165,6 +1165,7 @@ model MaterialWaste {
 model CompanyProfile {
   id        String   @id @default("default")
   address   String   @default("هەولێر")
+  address2  String   @default("")
   phone1    String   @default("0750 207 0008")
   phone2    String   @default("0750 490 0302")
   phone3    String   @default("")

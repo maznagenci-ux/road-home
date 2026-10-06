@@ -2,7 +2,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
 import { isRTL } from '@/i18n/locale-config';
 import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
-import { companyContact } from '@/lib/company-contact';
+import { companyAddressLine, companyContact } from '@/lib/company-contact';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import type { UnifiedFinancials } from '@/lib/finance/unified-report';
 import { brandLogoPair } from '@/lib/pdf/assets';
@@ -109,7 +109,7 @@ export function renderUnifiedFinancialReportHtml(
         </div>
       </div>
       <div class="contact">
-        <div>${esc(contact.address)}</div>
+        <div>${esc(companyAddressLine(contact))}</div>
         <div class="phones">${phoneHtml || '—'}</div>
         <p class="sub" style="margin-top:6px">${esc(formatDate(new Date(), locale))}</p>
       </div>

@@ -9,6 +9,7 @@ import {
 
 const schema = z.object({
   address: z.string().min(1).max(500),
+  address2: z.string().max(500).optional().default(''),
   phone1: z.string().min(1).max(40),
   phone2: z.string().max(40).optional().default(''),
   phone3: z.string().max(40).optional().default(''),
@@ -32,6 +33,7 @@ export async function PATCH(req: Request) {
     const data = schema.parse(await req.json());
     const item = await upsertCompanyContact({
       address: data.address,
+      address2: data.address2 ?? '',
       phone1: data.phone1,
       phone2: data.phone2 ?? '',
       phone3: data.phone3 ?? '',

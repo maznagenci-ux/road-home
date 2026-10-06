@@ -998,6 +998,8 @@
       "companyTitle": "العنوان والجوال (الوصولات / العقود)",
       "companyDesc": "يظهر في أعلى الوصولات والعقود المطبوعة — للسوبر أدمن فقط",
       "companyAddress": "العنوان",
+      "companyAddress1": "العنوان ١",
+      "companyAddress2": "العنوان ٢",
       "companyPhone1": "جوال ١",
       "companyPhone2": "جوال ٢",
       "companyPhone3": "جوال ٣",

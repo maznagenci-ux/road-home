@@ -134,12 +134,6 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-sm">
                 {dict.auth.loginSubtitle}
               </p>
-              <Link
-                href={`/${lang}/tv`}
-                className="mt-4 text-sm font-semibold text-primary hover:underline underline-offset-2"
-              >
-                Smart TV →
-              </Link>
             </div>
 
             <form

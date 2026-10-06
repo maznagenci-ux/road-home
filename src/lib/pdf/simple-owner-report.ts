@@ -1,6 +1,6 @@
 import type { SimpleOwnerReport, ReportCurrency } from '@/lib/accounting/simple-report';
 import { BRAND_NAME, BRAND_NAME_KU, BRAND_SLOGAN_KU } from '@/lib/brand';
-import { companyContact } from '@/lib/company-contact';
+import { companyAddressLine, companyContact } from '@/lib/company-contact';
 import { brandLogoPair } from '@/lib/pdf/assets';
 
 function esc(s: string) {
@@ -200,7 +200,7 @@ export function renderSimpleReportWordHtml(
         <div class="slogan">${esc(BRAND_SLOGAN_KU)}</div>
       </div>
       <div class="contact">
-        <div class="addr">${esc(contact.address)}</div>
+        <div class="addr">${esc(companyAddressLine(contact))}</div>
         <div class="phones">${phoneHtml || '—'}</div>
       </div>
     </header>

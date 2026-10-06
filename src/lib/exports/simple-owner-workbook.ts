@@ -1,7 +1,7 @@
 import ExcelJS from 'exceljs';
 import type { SimpleOwnerReport, ReportCurrency } from '@/lib/accounting/simple-report';
 import { BRAND_NAME, BRAND_NAME_KU } from '@/lib/brand';
-import { companyContact } from '@/lib/company-contact';
+import { companyAddressLine, companyContact } from '@/lib/company-contact';
 
 const C = {
   brand: '0B1F38',
@@ -60,7 +60,7 @@ export async function buildSimpleOwnerWorkbook(report: SimpleOwnerReport): Promi
   font(summary.getCell('A2'), { size: 11, color: C.muted });
 
   summary.mergeCells('A3:D3');
-  summary.getCell('A3').value = contact.address;
+  summary.getCell('A3').value = companyAddressLine(contact);
   font(summary.getCell('A3'), { size: 10, color: C.brand });
 
   summary.mergeCells('A4:D4');

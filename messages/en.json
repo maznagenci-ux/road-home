@@ -998,6 +998,8 @@
       "companyTitle": "Address & phones (receipts / contracts)",
       "companyDesc": "Shown on printed receipts and contracts — Super Admin only",
       "companyAddress": "Address",
+      "companyAddress1": "Address 1",
+      "companyAddress2": "Address 2",
       "companyPhone1": "Phone 1",
       "companyPhone2": "Phone 2",
       "companyPhone3": "Phone 3",

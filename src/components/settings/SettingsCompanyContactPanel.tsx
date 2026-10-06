@@ -6,6 +6,7 @@ import type { Dictionary } from '@/i18n/dictionaries';
 
 type CompanyItem = {
   address?: string;
+  address2?: string;
   phone1?: string;
   phone2?: string;
   phone3?: string;
@@ -15,6 +16,7 @@ type CompanyItem = {
 export function SettingsCompanyContactPanel({ t }: { t: Dictionary }) {
   const s = t.pages.settings as Record<string, string>;
   const [address, setAddress] = useState('');
+  const [address2, setAddress2] = useState('');
   const [phone1, setPhone1] = useState('');
   const [phone2, setPhone2] = useState('');
   const [phone3, setPhone3] = useState('');
@@ -29,6 +31,7 @@ export function SettingsCompanyContactPanel({ t }: { t: Dictionary }) {
 
   const applyItem = (item: CompanyItem) => {
     setAddress(item.address ?? '');
+    setAddress2(item.address2 ?? '');
     setPhone1(item.phone1 ?? '');
     setPhone2(item.phone2 ?? '');
     setPhone3(item.phone3 ?? '');
@@ -68,6 +71,7 @@ export function SettingsCompanyContactPanel({ t }: { t: Dictionary }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         address: address.trim(),
+        address2: address2.trim(),
         phone1: phone1.trim(),
         phone2: phone2.trim(),
         phone3: phone3.trim(),
@@ -119,17 +123,30 @@ export function SettingsCompanyContactPanel({ t }: { t: Dictionary }) {
         </p>
       ) : (
         <form onSubmit={(e) => void save(e)} className="space-y-3 max-w-xl">
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              {s.companyAddress ?? 'ناونیشان'}
-            </label>
-            <input
-              className={field}
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="هەولێر — …"
-              required
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">
+                {s.companyAddress1 ?? s.companyAddress ?? 'ناونیشانی ١'}
+              </label>
+              <input
+                className={field}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="هەولێر — …"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-muted-foreground mb-1">
+                {s.companyAddress2 ?? 'ناونیشانی ٢'}
+              </label>
+              <input
+                className={field}
+                value={address2}
+                onChange={(e) => setAddress2(e.target.value)}
+                placeholder="سلێمانی — …"
+              />
+            </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {phoneFields.map((pf) => (
