@@ -112,7 +112,7 @@ export function A4ContractPreview({
           <Field lab={mobileLab} val={form.buyerPhone} />
           <Field lab={g.propertyType ?? 'جۆری موڵک'} val={typeLabels[form.propertyType] ?? form.propertyType} />
           <Field lab={g.address ?? 'ناونیشان'} val={form.location} />
-          <Field lab={g.propertyNo ?? 'ژمارەی موڵک'} val={form.houseCode || form.tapuCode} />
+          <Field lab={g.propertyNo ?? 'ژمارەی موڵک'} val={form.tapuCode || form.houseCode} />
           <Field
             lab={g.areaShort ?? 'ڕووبەر'}
             val={form.areaSqm ? `${form.areaSqm} م٢` : '—'}

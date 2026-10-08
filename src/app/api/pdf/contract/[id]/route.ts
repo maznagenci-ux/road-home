@@ -63,7 +63,10 @@ export async function GET(
     null;
   const signing = contract.signingDate ?? contract.startDate ?? contract.createdAt;
   const propertyCode =
-    contract.house?.code || contract.tapuCode || contract.house?.name || '—';
+    contract.tapuCode?.trim() ||
+    contract.house?.code?.trim() ||
+    contract.house?.name?.trim() ||
+    '—';
   const location =
     contract.description || contract.house?.location || contract.house?.name || '—';
   const areaSqm =

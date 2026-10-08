@@ -707,16 +707,16 @@ export function renderContractHtml(locale: Locale, t: Dictionary, data: SaleCont
       </div>
     </section>`;
 
-  const sigCell = (role: string) =>
-    `<div class="sig-cell"><div class="sig-row"><span class="role">${esc(role)} :</span><span class="sig-line"></span></div><span class="sig-dash">-</span></div>`;
+  const sigCell = (role: string, name: string) =>
+    `<div class="sig-cell"><div class="sig-row"><span class="role">${esc(role)} :</span><span class="sig-line"></span></div><span class="sig-dash">${name}</span></div>`;
 
   const sigsBlock = `
     <div class="sigs-block">
       <div class="sigs-grid">
-        ${sigCell(party1Lab)}
-        ${sigCell(party2Lab)}
-        ${sigCell(witness1Label)}
-        ${sigCell(witness2Label)}
+        ${sigCell(party1Lab, seller)}
+        ${sigCell(party2Lab, buyer)}
+        ${sigCell(witness1Label, w1)}
+        ${sigCell(witness2Label, w2)}
       </div>
       ${
         showOrganizer

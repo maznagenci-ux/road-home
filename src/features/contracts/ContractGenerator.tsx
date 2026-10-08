@@ -528,8 +528,13 @@ export function ContractGenerator({
                 />
               </div>
               <div>
-                <FieldLabel>{g.tapu}</FieldLabel>
-                <input className={field} value={form.tapuCode} onChange={(e) => set('tapuCode', e.target.value)} />
+                <FieldLabel>{g.propertyNo ?? g.tapu}</FieldLabel>
+                <input
+                  className={field}
+                  value={form.tapuCode}
+                  onChange={(e) => set('tapuCode', e.target.value)}
+                  placeholder={g.propertyNo ?? 'ژمارەی موڵک'}
+                />
               </div>
               <div className="md:col-span-2">
                 <FieldLabel>{t.pages.projects.location ?? 'شوێن'}</FieldLabel>
