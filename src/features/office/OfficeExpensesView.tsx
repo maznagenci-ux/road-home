@@ -1,12 +1,24 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Loader2, Plus, Printer, X, Briefcase, Users, Search } from 'lucide-react';
+import { Loader2, Plus, Printer, X, Briefcase, Users, Search, Trash2 } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { useFxStore } from '@/stores/fx-store';
 import type { Dictionary } from '@/i18n/dictionaries';
 
 type Kind = 'office' | 'salary';
+
+type PayrollEmp = {
+  id: string;
+  name: string;
+  jobTitle: string;
+  baseSalary: number;
+  currency: 'IQD' | 'USD' | string;
+  branchId: string | null;
+  branch: { id: string; name: string; code: string } | null;
+};
+
+type BranchOpt = { id: string; name: string; code: string; isHq?: boolean };
 
 type Row = {
   id: string;
@@ -105,11 +117,23 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
   const [form, setForm] = useState<FormState>(() => emptyForm('office'));
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [employees, setEmployees] = useState<{ id: string; name: string }[]>([]);
+  const [employees, setEmployees] = useState<PayrollEmp[]>([]);
+  const [branches, setBranches] = useState<BranchOpt[]>([]);
   const [employeeYear, setEmployeeYear] = useState<EmpYear[]>([]);
   const [summaryYear, setSummaryYear] = useState(new Date().getFullYear());
   const [expandedEmp, setExpandedEmp] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [empOpen, setEmpOpen] = useState(false);
+  const [empSaving, setEmpSaving] = useState(false);
+  const [empError, setEmpError] = useState('');
+  const [busyVoucherId, setBusyVoucherId] = useState<string | null>(null);
+  const [empForm, setEmpForm] = useState({
+    name: '',
+    jobTitle: '',
+    baseSalary: '',
+    currency: 'IQD' as 'IQD' | 'USD',
+    branchId: '',
+  });
 
   const catLabel = useCallback(
     (code: string | null) => {
@@ -120,13 +144,12 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
     [o],
   );
 
-  useEffect(() => {
-    void fetch('/api/users/directory')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.items) setEmployees(d.items);
-      })
-      .catch(() => undefined);
+  const loadEmployees = useCallback(async () => {
+    const res = await fetch('/api/office-employees');
+    if (!res.ok) return;
+    const data = await res.json();
+    setEmployees(data.items ?? []);
+    setBranches(data.branches ?? []);
   }, []);
 
   const load = useCallback(async () => {
@@ -149,7 +172,8 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
 
   useEffect(() => {
     void load();
-  }, [load]);
+    void loadEmployees();
+  }, [load, loadEmployees]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -219,6 +243,8 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
     }
     setSaving(true);
     setSaveError('');
+    const currency = form.currency === 'USD' ? 'USD' : 'IQD';
+    const exchangeRate = currency === 'USD' ? Math.max(1, fx) : 1;
     const res = await fetch('/api/office-expenses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -227,12 +253,12 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
         category: form.category,
         partyName: form.partyName.trim(),
         amount,
-        currency: 'IQD',
-        exchangeRate: 1,
+        currency,
+        exchangeRate,
         paymentMethod: form.paymentMethod,
         periodLabel: tab === 'salary' ? form.periodLabel || null : null,
         deductionIqd: tab === 'salary' ? Number(form.deduction) || 0 : 0,
-        employeeUserId: tab === 'salary' ? form.employeeUserId || null : null,
+        employeeUserId: null,
         note: form.note.trim() || null,
         dueDate: form.dueDate || null,
       }),
@@ -258,14 +284,67 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
 
   const formEmpYear = useMemo(() => {
     if (tab !== 'salary') return null;
-    const id = form.employeeUserId;
     const name = form.partyName.trim().toLowerCase();
-    return (
-      employeeYear.find(
-        (e) => (id && e.employeeUserId === id) || e.name.toLowerCase() === name,
-      ) ?? null
-    );
-  }, [tab, form.employeeUserId, form.partyName, employeeYear]);
+    if (!name) return null;
+    return employeeYear.find((e) => e.name.toLowerCase() === name) ?? null;
+  }, [tab, form.partyName, employeeYear]);
+
+  async function saveEmployee(e: React.FormEvent) {
+    e.preventDefault();
+    const salary = Number(empForm.baseSalary);
+    if (!empForm.name.trim() || !(salary >= 0)) {
+      setEmpError(o.empValidation ?? 'ناو و مووچە پێویستن');
+      return;
+    }
+    setEmpSaving(true);
+    setEmpError('');
+    const res = await fetch('/api/office-employees', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: empForm.name.trim(),
+        jobTitle: empForm.jobTitle.trim(),
+        baseSalary: salary,
+        currency: empForm.currency,
+        branchId: empForm.branchId || null,
+      }),
+    });
+    setEmpSaving(false);
+    if (!res.ok) {
+      setEmpError(o.empSaveError ?? 'تۆماری کارمەند سەرکەوتوو نەبوو');
+      return;
+    }
+    setEmpOpen(false);
+    setEmpForm({ name: '', jobTitle: '', baseSalary: '', currency: 'IQD', branchId: '' });
+    await loadEmployees();
+  }
+
+  async function deleteEmployee(id: string, name: string) {
+    if (!window.confirm(o.empConfirmDelete ?? `دەتەوێت کارمەند «${name}» ڕەش بکەیتەوە؟`)) return;
+    const res = await fetch(`/api/office-employees/${id}`, { method: 'DELETE' });
+    if (!res.ok) {
+      setError(o.empDeleteError ?? 'نەتوانرا کارمەند ڕەش بکرێتەوە');
+      return;
+    }
+    await loadEmployees();
+  }
+
+  async function reverseVoucher(id: string, voucherNo: string) {
+    if (!window.confirm(o.voidConfirm ?? `دەتەوێت وەسڵی ${voucherNo} ڕەش بکەیتەوە؟`)) return;
+    setBusyVoucherId(id);
+    const res = await fetch(`/api/vouchers/${id}/reverse`, { method: 'POST' });
+    setBusyVoucherId(null);
+    if (!res.ok) {
+      const err = (await res.json().catch(() => null)) as { error?: string } | null;
+      setError(
+        err?.error === 'VOUCHER_LOCKED'
+          ? (o.voucherLocked ?? 'وەسڵ قفڵ کراوە — پێویستی بە کردنەوەی سوپەر ئەدمین هەیە')
+          : (o.voidError ?? 'ڕەشکردنەوە سەرکەوتوو نەبوو'),
+      );
+      return;
+    }
+    await load();
+  }
 
   return (
     <div className="space-y-5 max-w-6xl mx-auto">
@@ -276,10 +355,22 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {o.subtitle ??
-              'تەنها ئۆفیس و کارمەند — تێکەڵی بیناسازی و فرۆشتن و کرێ ناکرێت · بڕ بە دینار'}
+              'تۆماری کارمەند · وەسڵی ئۆفیس و مووچە · زیادکردن و ڕەشکردنەوە'}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEmpError('');
+              setEmpForm({ name: '', jobTitle: '', baseSalary: '', currency: 'IQD', branchId: '' });
+              setEmpOpen(true);
+            }}
+            className="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium border border-border hover:bg-muted"
+          >
+            <Plus className="h-4 w-4" />
+            {o.addEmployee ?? 'تۆماری کارمەند'}
+          </button>
           <button
             type="button"
             onClick={() => openForm('office')}
@@ -367,6 +458,102 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
         </p>
       ) : null}
 
+      {tab === 'salary' ? (
+        <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-border flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 className="font-semibold text-foreground">
+                {o.employeeRegistry ?? 'تۆماری کارمەندان'}
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                {o.employeeRegistryHint ??
+                  'ناو · پیشە · مووچە · لق · دینار یان دۆلار — پاشان وەسڵی مووچە دروست بکە'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setEmpError('');
+                setEmpForm({ name: '', jobTitle: '', baseSalary: '', currency: 'IQD', branchId: '' });
+                setEmpOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-border hover:bg-muted"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {o.addEmployee ?? 'تۆماری کارمەند'}
+            </button>
+          </div>
+          {employees.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+              {o.noEmployees ?? 'هیچ کارمەندێک تۆمار نەکراوە — «تۆماری کارمەند» دابگرە'}
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50 text-muted-foreground">
+                  <tr>
+                    <th className="text-start px-4 py-3 font-medium">{o.employee ?? 'ناو'}</th>
+                    <th className="text-start px-4 py-3 font-medium">{o.jobTitle ?? 'پیشە / کار'}</th>
+                    <th className="text-start px-4 py-3 font-medium">{o.branch ?? 'لق'}</th>
+                    <th className="text-start px-4 py-3 font-medium">{o.baseSalary ?? 'مووچە'}</th>
+                    <th className="text-start px-4 py-3 font-medium">{o.currency ?? 'دراو'}</th>
+                    <th className="text-start px-4 py-3 font-medium">{o.actions ?? 'کردار'}</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {employees.map((emp) => (
+                    <tr key={emp.id} className="hover:bg-muted/30">
+                      <td className="px-4 py-3 font-medium">{emp.name}</td>
+                      <td className="px-4 py-3">{emp.jobTitle || '—'}</td>
+                      <td className="px-4 py-3">{emp.branch?.name || '—'}</td>
+                      <td className="px-4 py-3 tabular-nums font-semibold">
+                        {formatCurrency(
+                          emp.baseSalary,
+                          lang,
+                          emp.currency === 'USD' ? 'USD' : 'IQD',
+                        )}
+                      </td>
+                      <td className="px-4 py-3">{emp.currency === 'USD' ? 'USD' : 'IQD'}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setForm({
+                                ...emptyForm('salary'),
+                                partyName: emp.name,
+                                amount: String(emp.baseSalary || ''),
+                                currency: emp.currency === 'USD' ? 'USD' : 'IQD',
+                                employeeUserId: emp.id,
+                              });
+                              setTab('salary');
+                              setSaveError('');
+                              setOpen(true);
+                            }}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            {o.addSalary ?? 'وەسڵی مووچە'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void deleteEmployee(emp.id, emp.name)}
+                            className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 hover:underline"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            {o.delete ?? 'ڕەشکردنەوە'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      ) : null}
+
       {tab === 'salary' && !loading ? (
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="px-4 py-3 border-b border-border">
@@ -450,15 +637,26 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
                                     {formatCurrency(p.amountIqd, lang, 'IQD')}
                                   </td>
                                   <td className="px-3 py-2">
-                                    <a
-                                      href={`/api/pdf/voucher/${p.id}?locale=${lang}&print=1`}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className="inline-flex items-center gap-1 text-primary hover:underline"
-                                    >
-                                      <Printer className="h-3.5 w-3.5" />
-                                      {o.print ?? 'چاپ'}
-                                    </a>
+                                    <div className="flex items-center gap-2">
+                                      <a
+                                        href={`/api/pdf/voucher/${p.id}?locale=${lang}&print=1`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-1 text-primary hover:underline"
+                                      >
+                                        <Printer className="h-3.5 w-3.5" />
+                                        {o.print ?? 'چاپ'}
+                                      </a>
+                                      <button
+                                        type="button"
+                                        disabled={busyVoucherId === p.id}
+                                        onClick={() => void reverseVoucher(p.id, p.voucherNo)}
+                                        className="inline-flex items-center gap-1 text-rose-700 hover:underline disabled:opacity-50"
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                        {o.delete ?? 'ڕەشکردنەوە'}
+                                      </button>
+                                    </div>
                                   </td>
                                 </tr>
                               ))}
@@ -537,15 +735,30 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
                       {formatCurrency(row.amountIqd, lang, 'IQD')}
                     </td>
                     <td className="px-4 py-3">
-                      <a
-                        href={`/api/pdf/voucher/${row.id}?locale=${lang}&print=1`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 text-primary hover:underline"
-                      >
-                        <Printer className="h-4 w-4" />
-                        {o.print ?? 'چاپ'}
-                      </a>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <a
+                          href={`/api/pdf/voucher/${row.id}?locale=${lang}&print=1`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 text-primary hover:underline"
+                        >
+                          <Printer className="h-4 w-4" />
+                          {o.print ?? 'چاپ'}
+                        </a>
+                        <button
+                          type="button"
+                          disabled={busyVoucherId === row.id}
+                          onClick={() => void reverseVoucher(row.id, row.voucherNo)}
+                          className="inline-flex items-center gap-1.5 text-rose-700 hover:underline disabled:opacity-50"
+                        >
+                          {busyVoucherId === row.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          {o.delete ?? 'ڕەشکردنەوە'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -554,6 +767,101 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
           </div>
         )}
       </div>
+
+      {empOpen ? (
+        <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/45 p-3">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card shadow-xl">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+              <h2 className="font-semibold">{o.addEmployee ?? 'تۆماری کارمەند'}</h2>
+              <button
+                type="button"
+                onClick={() => setEmpOpen(false)}
+                className="rounded-lg p-1.5 hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <form onSubmit={(e) => void saveEmployee(e)} className="p-4 space-y-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{o.employee ?? 'ناو'}</label>
+                <input
+                  className={field}
+                  value={empForm.name}
+                  onChange={(e) => setEmpForm((f) => ({ ...f, name: e.target.value }))}
+                  required
+                  placeholder={o.employeeNamePlaceholder ?? 'ناوی کارمەند'}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">
+                  {o.jobTitle ?? 'پیشە / کار'}
+                </label>
+                <input
+                  className={field}
+                  value={empForm.jobTitle}
+                  onChange={(e) => setEmpForm((f) => ({ ...f, jobTitle: e.target.value }))}
+                  placeholder={o.jobTitlePlaceholder ?? 'نموونە: ژمێریار، فرۆشیار، پاسەوان…'}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">{o.branch ?? 'لق'}</label>
+                <select
+                  className={field}
+                  value={empForm.branchId}
+                  onChange={(e) => setEmpForm((f) => ({ ...f, branchId: e.target.value }))}
+                >
+                  <option value="">{o.pickBranch ?? '— هەڵبژاردنی لق —'}</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    {o.baseSalary ?? 'مووچە'}
+                  </label>
+                  <input
+                    className={field}
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={empForm.baseSalary}
+                    onChange={(e) => setEmpForm((f) => ({ ...f, baseSalary: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    {o.salaryCurrency ?? 'مووچە بە'}
+                  </label>
+                  <select
+                    className={field}
+                    value={empForm.currency}
+                    onChange={(e) =>
+                      setEmpForm((f) => ({ ...f, currency: e.target.value as 'IQD' | 'USD' }))
+                    }
+                  >
+                    <option value="IQD">{o.iqd ?? 'دینار (IQD)'}</option>
+                    <option value="USD">{o.usd ?? 'دۆلار (USD)'}</option>
+                  </select>
+                </div>
+              </div>
+              {empError ? <p className="text-sm text-rose-600">{empError}</p> : null}
+              <button
+                type="submit"
+                disabled={empSaving}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-2.5 text-sm font-medium disabled:opacity-50"
+              >
+                {empSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                {o.saveEmployee ?? 'پاشەکەوتکردنی کارمەند'}
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : null}
 
       {open ? (
         <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/45 p-3">
@@ -602,6 +910,8 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
                         ...f,
                         employeeUserId: id,
                         partyName: emp?.name || f.partyName,
+                        amount: emp ? String(emp.baseSalary || '') : f.amount,
+                        currency: emp?.currency === 'USD' ? 'USD' : emp ? 'IQD' : f.currency,
                       }));
                     }}
                   >
@@ -609,6 +919,8 @@ export function OfficeExpensesView({ t, lang }: { t: Dictionary; lang: string })
                     {employees.map((e) => (
                       <option key={e.id} value={e.id}>
                         {e.name}
+                        {e.jobTitle ? ` — ${e.jobTitle}` : ''}
+                        {e.branch?.name ? ` · ${e.branch.name}` : ''}
                       </option>
                     ))}
                   </select>

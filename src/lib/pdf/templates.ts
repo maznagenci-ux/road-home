@@ -40,6 +40,18 @@ function printBootScript(autoPrint: boolean | undefined): string {
     });
   }
   window.rhPrint=function(){ document.title=' '; window.print(); };
+  function tickStamp(){
+    var stamps=document.querySelectorAll('.gh-contact .stamp');
+    if(!stamps.length) return;
+    var time=new Date().toLocaleTimeString('en-US',{timeZone:'Asia/Baghdad',hour:'numeric',minute:'2-digit',hour12:true});
+    stamps.forEach(function(el){
+      var parts=(el.textContent||'').trim().split(/\\s+/);
+      var date=parts[parts.length-1]||'';
+      if(/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) el.textContent=time+' '+date;
+    });
+  }
+  tickStamp();
+  setInterval(tickStamp,1000);
   ${
     autoPrint
       ? `window.addEventListener('load', function(){ ready(function(){ window.rhPrint(); }); });`
@@ -116,13 +128,12 @@ function isoDateErbil(d: Date) {
   return `${p.year}-${p.month}-${p.day}`;
 }
 
-/** Time + date in Asia/Baghdad. Date-only midnights use current Erbil clock. */
+/** Date from signing + live Asia/Baghdad clock (never freeze noon-UTC as 3:00 PM). */
 function formatSigningStamp(d: Date) {
   try {
     const p = erbilDateParts(d);
     const dateStr = `${p.year}-${p.month}-${p.day}`;
-    const clockSrc = p.hour === 0 && p.minute === 0 ? new Date() : d;
-    const timeStr = clockSrc.toLocaleTimeString('en-US', {
+    const timeStr = new Date().toLocaleTimeString('en-US', {
       timeZone: ERBIL_TZ,
       hour: 'numeric',
       minute: '2-digit',
