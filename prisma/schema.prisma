@@ -632,6 +632,30 @@ model SupportLetter {
   @@index([purpose])
 }
 
+/// One land plot on a compound map. `plotNo` is the number printed on the map tiles
+/// (1, 2, 3…) — never a list index, pagination offset, or cadastral/tapu title.
+model CompoundPlot {
+  id          String   @id @default(cuid())
+  compoundId  String
+  /// Homele pointer id — stable across refreshes
+  sourceId    String   @default("")
+  /// User-facing number matching the map drawing
+  plotNo      String
+  /// Original Homele title (tapu/cadastral), kept for reference only
+  cadastralNo String   @default("")
+  x           Float
+  y           Float
+  lat         Float    @default(0)
+  lng         Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([compoundId, plotNo])
+  @@unique([compoundId, sourceId])
+  @@index([compoundId])
+  @@index([plotNo])
+}
+
 /// Named places / neighborhoods used when creating contracts (شوێنەکان).
 model Place {
   id String @id @default(cuid())

@@ -148,7 +148,7 @@ export function TvSystemMap({ t, lang }: { t: Dictionary; lang: string }) {
     return s ? list.slice(0, 100) : list;
   }, [areas, areaQ]);
 
-  /** Full matching list — official no OR sequential index (1 = first plot). */
+  /** Full matching list — map plot numbers stored in the database. */
   const filteredPointers = useMemo(
     () => filterPlotPointers(pointers, plotQ),
     [pointers, plotQ],

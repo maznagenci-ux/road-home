@@ -5,6 +5,7 @@ import { Crosshair, Loader2, Minus, Plus, Search, X } from 'lucide-react';
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { CompoundMeta, CompoundPointer } from '@/features/map/CompoundPlotCanvas';
 import { TvLeafletCanvas } from '@/features/tv/TvLeafletCanvas';
+import { filterPlotPointers, withPlotSeq } from '@/lib/map/plot-search';
 
 type CompoundArea = {
   id: string;
@@ -154,8 +155,7 @@ export function TvCompoundMap({ t }: { t: Dictionary; lang: string }) {
       if (out.filter((h) => h.kind === 'compound').length >= 8) break;
     }
 
-    const plotMatches = pointers
-      .filter((p) => p.no.toLowerCase().includes(s) || p.no === query.trim())
+    const plotMatches = filterPlotPointers(withPlotSeq(pointers), query)
       .slice(0, 12)
       .map(
         (p): SearchHit => ({

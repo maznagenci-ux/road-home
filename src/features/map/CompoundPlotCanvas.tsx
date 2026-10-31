@@ -26,6 +26,7 @@ export type CompoundMeta = {
 export type CompoundPointer = {
   id: string;
   no: string;
+  cadastralNo?: string;
   x: number;
   y: number;
   lat: number;

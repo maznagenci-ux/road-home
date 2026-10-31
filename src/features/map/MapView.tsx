@@ -200,8 +200,8 @@ export function MapView({
           const raw = full.pointers ?? [];
           const list: CompoundPointer[] =
             full.pointerFormat === 'slim'
-              ? (raw as Array<[string, number, number]>).map(([no, x, y], i) => ({
-                  id: `${compoundId}-${i}`,
+              ? (raw as Array<[string, number, number]>).map(([no, x, y]) => ({
+                  id: String(no ?? ''),
                   no: String(no ?? ''),
                   x: Number(x) || 0,
                   y: Number(y) || 0,

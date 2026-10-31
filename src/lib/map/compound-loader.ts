@@ -20,7 +20,10 @@ export type CompoundMeta = {
 
 export type CompoundPointer = {
   id: string;
+  /** Number printed on the map (1, 2, 3…) — authoritative for UI. */
   no: string;
+  /** Homele/tapu title if different from the map number. */
+  cadastralNo?: string;
   x: number;
   y: number;
   lat: number;
@@ -187,7 +190,19 @@ export async function loadCompound(
   let pointers = wantPointers ? await readJsonFile<CompoundPointer[]>(ptrPath) : null;
 
   if (meta && (!wantPointers || pointers)) {
-    return wantPointers ? { meta, pointers: pointers ?? [] } : { meta };
+    if (wantPointers) {
+      const { syncCompoundPlots } = await import('@/lib/map/sync-compound-plots');
+      const synced = await syncCompoundPlots(id, pointers ?? []);
+      const src = pointers ?? [];
+      if (
+        src.length !== synced.length ||
+        src.some((p, i) => p.no !== synced[i]?.no || p.id !== synced[i]?.id)
+      ) {
+        await writeFile(ptrPath, JSON.stringify(synced), 'utf8');
+      }
+      return { meta: { ...meta, pointerCount: synced.length }, pointers: synced };
+    }
+    return { meta };
   }
 
   const res = await fetch(`https://new.homele.com/plots/${id}`, {
@@ -208,9 +223,13 @@ export async function loadCompound(
   await writeFile(metaPath, JSON.stringify(parsed.meta, null, 2), 'utf8');
   await writeFile(ptrPath, JSON.stringify(parsed.pointers), 'utf8');
 
-  return wantPointers
-    ? { meta: parsed.meta, pointers: parsed.pointers }
-    : { meta: parsed.meta };
+  if (wantPointers) {
+    const { syncCompoundPlots } = await import('@/lib/map/sync-compound-plots');
+    const pointers = await syncCompoundPlots(id, parsed.pointers);
+    await writeFile(ptrPath, JSON.stringify(pointers), 'utf8');
+    return { meta: { ...parsed.meta, pointerCount: pointers.length }, pointers };
+  }
+  return { meta: parsed.meta };
 }
 
 /** Force re-download from homele (ignores local cache). */
