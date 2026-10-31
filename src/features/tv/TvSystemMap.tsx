@@ -313,6 +313,7 @@ export function TvSystemMap({ t, lang }: { t: Dictionary; lang: string }) {
                 {compoundTitle}
               </div>
               <TvLeafletCanvas
+                key={compoundMeta.id}
                 meta={compoundMeta}
                 pointers={pointers}
                 focus={focus}

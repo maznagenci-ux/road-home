@@ -355,6 +355,7 @@ export function TvCompoundMap({ t }: { t: Dictionary; lang: string }) {
           </div>
         ) : meta ? (
           <TvLeafletCanvas
+            key={meta.id}
             meta={meta}
             pointers={pointers}
             focus={pointers.find((p) => p.no === selectedNo) ?? null}

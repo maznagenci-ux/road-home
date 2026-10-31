@@ -676,15 +676,11 @@
 
 .rh-tv-map-stage .leaflet-tile,
 .rh-tv-map-stage img.rh-tv-plot-tile {
-  width: 256px !important;
-  height: 256px !important;
   max-width: none !important;
   max-height: none !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
 }
 
 .rh-tv-map-stage .leaflet-container {
@@ -785,6 +781,14 @@
   height: 100%;
   min-height: 240px;
   background: #e8eef5;
+  position: relative;
+}
+
+.rh-tv-leaflet-map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .rh-tv-plot-labels {
@@ -1352,7 +1356,8 @@
   box-shadow: 0 6px 18px rgb(15 39 68 / 0.2);
 }
 
-.rh-tv-mapview-stage .rh-tv-leaflet {
+.rh-tv-mapview-stage .rh-tv-leaflet,
+.rh-tv-mapview-stage .rh-tv-leaflet-map {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -1419,7 +1424,8 @@
 
 .rh-tv-mapview-stage .leaflet-container,
 .rh-tv-mapview-stage .rh-compound-map,
-.rh-tv-mapview-stage .rh-tv-leaflet {
+.rh-tv-mapview-stage .rh-tv-leaflet,
+.rh-tv-mapview-stage .rh-tv-leaflet-map {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -1445,30 +1451,17 @@
   opacity: 1 !important;
 }
 
-/* Close hairline seams between plot tiles on TV (DPR / subpixel transform) */
+/* Let Leaflet position tiles — do not override transform (causes a second overlapping grid). */
 .rh-tv-mapview-stage .leaflet-tile,
 .rh-tv-map-stage .leaflet-tile,
 .rh-tv-mapview-stage img.rh-tv-plot-tile,
 .rh-tv-map-stage img.rh-tv-plot-tile {
-  width: 256px !important;
-  height: 256px !important;
   max-width: none !important;
   max-height: none !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
   outline: 0 !important;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  /* 0.5px bleed hides gaps without visible overlap on most TVs */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
-
-.rh-tv-mapview-stage .leaflet-tile-container,
-.rh-tv-map-stage .leaflet-tile-container {
-  /* Keep tile grid on whole pixels */
-  transform: translateZ(0) !important;
 }
 
 .rh-tv-mapview-stage .leaflet-control-zoom {
