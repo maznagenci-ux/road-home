@@ -34,6 +34,26 @@ function compoundsDir() {
   return path.join(process.cwd(), 'public', 'data', 'compounds');
 }
 
+function mapOrderNumbers(list: CompoundPointer[]): CompoundPointer[] {
+  return list.map((p, i) => ({
+    ...p,
+    cadastralNo: p.cadastralNo || p.no,
+    no: String(i + 1),
+  }));
+}
+
+async function persistPlotNumbers(
+  id: string,
+  source: CompoundPointer[],
+): Promise<CompoundPointer[]> {
+  try {
+    const { syncCompoundPlots } = await import('@/lib/map/sync-compound-plots');
+    return await syncCompoundPlots(id, source);
+  } catch {
+    return mapOrderNumbers(source);
+  }
+}
+
 export async function readJsonFile<T>(file: string): Promise<T | null> {
   try {
     const raw = await readFile(file, 'utf8');
@@ -191,14 +211,17 @@ export async function loadCompound(
 
   if (meta && (!wantPointers || pointers)) {
     if (wantPointers) {
-      const { syncCompoundPlots } = await import('@/lib/map/sync-compound-plots');
-      const synced = await syncCompoundPlots(id, pointers ?? []);
       const src = pointers ?? [];
+      const synced = await persistPlotNumbers(id, src);
       if (
         src.length !== synced.length ||
         src.some((p, i) => p.no !== synced[i]?.no || p.id !== synced[i]?.id)
       ) {
-        await writeFile(ptrPath, JSON.stringify(synced), 'utf8');
+        try {
+          await writeFile(ptrPath, JSON.stringify(synced), 'utf8');
+        } catch {
+          /* cache rewrite is optional */
+        }
       }
       return { meta: { ...meta, pointerCount: synced.length }, pointers: synced };
     }
@@ -224,9 +247,12 @@ export async function loadCompound(
   await writeFile(ptrPath, JSON.stringify(parsed.pointers), 'utf8');
 
   if (wantPointers) {
-    const { syncCompoundPlots } = await import('@/lib/map/sync-compound-plots');
-    const pointers = await syncCompoundPlots(id, parsed.pointers);
-    await writeFile(ptrPath, JSON.stringify(pointers), 'utf8');
+    const pointers = await persistPlotNumbers(id, parsed.pointers);
+    try {
+      await writeFile(ptrPath, JSON.stringify(pointers), 'utf8');
+    } catch {
+      /* cache rewrite is optional */
+    }
     return { meta: { ...parsed.meta, pointerCount: pointers.length }, pointers };
   }
   return { meta: parsed.meta };
