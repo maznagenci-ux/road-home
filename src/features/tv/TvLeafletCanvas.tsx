@@ -59,9 +59,124 @@ function destroyMap(map: import('leaflet').Map | null, root: HTMLElement | null)
   root.className = 'rh-tv-leaflet-map';
 }
 
+const TILE = 256;
+
 /**
- * Vanilla Leaflet plot map for Smart TVs.
- * Integer zoom + no retina tiles — avoids fragmented/gappy tile grids on Hisense/WebOS.
+ * Draw XYZ plot tiles onto one canvas in the TV viewport.
+ * Hisense/WebOS cannot keep HTML Leaflet tiles flush (gaps or tiny squares).
+ */
+function attachCanvasTiles(
+  L: LeafletNS,
+  map: import('leaflet').Map,
+  folder: string,
+): { redraw: () => void; destroy: () => void } {
+  const canvas = document.createElement('canvas');
+  canvas.className = 'rh-tv-plot-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  const pane = map.getPane('tilePane') ?? map.getContainer();
+  pane.appendChild(canvas);
+  const ctx = canvas.getContext('2d', { alpha: false });
+  const cache = new Map<string, HTMLImageElement>();
+  const inflight = new Map<string, HTMLImageElement>();
+  let alive = true;
+  let gen = 0;
+  let raf = 0;
+
+  const urlFor = (z: number, x: number, y: number) =>
+    `/api/map/plot-tiles/${folder}/${z}/${x}/${y}?v=rh34`;
+
+  const paint = () => {
+    if (!alive || !ctx) return;
+    const myGen = ++gen;
+    const size = map.getSize();
+    if (!size.x || !size.y) return;
+
+    const w = Math.max(1, Math.round(size.x));
+    const h = Math.max(1, Math.round(size.y));
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
+    canvas.style.width = `${size.x}px`;
+    canvas.style.height = `${size.y}px`;
+    L.DomUtil.setPosition(canvas, map.containerPointToLayerPoint(L.point(0, 0)));
+
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, w, h);
+
+    const z = Math.round(map.getZoom());
+    const pb = map.getPixelBounds();
+    const originX = pb.min.x;
+    const originY = pb.min.y;
+    const minX = Math.floor(pb.min.x / TILE);
+    const maxX = Math.floor(pb.max.x / TILE);
+    const minY = Math.floor(pb.min.y / TILE);
+    const maxY = Math.floor(pb.max.y / TILE);
+
+    const drawTile = (img: HTMLImageElement, x: number, y: number) => {
+      if (!alive || myGen !== gen) return;
+      const sx = Math.floor(x * TILE - originX);
+      const sy = Math.floor(y * TILE - originY);
+      const sw = Math.floor((x + 1) * TILE - originX) - sx;
+      const sh = Math.floor((y + 1) * TILE - originY) - sy;
+      if (sw < 1 || sh < 1) return;
+      ctx.drawImage(img, sx, sy, sw, sh);
+    };
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        if (x < 0 || y < 0) continue;
+        const key = `${z}/${x}/${y}`;
+        const hit = cache.get(key);
+        if (hit) {
+          drawTile(hit, x, y);
+          continue;
+        }
+        if (inflight.has(key)) continue;
+        const img = new Image();
+        inflight.set(key, img);
+        img.onload = () => {
+          inflight.delete(key);
+          cache.set(key, img);
+          if (alive && myGen === gen) drawTile(img, x, y);
+        };
+        img.onerror = () => {
+          inflight.delete(key);
+        };
+        img.src = urlFor(z, x, y);
+      }
+    }
+  };
+
+  const redraw = () => {
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      paint();
+    });
+  };
+
+  map.on('move zoom resize viewreset', redraw);
+  paint();
+
+  return {
+    redraw,
+    destroy() {
+      alive = false;
+      if (raf) cancelAnimationFrame(raf);
+      map.off('move zoom resize viewreset', redraw);
+      inflight.forEach((img) => {
+        img.onload = null;
+        img.onerror = null;
+        img.src = '';
+      });
+      inflight.clear();
+      cache.clear();
+      canvas.remove();
+    },
+  };
+}
+
+/**
+ * Vanilla Leaflet plot map for Smart TVs — one canvas, not an HTML tile grid.
  */
 export function TvLeafletCanvas({
   meta,
@@ -71,14 +186,14 @@ export function TvLeafletCanvas({
   meta: CompoundMeta;
   pointers?: CompoundPointer[];
   focus?: CompoundPointer | null;
-  /** ignored — TV uses tile-baked numbers only */
+  /** ignored — TV uses numbers baked into the plot image */
   showLabels?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const mapRootRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import('leaflet').Map | null>(null);
   const markerRef = useRef<import('leaflet').Marker | null>(null);
-  const layerRef = useRef<import('leaflet').TileLayer | null>(null);
+  const canvasRef = useRef<{ redraw: () => void; destroy: () => void } | null>(null);
   const LRef = useRef<LeafletNS | null>(null);
   const pointersRef = useRef(pointers);
   pointersRef.current = pointers;
@@ -92,6 +207,8 @@ export function TvLeafletCanvas({
 
     destroyMap(mapRef.current, root);
     mapRef.current = null;
+    canvasRef.current?.destroy();
+    canvasRef.current = null;
 
     void (async () => {
       try {
@@ -100,20 +217,8 @@ export function TvLeafletCanvas({
         const L = (Lmod as LeafletNS & { default?: LeafletNS }).default ?? Lmod;
         LRef.current = L;
 
-        // Hisense/WebOS: 3D CSS transforms round each tile separately (gaps at 75% zoom).
-        // 2D left/top placement keeps the grid flush. Disable retina + Safari tile hack.
-        const browser = L.Browser as {
-          retina?: boolean;
-          any3d?: boolean;
-          webkit3d?: boolean;
-          gecko3d?: boolean;
-          safari?: boolean;
-        };
+        const browser = L.Browser as { retina?: boolean };
         browser.retina = false;
-        browser.any3d = false;
-        browser.webkit3d = false;
-        browser.gecko3d = false;
-        browser.safari = false;
 
         destroyMap(mapRef.current, mapRootRef.current);
 
@@ -138,7 +243,6 @@ export function TvLeafletCanvas({
           zoomControl: true,
           attributionControl: false,
           keyboard: false,
-          // Must stay integer — fractional zoom shatters custom plot tiles on TV
           zoomSnap: 1,
           zoomDelta: 1,
           fadeAnimation: false,
@@ -151,28 +255,7 @@ export function TvLeafletCanvas({
           return;
         }
         mapRef.current = map;
-
-        const tiles = L.tileLayer(
-          `/api/map/plot-tiles/${meta.tileFolder}/{z}/{x}/{y}?v=rh33`,
-          {
-            tileSize: 256,
-            zoomOffset: 0,
-            detectRetina: false,
-            noWrap: true,
-            minZoom: minZ,
-            maxZoom: maxZ,
-            maxNativeZoom: maxZ,
-            bounds,
-            keepBuffer: 2,
-            updateWhenIdle: true,
-            updateWhenZooming: false,
-            className: 'rh-tv-plot-tile',
-            errorTileUrl:
-              'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7',
-          },
-        );
-        tiles.addTo(map);
-        layerRef.current = tiles;
+        canvasRef.current = attachCanvasTiles(L, map, meta.tileFolder);
 
         map.setMaxBounds(bounds.pad(0.02));
 
@@ -189,6 +272,7 @@ export function TvLeafletCanvas({
           if (!Number.isFinite(z)) z = Math.min(2, maxZ);
           const openZ = Math.min(maxZ, Math.max(minZ, Math.round(z)));
           map.setView(bounds.getCenter(), openZ, { animate: false });
+          canvasRef.current?.redraw();
         };
 
         fillStage();
@@ -202,6 +286,7 @@ export function TvLeafletCanvas({
             t = window.setTimeout(() => {
               if (cancelled || !mapRef.current) return;
               map.invalidateSize({ animate: false });
+              canvasRef.current?.redraw();
             }, 80);
           });
           ro.observe(hostRef.current);
@@ -220,7 +305,8 @@ export function TvLeafletCanvas({
       timers.forEach((t) => window.clearTimeout(t));
       ro?.disconnect();
       markerRef.current = null;
-      layerRef.current = null;
+      canvasRef.current?.destroy();
+      canvasRef.current = null;
       destroyMap(mapRef.current, mapRootRef.current);
       mapRef.current = null;
       LRef.current = null;
@@ -261,6 +347,7 @@ export function TvLeafletCanvas({
       Math.max(Math.round(map.getZoom()), (meta.maxZoom ?? 6) - 1),
     );
     map.setView([focus.y, focus.x], targetZ, { animate: false });
+    canvasRef.current?.redraw();
   }, [focus, meta.maxZoom]);
 
   return (
