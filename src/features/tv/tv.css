@@ -678,6 +678,8 @@
 .rh-tv-map-stage img.rh-tv-plot-tile {
   max-width: none !important;
   max-height: none !important;
+  width: 256px !important;
+  height: 256px !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
@@ -1451,22 +1453,32 @@
   opacity: 1 !important;
 }
 
-.rh-tv-plot-canvas {
-  position: absolute;
-  pointer-events: none;
-  display: block;
+/*
+  Tiles must stay 256×256 so they match Leaflet translate3d positions.
+  Tailwind/leaflet "width:auto; height:auto" shrinks imgs → gapped rectangles.
+  Do not override transform (that stacks a second broken grid).
+*/
+.rh-tv-mapview-stage .leaflet-tile-container,
+.rh-tv-map-stage .leaflet-tile-container {
+  width: auto !important;
+  height: auto !important;
 }
 
-.rh-tv-mapview-stage .leaflet-tile,
-.rh-tv-map-stage .leaflet-tile,
+.rh-tv-mapview-stage .leaflet-container .leaflet-tile,
+.rh-tv-map-stage .leaflet-container .leaflet-tile,
 .rh-tv-mapview-stage img.rh-tv-plot-tile,
 .rh-tv-map-stage img.rh-tv-plot-tile {
+  width: 256px !important;
+  height: 256px !important;
   max-width: none !important;
   max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
   outline: 0 !important;
+  object-fit: fill !important;
   mix-blend-mode: normal !important;
 }
 
