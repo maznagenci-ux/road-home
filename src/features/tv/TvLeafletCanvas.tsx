@@ -100,12 +100,20 @@ export function TvLeafletCanvas({
         const L = (Lmod as LeafletNS & { default?: LeafletNS }).default ?? Lmod;
         LRef.current = L;
 
-        // TV browsers often report retina DPR and request half-size tiles → seams / پارچە پارچە
-        try {
-          (L.Browser as { retina?: boolean }).retina = false;
-        } catch {
-          /* ignore */
-        }
+        // Hisense/WebOS: 3D CSS transforms round each tile separately (gaps at 75% zoom).
+        // 2D left/top placement keeps the grid flush. Disable retina + Safari tile hack.
+        const browser = L.Browser as {
+          retina?: boolean;
+          any3d?: boolean;
+          webkit3d?: boolean;
+          gecko3d?: boolean;
+          safari?: boolean;
+        };
+        browser.retina = false;
+        browser.any3d = false;
+        browser.webkit3d = false;
+        browser.gecko3d = false;
+        browser.safari = false;
 
         destroyMap(mapRef.current, mapRootRef.current);
 
@@ -145,7 +153,7 @@ export function TvLeafletCanvas({
         mapRef.current = map;
 
         const tiles = L.tileLayer(
-          `/api/map/plot-tiles/${meta.tileFolder}/{z}/{x}/{y}?v=rh32`,
+          `/api/map/plot-tiles/${meta.tileFolder}/{z}/{x}/{y}?v=rh33`,
           {
             tileSize: 256,
             zoomOffset: 0,
@@ -155,7 +163,7 @@ export function TvLeafletCanvas({
             maxZoom: maxZ,
             maxNativeZoom: maxZ,
             bounds,
-            keepBuffer: 0,
+            keepBuffer: 2,
             updateWhenIdle: true,
             updateWhenZooming: false,
             className: 'rh-tv-plot-tile',

@@ -678,6 +678,8 @@
 .rh-tv-map-stage img.rh-tv-plot-tile {
   max-width: none !important;
   max-height: none !important;
+  width: 256px !important;
+  height: 256px !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
@@ -1451,17 +1453,39 @@
   opacity: 1 !important;
 }
 
-/* Let Leaflet position tiles — do not override transform (causes a second overlapping grid). */
+/*
+  TV tile grid: Tailwind/leaflet set height:auto + mix-blend-mode on img, which
+  shrinks tiles and leaves black gaps. Lock pixel size; do not touch transform.
+*/
+.rh-tv-mapview-stage .leaflet-tile-pane,
+.rh-tv-map-stage .leaflet-tile-pane,
+.rh-tv-mapview-stage .leaflet-tile-container,
+.rh-tv-map-stage .leaflet-tile-container {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+}
+
 .rh-tv-mapview-stage .leaflet-tile,
 .rh-tv-map-stage .leaflet-tile,
+.rh-tv-mapview-stage img.leaflet-tile,
+.rh-tv-map-stage img.leaflet-tile,
 .rh-tv-mapview-stage img.rh-tv-plot-tile,
 .rh-tv-map-stage img.rh-tv-plot-tile {
+  display: block !important;
+  position: absolute !important;
+  width: 256px !important;
+  height: 256px !important;
   max-width: none !important;
   max-height: none !important;
+  min-width: 256px !important;
+  min-height: 256px !important;
   padding: 0 !important;
   margin: 0 !important;
   border: 0 !important;
   outline: 0 !important;
+  object-fit: fill !important;
+  mix-blend-mode: normal !important;
 }
 
 .rh-tv-mapview-stage .leaflet-control-zoom {
