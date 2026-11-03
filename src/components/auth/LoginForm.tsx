@@ -6,12 +6,11 @@ import { useRouter } from 'next/navigation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { PropertyShowcase } from '@/components/auth/PropertyShowcase';
-import { DesktopDownloadCard } from '@/components/auth/DesktopDownloadCard';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useT } from '@/i18n/I18nProvider';
 import type { Dictionary } from '@/i18n/dictionaries';
 import type { Locale } from '@/i18n/locale-config';
-import { Map as MapIcon } from 'lucide-react';
+import { Download, Map as MapIcon } from 'lucide-react';
 import { isSmartTvUserAgent } from '@/lib/tv-detect';
 import { toAsciiDigits } from '@/lib/phone';
 
@@ -196,11 +195,20 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
               >
                 {loading ? dict.common.loading : dict.auth.loginButton}
               </button>
-            </form>
 
-            <div className="mt-4">
-              <DesktopDownloadCard t={dict} />
-            </div>
+              <a
+                href="/api/download/desktop"
+                download="ZMKH-Road-Home-Desktop.bat"
+                className="flex w-full min-h-12 items-center justify-center gap-2 rounded-xl border-2 border-primary/30 bg-primary/5 px-3 py-3 text-sm font-semibold text-primary hover:bg-primary/10 transition-colors"
+              >
+                <Download className="h-4 w-4" />
+                {dict.auth.desktopDownloadButton ?? 'داگرتن بۆ ویندۆز'}
+              </a>
+              <p className="text-center text-[11px] text-muted-foreground leading-relaxed">
+                {dict.auth.desktopDownloadHint ??
+                  'لەسەر دێسکتۆپ دایبنێ. سیستەمەکە وەک بەرنامە دەکرێتەوە.'}
+              </p>
+            </form>
 
             <div className="mt-6 space-y-1 text-center">
               <p className="text-[11px] text-muted-foreground">{dict.app.tagline}</p>
