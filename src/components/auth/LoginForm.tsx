@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { LanguageSwitcher } from '@/components/layout/LanguageSwitcher';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { PropertyShowcase } from '@/components/auth/PropertyShowcase';
+import { DesktopDownloadCard } from '@/components/auth/DesktopDownloadCard';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useT } from '@/i18n/I18nProvider';
 import type { Dictionary } from '@/i18n/dictionaries';
@@ -196,6 +197,10 @@ export function LoginForm({ lang: initialLang, t: initialT }: { lang: Locale; t:
                 {loading ? dict.common.loading : dict.auth.loginButton}
               </button>
             </form>
+
+            <div className="mt-4">
+              <DesktopDownloadCard t={dict} />
+            </div>
 
             <div className="mt-6 space-y-1 text-center">
               <p className="text-[11px] text-muted-foreground">{dict.app.tagline}</p>

@@ -5,6 +5,7 @@ import { MetricCards } from './MetricCards';
 import { CostCenterSummary } from './CostCenterSummary';
 import { AuditTrailTable } from './AuditTrailTable';
 import { DashboardMapSection } from './DashboardMapSection';
+import { DesktopDownloadCard } from '@/components/auth/DesktopDownloadCard';
 import type {
   AuditEntry,
   CostCenterRow,
@@ -49,7 +50,10 @@ export function DashboardView({
                 {t.dashboard.welcome} · {t.app.tagline}
               </p>
             </div>
+            <DesktopDownloadCard t={t} compact />
           </div>
+
+          <DesktopDownloadCard t={t} />
 
           <QuickActionModules t={t} lang={locale} activity={activity} />
 
