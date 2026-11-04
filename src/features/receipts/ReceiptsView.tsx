@@ -567,7 +567,7 @@ export function ReceiptsView({ t, lang }: { t: Dictionary; lang: string }) {
   };
 
   const pdfUrl = (id: string, print = false) =>
-    `/api/pdf/receipt/${id}?locale=${lang}${print ? '&print=1' : ''}`;
+    `/api/pdf/receipt/${id}?locale=${lang}&v=rh40${print ? '&print=1' : ''}`;
 
   /** Create receipt only when printing (rent/deposit flow) or on normal save (other receipts). */
   const issueReceipt = async (andPrint: boolean) => {

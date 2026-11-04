@@ -54,7 +54,7 @@ export async function GET(
   const t = await getDictionary(locale);
   const html = renderReceiptHtml(locale, t, {
     receiptNo: receipt.receiptNo,
-    type: receipt.type,
+    type: receipt.type === 'INCOME' ? 'INCOME' : receipt.type === 'EXPENSE' ? 'EXPENSE' : 'PAYMENT',
     currency: receipt.currency === 'USD' ? 'USD' : 'IQD',
     amount: receipt.amount,
     totalAmount: receipt.totalAmount,

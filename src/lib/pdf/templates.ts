@@ -369,7 +369,7 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
     ? "'Noto Kufi Arabic', 'Segoe UI', Tahoma, sans-serif"
     : "'Segoe UI', system-ui, sans-serif";
   const isDeposit = data.purpose === 'SECURITY_DEPOSIT';
-  const isIncome = data.type === 'INCOME';
+  const isIncome = String(data.type).toUpperCase() === 'INCOME';
   const titleKu = isDeposit
     ? 'وەسڵی پارەی تأمینات'
     : isIncome
@@ -469,12 +469,12 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
     </div>
     <footer class="signs">
       <div class="sign">
-        <div class="sign-label">${t.pdf.payerLine}</div>
+        <div class="sign-label">${isIncome ? 'تەحویلکەر / پارەدەر' : t.pdf.payerLine}</div>
         ${payerIsCompany ? `<div class="sign-sub">${esc(companyRepLab)}</div>` : ''}
         <div class="sign-name">${payerName}</div>
       </div>
       <div class="sign">
-        <div class="sign-label">${t.pdf.receiverLine}</div>
+        <div class="sign-label">${isIncome ? 'وەرگر / پارەوەرگر' : t.pdf.receiverLine}</div>
         ${receiverIsCompany ? `<div class="sign-sub">${esc(companyRepLab)}</div>` : ''}
         <div class="sign-name">${receiverName}</div>
       </div>
