@@ -73,6 +73,20 @@ export async function GET(
       receipt.lease?.propertyCode,
     houseName: receipt.contract?.house?.name || receipt.lease?.propertyCode,
     purpose,
+    companyRepName: session.name,
+    contractKind: receipt.lease
+      ? 'RENT'
+      : receipt.contract?.kind === 'PURCHASE'
+        ? 'PURCHASE'
+        : receipt.contract
+          ? 'SALE'
+          : null,
+    plotNo:
+      receipt.contract?.tapuCode?.trim() ||
+      receipt.contract?.house?.code?.trim() ||
+      receipt.lease?.propertyCode?.trim() ||
+      null,
+    contractNo: receipt.contract?.contractNo || receipt.lease?.leaseNo || null,
     autoPrint,
     assetBase: getPublicOrigin(req),
   });

@@ -90,6 +90,11 @@ interface ReceiptData {
   houseName?: string | null;
   /** SECURITY_DEPOSIT → show deposit title on voucher */
   purpose?: 'GENERAL' | 'RENT' | 'SECURITY_DEPOSIT' | null;
+  /** Staff who represents Road Home on this voucher */
+  companyRepName?: string | null;
+  contractKind?: 'SALE' | 'PURCHASE' | 'RENT' | null;
+  plotNo?: string | null;
+  contractNo?: string | null;
   autoPrint?: boolean;
   /** Absolute origin for logo assets, e.g. http://localhost:3001 */
   assetBase?: string;
@@ -373,6 +378,24 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
   const titleAr = isDeposit ? 'وصل مبلغ التأمين' : isIncome ? 'وصل قبض' : 'وصل دفع';
   const kindBadge = isDeposit ? 'پارەی تأمینات · مبلغ التأمين' : '';
   const party = esc(data.partyName || data.customerName || '—');
+  const companyRep = esc((data.companyRepName || '').trim() || BRAND_NAME);
+  const kindLabel =
+    data.contractKind === 'SALE'
+      ? 'گرێبەستی فرۆشتن / عقد بيع'
+      : data.contractKind === 'PURCHASE'
+        ? 'گرێبەستی کڕین / عقد شراء'
+        : data.contractKind === 'RENT'
+          ? 'گرێبەستی کرێ / عقد إيجار'
+          : '';
+  const plotNo = (data.plotNo || '').trim();
+  const contractNo = (data.contractNo || '').trim();
+  const payerIsParty = isIncome;
+  const payerName = payerIsParty ? party : companyRep;
+  const receiverName = payerIsParty ? companyRep : party;
+  const payerIsCompany = !payerIsParty;
+  const receiverIsCompany = payerIsParty;
+  const companyRepLab =
+    (t.pdf as { companyRepLine?: string }).companyRepLine ?? 'نوێنەری کۆمپانیای ڕۆد هۆم';
   const safeDesc = data.description
     ? esc(data.description)
     : [data.houseName, data.propertyName].filter(Boolean).map((s) => esc(String(s))).join(' · ') || '—';
@@ -428,10 +451,33 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
           : ''
       }
       <p class="line"><span class="lab">${t.pdf.forLine}</span><span class="val">${safeDesc}</span></p>
+      ${
+        kindLabel
+          ? `<p class="line"><span class="lab">${(t.pdf as { contractKindLine?: string }).contractKindLine ?? 'جۆری گرێبەست / نوع العقد'} :</span><span class="val">${esc(kindLabel)}</span></p>`
+          : ''
+      }
+      ${
+        plotNo
+          ? `<p class="line"><span class="lab">${(t.pdf as { plotNoLine?: string }).plotNoLine ?? 'ژمارەی زەوی / رقم القطعة'} :</span><span class="val">${esc(plotNo)}</span></p>`
+          : ''
+      }
+      ${
+        contractNo && !String(data.description || '').includes(contractNo)
+          ? `<p class="line"><span class="lab">${t.pdf.contract} :</span><span class="val">${esc(contractNo)}</span></p>`
+          : ''
+      }
     </div>
     <footer class="signs">
-      <div class="sign"><div class="sign-label">${t.pdf.payerLine}</div><div class="sign-name">${BRAND_NAME}</div></div>
-      <div class="sign"><div class="sign-label">${t.pdf.receiverLine}</div><div class="sign-name">${party}</div></div>
+      <div class="sign">
+        <div class="sign-label">${t.pdf.payerLine}</div>
+        ${payerIsCompany ? `<div class="sign-sub">${esc(companyRepLab)}</div>` : ''}
+        <div class="sign-name">${payerName}</div>
+      </div>
+      <div class="sign">
+        <div class="sign-label">${t.pdf.receiverLine}</div>
+        ${receiverIsCompany ? `<div class="sign-sub">${esc(companyRepLab)}</div>` : ''}
+        <div class="sign-name">${receiverName}</div>
+      </div>
     </footer>
   </article>`;
 
@@ -501,7 +547,8 @@ export function renderReceiptHtml(locale: Locale, t: Dictionary, data: ReceiptDa
     .line-remaining .lab, .line-remaining .val { color: #dc2626; }
     .signs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: auto; padding-top: 10px; flex: 0 0 auto; }
     .sign { text-align: center; }
-    .sign-label { font-size: 11px; color: #475569; margin-bottom: 28px; }
+    .sign-label { font-size: 11px; color: #475569; margin-bottom: 6px; }
+    .sign-sub { font-size: 11px; font-weight: 700; color: #0f2744; margin-bottom: 22px; }
     .sign-name { border-top: 1px solid #0f2744; padding-top: 6px; font-size: 12px; font-weight: 600; }
     @media print {
       html, body {
